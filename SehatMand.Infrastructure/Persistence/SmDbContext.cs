@@ -1,0 +1,483 @@
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using SehatMand.Domain.Entities;
+
+namespace SehatMand.Infrastructure.Persistence;
+
+public partial class SmDbContext() : DbContext
+{
+    
+    private readonly string _connString = "";
+    SmDbContext(IConfiguration config): this()
+    {
+        _connString = config.GetConnectionString("SmDb")!;
+    }
+    
+    
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseMySQL(_connString);
+        base.OnConfiguring(optionsBuilder);
+    }
+
+    public virtual DbSet<Appointment> Appointment { get; set; }
+
+    public virtual DbSet<Billing> Billing { get; set; }
+
+    public virtual DbSet<Clinic> Clinic { get; set; }
+
+    public virtual DbSet<Coupon> Coupon { get; set; }
+
+    public virtual DbSet<Doctor> Doctor { get; set; }
+
+    public virtual DbSet<DoctorDailyAvailability> DoctorDailyAvailability { get; set; }
+
+    public virtual DbSet<MedicalForumComment> MedicalForumComment { get; set; }
+
+    public virtual DbSet<MedicalForumCommentVotes> MedicalForumCommentVotes { get; set; }
+
+    public virtual DbSet<MedicalForumPost> MedicalForumPost { get; set; }
+
+    public virtual DbSet<MedicalForumPostVotes> MedicalForumPostVotes { get; set; }
+
+    public virtual DbSet<MedicalHistory> MedicalHistory { get; set; }
+
+    public virtual DbSet<MedicalHistoryDocument> MedicalHistoryDocument { get; set; }
+
+    public virtual DbSet<Patient> Patient { get; set; }
+
+    public virtual DbSet<RecordedSessions> RecordedSessions { get; set; }
+
+    public virtual DbSet<Review> Review { get; set; }
+
+    public virtual DbSet<Transcriptions> Transcriptions { get; set; }
+
+    public virtual DbSet<User> User { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Appointment>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("PRIMARY");
+
+            entity.ToTable("Appointment", "SehatMand");
+
+            entity.HasIndex(e => e.doctor_id, "doctor_id");
+
+            entity.HasIndex(e => e.patient_id, "patient_id");
+
+            entity.Property(e => e.id).HasMaxLength(36);
+            entity.Property(e => e.appointment_date).HasColumnType("datetime");
+            entity.Property(e => e.created_at).HasColumnType("datetime");
+            entity.Property(e => e.doctor_id).HasMaxLength(36);
+            entity.Property(e => e.latitude).HasPrecision(9, 6);
+            entity.Property(e => e.longitude).HasPrecision(9, 6);
+            entity.Property(e => e.modified_at).HasColumnType("datetime");
+            entity.Property(e => e.patient_id).HasMaxLength(36);
+            entity.Property(e => e.status).HasColumnType("enum('pending','scheduled','rejected','completed','cancelled')");
+
+            entity.HasOne(d => d.doctor).WithMany(p => p.Appointment)
+                .HasForeignKey(d => d.doctor_id)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("appointment_ibfk_2");
+
+            entity.HasOne(d => d.patient).WithMany(p => p.Appointment)
+                .HasForeignKey(d => d.patient_id)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("appointment_ibfk_1");
+        });
+
+        modelBuilder.Entity<Billing>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("PRIMARY");
+
+            entity.ToTable("Billing", "SehatMand");
+
+            entity.HasIndex(e => e.appointment_id, "appointment_id");
+
+            entity.Property(e => e.id).HasMaxLength(36);
+            entity.Property(e => e.amount).HasPrecision(10);
+            entity.Property(e => e.appointment_id).HasMaxLength(36);
+            entity.Property(e => e.created_at).HasColumnType("datetime");
+            entity.Property(e => e.modified_at).HasColumnType("datetime");
+            entity.Property(e => e.status).HasColumnType("enum('paid','unpaid','pending')");
+            entity.Property(e => e.transaction_date).HasColumnType("datetime");
+
+            entity.HasOne(d => d.appointment).WithMany(p => p.Billing)
+                .HasForeignKey(d => d.appointment_id)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("billing_ibfk_1");
+        });
+
+        modelBuilder.Entity<Clinic>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("PRIMARY");
+
+            entity.ToTable("Clinic", "SehatMand");
+
+            entity.HasIndex(e => e.created_by, "created_by");
+
+            entity.HasIndex(e => e.modified_by, "modified_by");
+
+            entity.Property(e => e.id).HasMaxLength(36);
+            entity.Property(e => e.city).HasMaxLength(255);
+            entity.Property(e => e.created_at).HasColumnType("datetime");
+            entity.Property(e => e.created_by).HasMaxLength(36);
+            entity.Property(e => e.latitude).HasPrecision(9, 6);
+            entity.Property(e => e.longitude).HasPrecision(9, 6);
+            entity.Property(e => e.modified_at).HasColumnType("datetime");
+            entity.Property(e => e.modified_by).HasMaxLength(36);
+            entity.Property(e => e.name).HasMaxLength(255);
+
+            entity.HasOne(d => d.created_byNavigation).WithMany(p => p.Cliniccreated_byNavigation)
+                .HasForeignKey(d => d.created_by)
+                .HasConstraintName("clinic_ibfk_1");
+
+            entity.HasOne(d => d.modified_byNavigation).WithMany(p => p.Clinicmodified_byNavigation)
+                .HasForeignKey(d => d.modified_by)
+                .HasConstraintName("clinic_ibfk_2");
+        });
+
+        modelBuilder.Entity<Coupon>(entity =>
+        {
+            entity.HasKey(e => new { e.id, e.used_by }).HasName("PRIMARY");
+
+            entity.ToTable("Coupon", "SehatMand");
+
+            entity.HasIndex(e => e.created_by, "created_by");
+
+            entity.HasIndex(e => e.used_by, "used_by");
+
+            entity.Property(e => e.id).HasMaxLength(36);
+            entity.Property(e => e.used_by).HasMaxLength(36);
+            entity.Property(e => e.created_at).HasColumnType("datetime");
+            entity.Property(e => e.created_by).HasMaxLength(36);
+            entity.Property(e => e.expiry).HasColumnType("datetime");
+            entity.Property(e => e.percentage_off).HasColumnType("float(2,2)");
+            entity.Property(e => e.value).HasMaxLength(8);
+
+            entity.HasOne(d => d.created_byNavigation).WithMany(p => p.Couponcreated_byNavigation)
+                .HasForeignKey(d => d.created_by)
+                .HasConstraintName("coupon_ibfk_2");
+
+            entity.HasOne(d => d.used_byNavigation).WithMany(p => p.Couponused_byNavigation)
+                .HasForeignKey(d => d.used_by)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("coupon_ibfk_1");
+        });
+
+        modelBuilder.Entity<Doctor>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("PRIMARY");
+
+            entity.ToTable("Doctor", "SehatMand");
+
+            entity.HasIndex(e => e.clinic_id, "clinic_id");
+
+            entity.HasIndex(e => e.userid, "userid");
+
+            entity.Property(e => e.id).HasMaxLength(36);
+            entity.Property(e => e.address).HasMaxLength(255);
+            entity.Property(e => e.approval_status).HasMaxLength(50);
+            entity.Property(e => e.clinic_id).HasMaxLength(36);
+            entity.Property(e => e.created_at).HasColumnType("datetime");
+            entity.Property(e => e.email).HasMaxLength(255);
+            entity.Property(e => e.modified_at).HasColumnType("datetime");
+            entity.Property(e => e.name).HasMaxLength(255);
+            entity.Property(e => e.phone).HasMaxLength(15);
+            entity.Property(e => e.profile_info).HasMaxLength(255);
+            entity.Property(e => e.registration_id).HasMaxLength(50);
+            entity.Property(e => e.specialty).HasMaxLength(255);
+            entity.Property(e => e.userid).HasMaxLength(36);
+
+            entity.HasOne(d => d.clinic).WithMany(p => p.Doctor)
+                .HasForeignKey(d => d.clinic_id)
+                .HasConstraintName("doctor_ibfk_2");
+
+            entity.HasOne(d => d.user).WithMany(p => p.Doctor)
+                .HasForeignKey(d => d.userid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("doctor_ibfk_1");
+        });
+
+        modelBuilder.Entity<DoctorDailyAvailability>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("PRIMARY");
+
+            entity.ToTable("DoctorDailyAvailability", "SehatMand");
+
+            entity.HasIndex(e => e.created_by, "created_by");
+
+            entity.HasIndex(e => e.doctor_id, "doctor_id");
+
+            entity.Property(e => e.id).HasMaxLength(36);
+            entity.Property(e => e.availability_end).HasColumnType("datetime");
+            entity.Property(e => e.availability_start).HasColumnType("datetime");
+            entity.Property(e => e.created_at).HasColumnType("datetime");
+            entity.Property(e => e.created_by).HasMaxLength(36);
+            entity.Property(e => e.doctor_id).HasMaxLength(36);
+            entity.Property(e => e.modified_at).HasColumnType("datetime");
+
+            entity.HasOne(d => d.created_byNavigation).WithMany(p => p.DoctorDailyAvailability)
+                .HasForeignKey(d => d.created_by)
+                .HasConstraintName("doctordailyavailability_ibfk_2");
+
+            entity.HasOne(d => d.doctor).WithMany(p => p.DoctorDailyAvailability)
+                .HasForeignKey(d => d.doctor_id)
+                .HasConstraintName("doctordailyavailability_ibfk_1");
+        });
+
+        modelBuilder.Entity<MedicalForumComment>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("PRIMARY");
+
+            entity.ToTable("MedicalForumComment", "SehatMand");
+
+            entity.HasIndex(e => e.author_id, "author_id");
+
+            entity.HasIndex(e => e.post_id, "post_id");
+
+            entity.Property(e => e.id).HasMaxLength(36);
+            entity.Property(e => e.author_id).HasMaxLength(36);
+            entity.Property(e => e.content).HasMaxLength(500);
+            entity.Property(e => e.created_at).HasColumnType("datetime");
+            entity.Property(e => e.post_id).HasMaxLength(36);
+
+            entity.HasOne(d => d.author).WithMany(p => p.MedicalForumComment)
+                .HasForeignKey(d => d.author_id)
+                .HasConstraintName("medicalforumcomment_ibfk_2");
+
+            entity.HasOne(d => d.post).WithMany(p => p.MedicalForumComment)
+                .HasForeignKey(d => d.post_id)
+                .HasConstraintName("medicalforumcomment_ibfk_1");
+        });
+
+        modelBuilder.Entity<MedicalForumCommentVotes>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("MedicalForumCommentVotes", "SehatMand");
+
+            entity.HasIndex(e => e.comment_id, "comment_id");
+
+            entity.HasIndex(e => e.doctor_id, "doctor_id");
+
+            entity.Property(e => e.comment_id).HasMaxLength(36);
+            entity.Property(e => e.created_at).HasColumnType("datetime");
+            entity.Property(e => e.doctor_id).HasMaxLength(36);
+
+            entity.HasOne(d => d.comment).WithMany()
+                .HasForeignKey(d => d.comment_id)
+                .HasConstraintName("medicalforumcommentvotes_ibfk_2");
+
+            entity.HasOne(d => d.doctor).WithMany()
+                .HasForeignKey(d => d.doctor_id)
+                .HasConstraintName("medicalforumcommentvotes_ibfk_1");
+        });
+
+        modelBuilder.Entity<MedicalForumPost>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("PRIMARY");
+
+            entity.ToTable("MedicalForumPost", "SehatMand");
+
+            entity.HasIndex(e => e.author_id, "author_id");
+
+            entity.Property(e => e.id).HasMaxLength(36);
+            entity.Property(e => e.author_id).HasMaxLength(36);
+            entity.Property(e => e.content).HasMaxLength(500);
+            entity.Property(e => e.created_at).HasColumnType("datetime");
+
+            entity.HasOne(d => d.author).WithMany(p => p.MedicalForumPost)
+                .HasForeignKey(d => d.author_id)
+                .HasConstraintName("medicalforumpost_ibfk_1");
+        });
+
+        modelBuilder.Entity<MedicalForumPostVotes>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("MedicalForumPostVotes", "SehatMand");
+
+            entity.HasIndex(e => e.post_id, "post_id");
+
+            entity.HasIndex(e => e.upvoted_by, "upvoted_by");
+
+            entity.Property(e => e.created_at).HasColumnType("datetime");
+            entity.Property(e => e.post_id).HasMaxLength(36);
+            entity.Property(e => e.upvoted_by).HasMaxLength(36);
+
+            entity.HasOne(d => d.post).WithMany()
+                .HasForeignKey(d => d.post_id)
+                .HasConstraintName("medicalforumpostvotes_ibfk_1");
+
+            entity.HasOne(d => d.upvoted_byNavigation).WithMany()
+                .HasForeignKey(d => d.upvoted_by)
+                .HasConstraintName("medicalforumpostvotes_ibfk_2");
+        });
+
+        modelBuilder.Entity<MedicalHistory>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("PRIMARY");
+
+            entity.ToTable("MedicalHistory", "SehatMand");
+
+            entity.HasIndex(e => e.patient_id, "patient_id");
+
+            entity.Property(e => e.id).HasMaxLength(36);
+            entity.Property(e => e.patient_id).HasMaxLength(36);
+
+            entity.HasOne(d => d.patient).WithMany(p => p.MedicalHistory)
+                .HasForeignKey(d => d.patient_id)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("medicalhistory_ibfk_1");
+        });
+
+        modelBuilder.Entity<MedicalHistoryDocument>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("MedicalHistoryDocument", "SehatMand");
+
+            entity.HasIndex(e => e.appointment_id, "appointment_id");
+
+            entity.HasIndex(e => e.created_by, "created_by");
+
+            entity.HasIndex(e => e.medical_history_id, "medical_history_id");
+
+            entity.HasIndex(e => e.modified_by, "modified_by");
+
+            entity.Property(e => e.appointment_id).HasMaxLength(36);
+            entity.Property(e => e.created_at).HasColumnType("datetime");
+            entity.Property(e => e.created_by).HasMaxLength(36);
+            entity.Property(e => e.diagnosed_disease).HasMaxLength(255);
+            entity.Property(e => e.doctors_comments).HasMaxLength(1000);
+            entity.Property(e => e.document_path).HasMaxLength(500);
+            entity.Property(e => e.id).HasMaxLength(36);
+            entity.Property(e => e.medical_history_id).HasMaxLength(36);
+            entity.Property(e => e.modified_at).HasColumnType("datetime");
+            entity.Property(e => e.modified_by).HasMaxLength(36);
+            entity.Property(e => e.record_date).HasColumnType("date");
+            entity.Property(e => e.symptoms).HasMaxLength(255);
+
+            entity.HasOne(d => d.appointment).WithMany()
+                .HasForeignKey(d => d.appointment_id)
+                .HasConstraintName("medicalhistorydocument_ibfk_1");
+
+            entity.HasOne(d => d.created_byNavigation).WithMany()
+                .HasForeignKey(d => d.created_by)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("medicalhistorydocument_ibfk_3");
+
+            entity.HasOne(d => d.medical_history).WithMany()
+                .HasForeignKey(d => d.medical_history_id)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("medicalhistorydocument_ibfk_2");
+
+            entity.HasOne(d => d.modified_byNavigation).WithMany()
+                .HasForeignKey(d => d.modified_by)
+                .HasConstraintName("medicalhistorydocument_ibfk_4");
+        });
+
+        modelBuilder.Entity<Patient>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("PRIMARY");
+
+            entity.ToTable("Patient", "SehatMand");
+
+            entity.HasIndex(e => e.userid, "userid");
+
+            entity.Property(e => e.id).HasMaxLength(36);
+            entity.Property(e => e.address).HasMaxLength(255);
+            entity.Property(e => e.blood_group).HasMaxLength(3);
+            entity.Property(e => e.created_at).HasColumnType("datetime");
+            entity.Property(e => e.date_of_birth).HasColumnType("date");
+            entity.Property(e => e.email).HasMaxLength(255);
+            entity.Property(e => e.modified_at).HasColumnType("datetime");
+            entity.Property(e => e.name).HasMaxLength(255);
+            entity.Property(e => e.phone).HasMaxLength(15);
+            entity.Property(e => e.profile_info).HasMaxLength(255);
+            entity.Property(e => e.userid).HasMaxLength(36);
+
+            entity.HasOne(d => d.user).WithMany(p => p.Patient)
+                .HasForeignKey(d => d.userid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("patient_ibfk_1");
+        });
+
+        modelBuilder.Entity<RecordedSessions>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("PRIMARY");
+
+            entity.ToTable("RecordedSessions", "SehatMand");
+
+            entity.HasIndex(e => e.appointment_id, "appointment_id");
+
+            entity.Property(e => e.id).HasMaxLength(36);
+            entity.Property(e => e.appointment_id).HasMaxLength(36);
+            entity.Property(e => e.created_at).HasColumnType("datetime");
+            entity.Property(e => e.session_link).HasMaxLength(255);
+
+            entity.HasOne(d => d.appointment).WithMany(p => p.RecordedSessions)
+                .HasForeignKey(d => d.appointment_id)
+                .HasConstraintName("recordedsessions_ibfk_1");
+        });
+
+        modelBuilder.Entity<Review>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("PRIMARY");
+
+            entity.ToTable("Review", "SehatMand");
+
+            entity.HasIndex(e => e.appointment_id, "appointment_id");
+
+            entity.Property(e => e.id).HasMaxLength(36);
+            entity.Property(e => e.appointment_id).HasMaxLength(36);
+            entity.Property(e => e.created_at).HasColumnType("datetime");
+            entity.Property(e => e.feedback).HasMaxLength(500);
+
+            entity.HasOne(d => d.appointment).WithMany(p => p.Review)
+                .HasForeignKey(d => d.appointment_id)
+                .HasConstraintName("review_ibfk_1");
+        });
+
+        modelBuilder.Entity<Transcriptions>(entity =>
+        {
+            entity.HasKey(e => e.transcription_id).HasName("PRIMARY");
+
+            entity.ToTable("Transcriptions", "SehatMand");
+
+            entity.HasIndex(e => e.conference_id, "conference_id");
+
+            entity.Property(e => e.transcription_id).HasMaxLength(36);
+            entity.Property(e => e.conference_id).HasMaxLength(36);
+            entity.Property(e => e.created_at).HasColumnType("datetime");
+            entity.Property(e => e.modified_at).HasColumnType("datetime");
+            entity.Property(e => e.sentiment_classification).HasMaxLength(50);
+            entity.Property(e => e.transcription_text).HasMaxLength(500);
+
+            entity.HasOne(d => d.conference).WithMany(p => p.Transcriptions)
+                .HasForeignKey(d => d.conference_id)
+                .HasConstraintName("transcriptions_ibfk_1");
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("PRIMARY");
+
+            entity.ToTable("User", "SehatMand");
+
+            entity.Property(e => e.id).HasMaxLength(36);
+            entity.Property(e => e.email).HasMaxLength(255);
+            entity.Property(e => e.password_hash).HasMaxLength(255);
+            entity.Property(e => e.role).HasMaxLength(255);
+            entity.Property(e => e.username).HasMaxLength(255);
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
