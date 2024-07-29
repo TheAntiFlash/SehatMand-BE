@@ -2,25 +2,25 @@
 
 public partial class User
 {
-    public string id { get; set; } = null!;
+    public string Id { get; set; } = null!;
 
-    public string username { get; set; } = null!;
+    public string Username { get; set; } = null!;
 
-    public string email { get; set; } = null!;
+    public string Email { get; set; } = null!;
 
-    public string password_hash { get; set; } = null!;
+    public string PasswordHash { get; set; } = null!;
 
-    public string role { get; set; } = null!;
+    public string Role { get; set; } = null!;
 
-    public bool is_active { get; set; }
+    public bool IsActive { get; set; }
 
-    public virtual ICollection<Clinic> Cliniccreated_byNavigation { get; set; } = new List<Clinic>();
+    public virtual ICollection<Clinic> CliniccreatedByNavigation { get; set; } = new List<Clinic>();
 
-    public virtual ICollection<Clinic> Clinicmodified_byNavigation { get; set; } = new List<Clinic>();
+    public virtual ICollection<Clinic> ClinicmodifiedByNavigation { get; set; } = new List<Clinic>();
 
-    public virtual ICollection<Coupon> Couponcreated_byNavigation { get; set; } = new List<Coupon>();
+    public virtual ICollection<Coupon> CouponcreatedByNavigation { get; set; } = new List<Coupon>();
 
-    public virtual ICollection<Coupon> Couponused_byNavigation { get; set; } = new List<Coupon>();
+    public virtual ICollection<Coupon> CouponusedByNavigation { get; set; } = new List<Coupon>();
 
     public virtual ICollection<Doctor> Doctor { get; set; } = new List<Doctor>();
 

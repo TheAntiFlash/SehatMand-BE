@@ -30,7 +30,7 @@ public partial class SmDbContext() : DbContext
 
     public virtual DbSet<Coupon> Coupon { get; set; }
 
-    public virtual DbSet<Doctor> Doctor { get; set; }
+    public virtual DbSet<Doctor?> Doctor { get; set; }
 
     public virtual DbSet<DoctorDailyAvailability> DoctorDailyAvailability { get; set; }
 
@@ -131,11 +131,11 @@ public partial class SmDbContext() : DbContext
             entity.Property(e => e.modified_by).HasMaxLength(36);
             entity.Property(e => e.name).HasMaxLength(255);
 
-            entity.HasOne(d => d.created_byNavigation).WithMany(p => p.Cliniccreated_byNavigation)
+            entity.HasOne(d => d.created_byNavigation).WithMany(p => p.CliniccreatedByNavigation)
                 .HasForeignKey(d => d.created_by)
                 .HasConstraintName("clinic_ibfk_1");
 
-            entity.HasOne(d => d.modified_byNavigation).WithMany(p => p.Clinicmodified_byNavigation)
+            entity.HasOne(d => d.modified_byNavigation).WithMany(p => p.ClinicmodifiedByNavigation)
                 .HasForeignKey(d => d.modified_by)
                 .HasConstraintName("clinic_ibfk_2");
         });
@@ -158,11 +158,11 @@ public partial class SmDbContext() : DbContext
             entity.Property(e => e.percentage_off).HasColumnType("float(2,2)");
             entity.Property(e => e.value).HasMaxLength(8);
 
-            entity.HasOne(d => d.created_byNavigation).WithMany(p => p.Couponcreated_byNavigation)
+            entity.HasOne(d => d.created_byNavigation).WithMany(p => p.CouponcreatedByNavigation)
                 .HasForeignKey(d => d.created_by)
                 .HasConstraintName("coupon_ibfk_2");
 
-            entity.HasOne(d => d.used_byNavigation).WithMany(p => p.Couponused_byNavigation)
+            entity.HasOne(d => d.used_byNavigation).WithMany(p => p.CouponusedByNavigation)
                 .HasForeignKey(d => d.used_by)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("coupon_ibfk_1");
@@ -170,34 +170,34 @@ public partial class SmDbContext() : DbContext
 
         modelBuilder.Entity<Doctor>(entity =>
         {
-            entity.HasKey(e => e.id).HasName("PRIMARY");
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
 
             entity.ToTable("Doctor", "SehatMand");
 
-            entity.HasIndex(e => e.clinic_id, "clinic_id");
+            entity.HasIndex(e => e.ClinicId, "clinic_id");
 
-            entity.HasIndex(e => e.userid, "userid");
+            entity.HasIndex(e => e.Userid, "userid");
 
-            entity.Property(e => e.id).HasMaxLength(36);
-            entity.Property(e => e.address).HasMaxLength(255);
-            entity.Property(e => e.approval_status).HasMaxLength(50);
-            entity.Property(e => e.clinic_id).HasMaxLength(36);
-            entity.Property(e => e.created_at).HasColumnType("datetime");
-            entity.Property(e => e.email).HasMaxLength(255);
-            entity.Property(e => e.modified_at).HasColumnType("datetime");
-            entity.Property(e => e.name).HasMaxLength(255);
-            entity.Property(e => e.phone).HasMaxLength(15);
-            entity.Property(e => e.profile_info).HasMaxLength(255);
-            entity.Property(e => e.registration_id).HasMaxLength(50);
-            entity.Property(e => e.specialty).HasMaxLength(255);
-            entity.Property(e => e.userid).HasMaxLength(36);
+            entity.Property(e => e.Id).HasMaxLength(36);
+            entity.Property(e => e.Address).HasMaxLength(255);
+            entity.Property(e => e.ApprovalStatus).HasMaxLength(50);
+            entity.Property(e => e.ClinicId).HasMaxLength(36);
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.Email).HasMaxLength(255);
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.Name).HasMaxLength(255);
+            entity.Property(e => e.Phone).HasMaxLength(15);
+            entity.Property(e => e.ProfileInfo).HasMaxLength(255);
+            entity.Property(e => e.RegistrationId).HasMaxLength(50);
+            entity.Property(e => e.Specialty).HasMaxLength(255);
+            entity.Property(e => e.Userid).HasMaxLength(36);
 
-            entity.HasOne(d => d.clinic).WithMany(p => p.Doctor)
-                .HasForeignKey(d => d.clinic_id)
+            entity.HasOne(d => d.Clinic).WithMany(p => p.Doctor)
+                .HasForeignKey(d => d.ClinicId)
                 .HasConstraintName("doctor_ibfk_2");
 
-            entity.HasOne(d => d.user).WithMany(p => p.Doctor)
-                .HasForeignKey(d => d.userid)
+            entity.HasOne(d => d.User).WithMany(p => p.Doctor)
+                .HasForeignKey(d => d.Userid)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("doctor_ibfk_1");
         });
@@ -465,15 +465,15 @@ public partial class SmDbContext() : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.id).HasName("PRIMARY");
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
 
             entity.ToTable("User", "SehatMand");
 
-            entity.Property(e => e.id).HasMaxLength(36);
-            entity.Property(e => e.email).HasMaxLength(255);
-            entity.Property(e => e.password_hash).HasMaxLength(255);
-            entity.Property(e => e.role).HasMaxLength(255);
-            entity.Property(e => e.username).HasMaxLength(255);
+            entity.Property(e => e.Id).HasMaxLength(36);
+            entity.Property(e => e.Email).HasMaxLength(255);
+            entity.Property(e => e.PasswordHash).HasMaxLength(255);
+            entity.Property(e => e.Role).HasMaxLength(255);
+            entity.Property(e => e.Username).HasMaxLength(255);
         });
 
         OnModelCreatingPartial(modelBuilder);
