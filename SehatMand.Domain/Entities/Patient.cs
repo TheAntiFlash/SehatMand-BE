@@ -2,31 +2,31 @@
 
 public partial class Patient
 {
-    public string id { get; set; } = null!;
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
-    public string userid { get; set; } = null!;
+    public string UserId { get; set; } = null!;
 
-    public string name { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
-    public DateTime date_of_birth { get; set; }
+    public DateTime DateOfBirth { get; set; }
 
-    public string phone { get; set; } = null!;
+    public string Phone { get; set; } = null!;
 
-    public string email { get; set; } = null!;
+    public string Email { get; set; } = null!;
 
-    public string? address { get; set; }
+    public string? Address { get; set; }
 
-    public string? profile_info { get; set; }
+    public string? ProfileInfo { get; set; }
 
-    public int? weight { get; set; }
+    public int? Weight { get; set; }
 
-    public string? blood_group { get; set; }
+    public string? BloodGroup { get; set; }
 
-    public int? height { get; set; }
+    public int? Height { get; set; }
 
-    public DateTime created_at { get; set; }
+    public DateTime CreatedAt { get; set; }
 
-    public DateTime? modified_at { get; set; }
+    public DateTime? ModifiedAt { get; set; }
 
     public virtual ICollection<Appointment> Appointment { get; set; } = new List<Appointment>();
 
@@ -34,5 +34,5 @@ public partial class Patient
 
     public virtual ICollection<MedicalHistory> MedicalHistory { get; set; } = new List<MedicalHistory>();
 
-    public virtual User user { get; set; } = null!;
+    public virtual User User { get; set; } = null!;
 }

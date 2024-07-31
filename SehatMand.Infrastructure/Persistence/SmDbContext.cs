@@ -6,21 +6,26 @@ using SehatMand.Domain.Entities;
 
 namespace SehatMand.Infrastructure.Persistence;
 
-public partial class SmDbContext() : DbContext
+public partial class SmDbContext(
+    DbContextOptions<SmDbContext> options
+    ) : DbContext(options)
 {
     
+    /*
     private readonly string _connString = "";
     SmDbContext(IConfiguration config): this()
     {
         _connString = config.GetConnectionString("SmDb")!;
-    }
+    }*/
     
     
+    /*
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseMySQL(_connString);
         base.OnConfiguring(optionsBuilder);
     }
+    */
 
     public virtual DbSet<Appointment> Appointment { get; set; }
 
@@ -383,26 +388,32 @@ public partial class SmDbContext() : DbContext
 
         modelBuilder.Entity<Patient>(entity =>
         {
-            entity.HasKey(e => e.id).HasName("PRIMARY");
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
 
             entity.ToTable("Patient", "SehatMand");
 
-            entity.HasIndex(e => e.userid, "userid");
+            entity.HasIndex(e => e.UserId, "userid");
 
-            entity.Property(e => e.id).HasMaxLength(36);
-            entity.Property(e => e.address).HasMaxLength(255);
-            entity.Property(e => e.blood_group).HasMaxLength(3);
-            entity.Property(e => e.created_at).HasColumnType("datetime");
-            entity.Property(e => e.date_of_birth).HasColumnType("date");
-            entity.Property(e => e.email).HasMaxLength(255);
-            entity.Property(e => e.modified_at).HasColumnType("datetime");
-            entity.Property(e => e.name).HasMaxLength(255);
-            entity.Property(e => e.phone).HasMaxLength(15);
-            entity.Property(e => e.profile_info).HasMaxLength(255);
-            entity.Property(e => e.userid).HasMaxLength(36);
+            entity.Property(e => e.Id).HasMaxLength(36);
+            entity.Property(e => e.Address).HasMaxLength(255);
+            entity.Property(e => e.BloodGroup).HasMaxLength(3)
+                .HasColumnName("blood_group");
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime")
+                .HasColumnName("created_at");
+            entity.Property(e => e.DateOfBirth).HasColumnType("date")
+                .HasColumnName("date_of_birth");
+            entity.Property(e => e.Email).HasMaxLength(255);
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime")
+                .HasColumnName("modified_at");
+            entity.Property(e => e.Name).HasMaxLength(255);
+            entity.Property(e => e.Phone).HasMaxLength(15);
+            entity.Property(e => e.ProfileInfo).HasMaxLength(255)
+                .HasColumnName("profile_info");
+            entity.Property(e => e.UserId).HasMaxLength(36)
+                .HasColumnName("userid");
 
-            entity.HasOne(d => d.user).WithMany(p => p.Patient)
-                .HasForeignKey(d => d.userid)
+            entity.HasOne(d => d.User).WithMany(p => p.Patient)
+                .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("patient_ibfk_1");
         });
@@ -469,11 +480,14 @@ public partial class SmDbContext() : DbContext
 
             entity.ToTable("User", "SehatMand");
 
-            entity.Property(e => e.Id).HasMaxLength(36);
-            entity.Property(e => e.Email).HasMaxLength(255);
-            entity.Property(e => e.PasswordHash).HasMaxLength(255);
+            entity.Property(e => e.Id).HasMaxLength(36)
+                .HasColumnName("id");
+            entity.Property(e => e.Email).HasMaxLength(255)
+                .HasColumnName("email");
+            entity.Property(e => e.PasswordHash).HasMaxLength(255)
+                .HasColumnName("password_hash");
             entity.Property(e => e.Role).HasMaxLength(255);
-            entity.Property(e => e.Username).HasMaxLength(255);
+            entity.Property(e => e.IsActive).HasColumnName("is_active");
         });
 
         OnModelCreatingPartial(modelBuilder);

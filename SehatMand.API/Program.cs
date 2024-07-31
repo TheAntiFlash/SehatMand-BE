@@ -3,8 +3,11 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using MySql.EntityFrameworkCore.Extensions;
+using SehatMand.Domain.Interface.Repository;
 using SehatMand.Infrastructure.Extensions;
 using SehatMand.Infrastructure.Persistence;
+using SehatMand.Infrastructure.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,9 +23,13 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SupportNonNullableReferenceTypes();
 });
+
 var config = builder.Configuration;
-builder.Services.AddDbContext<SmDbContext>();
+builder.Services.AddDbContext<SmDbContext>(options => options.UseMySQL(config.GetConnectionString("SmDb")!));
 builder.Services.AddScoped<DbContext, SmDbContext>();
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
 //builder.Services.AddInfrastructure(config);
 
@@ -43,7 +50,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-
+Console.WriteLine(config.GetSection("JWT:Key").Value!);
 builder.Services.AddAuthorization();
 var app = builder.Build();
 

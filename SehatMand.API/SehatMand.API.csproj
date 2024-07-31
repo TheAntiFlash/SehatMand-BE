@@ -26,10 +26,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\SehatMand.Application\SehatMand.Application.csproj" />
       <ProjectReference Include="..\SehatMand.Infrastructure\SehatMand.Infrastructure.csproj" />
     </ItemGroup>

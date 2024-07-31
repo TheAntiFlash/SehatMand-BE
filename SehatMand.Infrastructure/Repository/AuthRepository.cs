@@ -8,13 +8,15 @@ using Org.BouncyCastle.Crypto.Generators;
 using SehatMand.Domain;
 using SehatMand.Domain.Entities;
 using SehatMand.Domain.Interface.Repository;
+using SehatMand.Infrastructure.Persistence;
 
 namespace SehatMand.Infrastructure.Repository;
 
 public class AuthRepository(
     IConfiguration conf,
-    DbContext dbContext,
-    IDoctorRepository docRepo
+    SmDbContext dbContext,
+    IDoctorRepository docRepo,
+    IPatientRepository patientRepo
     ): IAuthRepository
 {
     public Task<string?> RegisterDoctor(Doctor doctor)
@@ -26,14 +28,32 @@ public class AuthRepository(
         
     }
 
-    public Task<string?> RegisterPatient(Patient patient)
+    //consider fixing so a doctor can make a patient accound and a patient can make a doctor account
+    public async Task<string?> RegisterPatient(Patient patient)
     {
-        throw new NotImplementedException();
+        var exists = await dbContext.User.AnyAsync(u => u.Email == patient.Email);
+        if (exists)
+        {
+            return null;
+        }
+        await dbContext.User.AddAsync(patient.User);
+        await dbContext.Patient.AddAsync(patient);
+        await dbContext.SaveChangesAsync();
+        return CreateToken(patient.User);
     }
 
-    public Task<string?> LoginPatient(string email, string password)
+    public async Task<string?> LoginPatient(string email, string password)
     {
-        throw new NotImplementedException();
+        var patient = await patientRepo.GetByEmailAsync(email);
+        if (patient == null)
+        {
+            return null;
+        }
+
+        return 
+            BCrypt.Net.BCrypt.Verify(password, patient.User.PasswordHash) ?
+            CreateToken(patient.User) :
+            null;
     }
 
     public async Task<string?> LoginDoctor(string email, string password)
@@ -51,12 +71,21 @@ public class AuthRepository(
 
         return CreateToken(doctor.User);
     }
-    
+
+    public async Task<bool> ForgotPassword(string dtoEmail, string dtoNewPassword, string dtoPhoneNumber)
+    {
+        var patient = await dbContext.Patient.Include(p => p.User).FirstOrDefaultAsync(p => p.Email == dtoEmail && p.Phone == dtoPhoneNumber);
+        if (patient == null) return false;
+        
+        patient.User.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dtoNewPassword);
+        await dbContext.SaveChangesAsync();
+        return true;
+    }
+
     private string CreateToken(User user)
     {
         List<Claim> claims = new List<Claim>
         {
-            new (ClaimTypes.Name, user.Username),
             new (ClaimTypes.Email, user.Email),
             new (ClaimTypes.Role, user.Role)
         };

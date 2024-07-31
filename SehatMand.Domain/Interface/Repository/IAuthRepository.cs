@@ -8,4 +8,5 @@ public interface IAuthRepository
     Task<string?> RegisterPatient(Patient patient);
     Task<string?> LoginPatient(string email, string password);
     Task<string?> LoginDoctor(string email, string password);
+    Task<bool> ForgotPassword(string dtoEmail, string dtoNewPassword, string dtoPhoneNumber);
 }
