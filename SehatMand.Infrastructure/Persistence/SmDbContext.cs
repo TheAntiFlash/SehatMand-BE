@@ -67,7 +67,7 @@ public partial class SmDbContext(
         {
             entity.HasKey(e => e.id).HasName("PRIMARY");
 
-            entity.ToTable("Appointment", "SehatMand");
+            entity.ToTable("Appointment", "sehatmand_db");
 
             entity.HasIndex(e => e.doctor_id, "doctor_id");
 
@@ -98,7 +98,7 @@ public partial class SmDbContext(
         {
             entity.HasKey(e => e.id).HasName("PRIMARY");
 
-            entity.ToTable("Billing", "SehatMand");
+            entity.ToTable("Billing", "sehatmand_db");
 
             entity.HasIndex(e => e.appointment_id, "appointment_id");
 
@@ -120,7 +120,7 @@ public partial class SmDbContext(
         {
             entity.HasKey(e => e.id).HasName("PRIMARY");
 
-            entity.ToTable("Clinic", "SehatMand");
+            entity.ToTable("Clinic", "sehatmand_db");
 
             entity.HasIndex(e => e.created_by, "created_by");
 
@@ -149,7 +149,7 @@ public partial class SmDbContext(
         {
             entity.HasKey(e => new { e.id, e.used_by }).HasName("PRIMARY");
 
-            entity.ToTable("Coupon", "SehatMand");
+            entity.ToTable("Coupon", "sehatmand_db");
 
             entity.HasIndex(e => e.created_by, "created_by");
 
@@ -177,7 +177,7 @@ public partial class SmDbContext(
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("Doctor", "SehatMand");
+            entity.ToTable("Doctor", "sehatmand_db");
 
             entity.HasIndex(e => e.ClinicId, "clinic_id");
 
@@ -211,7 +211,7 @@ public partial class SmDbContext(
         {
             entity.HasKey(e => e.id).HasName("PRIMARY");
 
-            entity.ToTable("DoctorDailyAvailability", "SehatMand");
+            entity.ToTable("DoctorDailyAvailability", "sehatmand_db");
 
             entity.HasIndex(e => e.created_by, "created_by");
 
@@ -238,7 +238,7 @@ public partial class SmDbContext(
         {
             entity.HasKey(e => e.id).HasName("PRIMARY");
 
-            entity.ToTable("MedicalForumComment", "SehatMand");
+            entity.ToTable("MedicalForumComment", "sehatmand_db");
 
             entity.HasIndex(e => e.author_id, "author_id");
 
@@ -263,7 +263,7 @@ public partial class SmDbContext(
         {
             entity
                 .HasNoKey()
-                .ToTable("MedicalForumCommentVotes", "SehatMand");
+                .ToTable("MedicalForumCommentVotes", "sehatmand_db");
 
             entity.HasIndex(e => e.comment_id, "comment_id");
 
@@ -286,7 +286,7 @@ public partial class SmDbContext(
         {
             entity.HasKey(e => e.id).HasName("PRIMARY");
 
-            entity.ToTable("MedicalForumPost", "SehatMand");
+            entity.ToTable("MedicalForumPost", "sehatmand_db");
 
             entity.HasIndex(e => e.author_id, "author_id");
 
@@ -304,7 +304,7 @@ public partial class SmDbContext(
         {
             entity
                 .HasNoKey()
-                .ToTable("MedicalForumPostVotes", "SehatMand");
+                .ToTable("MedicalForumPostVotes", "sehatmand_db");
 
             entity.HasIndex(e => e.post_id, "post_id");
 
@@ -327,7 +327,7 @@ public partial class SmDbContext(
         {
             entity.HasKey(e => e.id).HasName("PRIMARY");
 
-            entity.ToTable("MedicalHistory", "SehatMand");
+            entity.ToTable("MedicalHistory", "sehatmand_db");
 
             entity.HasIndex(e => e.patient_id, "patient_id");
 
@@ -344,7 +344,7 @@ public partial class SmDbContext(
         {
             entity
                 .HasNoKey()
-                .ToTable("MedicalHistoryDocument", "SehatMand");
+                .ToTable("MedicalHistoryDocument", "sehatmand_db");
 
             entity.HasIndex(e => e.appointment_id, "appointment_id");
 
@@ -390,7 +390,7 @@ public partial class SmDbContext(
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("Patient", "SehatMand");
+            entity.ToTable("Patient", "sehatmand_db");
 
             entity.HasIndex(e => e.UserId, "userid");
 
@@ -422,7 +422,7 @@ public partial class SmDbContext(
         {
             entity.HasKey(e => e.id).HasName("PRIMARY");
 
-            entity.ToTable("RecordedSessions", "SehatMand");
+            entity.ToTable("RecordedSessions", "sehatmand_db");
 
             entity.HasIndex(e => e.appointment_id, "appointment_id");
 
@@ -440,7 +440,7 @@ public partial class SmDbContext(
         {
             entity.HasKey(e => e.id).HasName("PRIMARY");
 
-            entity.ToTable("Review", "SehatMand");
+            entity.ToTable("Review", "sehatmand_db");
 
             entity.HasIndex(e => e.appointment_id, "appointment_id");
 
@@ -458,7 +458,7 @@ public partial class SmDbContext(
         {
             entity.HasKey(e => e.transcription_id).HasName("PRIMARY");
 
-            entity.ToTable("Transcriptions", "SehatMand");
+            entity.ToTable("Transcriptions", "sehatmand_db");
 
             entity.HasIndex(e => e.conference_id, "conference_id");
 
@@ -478,7 +478,7 @@ public partial class SmDbContext(
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("User", "SehatMand");
+            entity.ToTable("User", "sehatmand_db");
 
             entity.Property(e => e.Id).HasMaxLength(36)
                 .HasColumnName("id");

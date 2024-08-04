@@ -35,7 +35,7 @@ public class PatientController(IAuthRepository repo) : ControllerBase
         } catch (Exception e)
         {
             return StatusCode(500, new ErrorResponseDto(
-                "Unable to delete employee in geofence",
+                "Unable to login",
                 e.Message
             ));
         }
