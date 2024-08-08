@@ -37,8 +37,9 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Authority = "https://localhost:5001";
+        options.Authority = "https://localhost:7037";
         options.Audience = "SehatMand.Client";
+        options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = false,
@@ -46,8 +47,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey
-                (Encoding.UTF8.GetBytes(config.GetSection("JWT:Key").Value!))
+                (Encoding.UTF8.GetBytes(config.GetSection("JWT:Key").Value!)),
+            ClockSkew = TimeSpan.Zero
         };
+        
     });
 
 Console.WriteLine(config.GetSection("JWT:Key").Value!);
@@ -62,6 +65,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors(x => x
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .SetIsOriginAllowed(origin => true) // allow any origin
+    .AllowCredentials()); 
 
 app.UseAuthentication();
 app.UseAuthorization();

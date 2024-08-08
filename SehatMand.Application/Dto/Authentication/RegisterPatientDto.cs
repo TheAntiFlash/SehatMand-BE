@@ -7,8 +7,6 @@ namespace SehatMand.Application.Dto.Authentication;
 public record RegisterPatientDto(
     [Required] 
     string FullName,
-    [Required] 
-    DateOnly DateOfBirth,
     [Required] [EmailAddress] 
     string Email,
     [Phone] 

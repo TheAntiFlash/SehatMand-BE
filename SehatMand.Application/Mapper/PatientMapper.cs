@@ -1,4 +1,5 @@
 using SehatMand.Application.Dto.Authentication;
+using SehatMand.Application.Dto.Patient;
 using SehatMand.Domain.Entities;
 
 namespace SehatMand.Application.Mapper;
@@ -12,7 +13,6 @@ public static class PatientMapper
             Name = dto.FullName,
             Email = dto.Email,
             Phone = dto.PhoneNumber,
-            DateOfBirth = new DateTime(dto.DateOfBirth.Year, dto.DateOfBirth.Month, dto.DateOfBirth.Day),
             User = new User
             {
                 Email = dto.Email,
@@ -26,5 +26,7 @@ public static class PatientMapper
         patient.User.IsActive = true;
         return patient;
     }
+    
+    
 
 }

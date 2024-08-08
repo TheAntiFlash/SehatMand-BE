@@ -1,7 +1,12 @@
 
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SehatMand.Application.Dto.Authentication;
+using SehatMand.Application.Dto.Patient;
 using SehatMand.Application.Mapper;
 using SehatMand.Domain;
 using SehatMand.Domain.Entities;
@@ -11,9 +16,13 @@ using Zong_HRM.Application.DTOs.Error;
 
 namespace SehatMand.API.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/patient")]
 [ApiController]
-public class PatientController(IAuthRepository repo) : ControllerBase
+public class PatientController(
+    IAuthRepository repo,
+    IPatientRepository patientRepo,
+    ILogger<PatientController> logger
+    ) : ControllerBase
 {
     [HttpPost]
     [Route("login")]
@@ -95,6 +104,48 @@ public class PatientController(IAuthRepository repo) : ControllerBase
         {
             return StatusCode(500, new ErrorResponseDto(
                 "Unable to reset password",
+                e.Message
+            ));
+        }
+    }
+
+    [Authorize]
+    [HttpPatch]
+    [Route("complete-profile")]
+    public async Task<IActionResult> CompleteProfile([FromBody] CompletePatientProfileDto dto)
+    {
+        try
+        {
+            if (HttpContext.User.Identity is not ClaimsIdentity identity)
+                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+            
+            IEnumerable<Claim> claims = identity.Claims;
+            var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var email = claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
+            if (id == null) throw new Exception("User not found");
+            if (email == null) throw new Exception("User not found");
+            logger.LogInformation(id);
+            logger.LogInformation(email);
+            var response = await patientRepo.UpdatePatientProfile(
+                id,
+                dto.Address,
+                dto.City,
+                dto.HeightInInches,
+                dto.Weight,
+                dto.Gender,
+                dto.BloodGroup,
+                dto.DateOfBirth.ToDateTime()
+            );
+            if (response)
+            {
+                return Ok();
+            }
+
+            return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+        } catch (Exception e)
+        {
+            return StatusCode(500, new ErrorResponseDto(
+                "Unable to complete profile",
                 e.Message
             ));
         }

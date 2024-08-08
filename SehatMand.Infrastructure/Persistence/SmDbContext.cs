@@ -396,6 +396,8 @@ public partial class SmDbContext(
 
             entity.Property(e => e.Id).HasMaxLength(36);
             entity.Property(e => e.Address).HasMaxLength(255);
+            entity.Property(e => e.City).HasMaxLength(255);
+            entity.Property(e => e.Gender).HasMaxLength(255);
             entity.Property(e => e.BloodGroup).HasMaxLength(3)
                 .HasColumnName("blood_group");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime")

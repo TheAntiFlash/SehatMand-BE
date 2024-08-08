@@ -86,6 +86,7 @@ public class AuthRepository(
     {
         List<Claim> claims = new List<Claim>
         {
+            new Claim(ClaimTypes.NameIdentifier, user.Id),
             new (ClaimTypes.Email, user.Email),
             new (ClaimTypes.Role, user.Role)
         };
@@ -100,7 +101,7 @@ public class AuthRepository(
         var token = new JwtSecurityToken(
             issuer: "sehatmand.pk",
             claims: claims,
-            expires: DateTime.Now.AddHours(8),
+            expires: DateTime.Now.AddDays(30),
             signingCredentials: creds
         );
         var jwt = new JwtSecurityTokenHandler().WriteToken(token);

@@ -15,14 +15,16 @@ public partial class Patient
     public string Email { get; set; } = null!;
 
     public string? Address { get; set; }
+    public string? City { get; set; }
+    public string? Gender { get; set; }
 
     public string? ProfileInfo { get; set; }
 
-    public int? Weight { get; set; }
+    public float? Weight { get; set; }
 
     public string? BloodGroup { get; set; }
 
-    public int? Height { get; set; }
+    public float? Height { get; set; }
 
     public DateTime CreatedAt { get; set; }
 
