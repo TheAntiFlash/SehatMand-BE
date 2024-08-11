@@ -31,7 +31,7 @@ RUN dotnet publish "SehatMand.API.csproj" -a $TARGETARCH -c $BUILD_CONFIGURATION
 
 FROM base AS final
 WORKDIR /app
-COPY --from=build /root/.dotnet/corefx/cryptography/x509stores/my/* /root/.dotnet/corefx/cryptography/x509stores/my/
+#COPY --from=build /root/.dotnet/corefx/cryptography/x509stores/my/* /root/.dotnet/corefx/cryptography/x509stores/my/
 COPY --chmod=0755 --from=build /https/* /https/
 EXPOSE 8080
 EXPOSE 7247

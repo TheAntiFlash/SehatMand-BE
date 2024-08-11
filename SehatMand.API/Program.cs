@@ -5,9 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MySql.EntityFrameworkCore.Extensions;
 using SehatMand.Domain.Interface.Repository;
+using SehatMand.Domain.Interface.Service;
 using SehatMand.Infrastructure.Extensions;
 using SehatMand.Infrastructure.Persistence;
 using SehatMand.Infrastructure.Repository;
+using SehatMand.Infrastructure.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,11 +27,22 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var config = builder.Configuration;
+/*string? httpClientName = builder.Configuration["PmcHttpClient"];
+ArgumentException.ThrowIfNullOrEmpty(httpClientName);*/
+
+builder.Services.AddHttpClient(
+    "PmcHttpClient", //httpClientName,
+    client =>
+    {
+        // Set the base address of the named client.
+        client.BaseAddress = new Uri("https://www.pmc.gov.pk/api/");
+    });
 builder.Services.AddDbContext<SmDbContext>(options => options.UseMySQL(config.GetConnectionString("SmDb")!));
 builder.Services.AddScoped<DbContext, SmDbContext>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IDoctorVerificationService, DoctorVerificationService>();
 
 //builder.Services.AddInfrastructure(config);
 

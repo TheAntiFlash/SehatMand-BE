@@ -26,7 +26,7 @@ public class PatientController(
 {
     [HttpPost]
     [Route("login")]
-    public async Task<IActionResult> Login(LoginDto creds)
+    public async Task<IActionResult> Login([FromBody] LoginDto creds)
     {
         try
         {
@@ -54,7 +54,7 @@ public class PatientController(
     
     [HttpPost]
     [Route("register")]
-    public async Task<IActionResult> Register(RegisterPatientDto dto)
+    public async Task<IActionResult> Register([FromBody]RegisterPatientDto dto)
     {
         try
         {
@@ -81,7 +81,7 @@ public class PatientController(
     }
     [HttpPut]
     [Route("forgot-password")]
-    public async Task<IActionResult> ForgotPassword(ForgotPasswordDto dto)
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
     {
         try
         {

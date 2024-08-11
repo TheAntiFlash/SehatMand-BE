@@ -35,7 +35,8 @@ public partial class SmDbContext(
 
     public virtual DbSet<Coupon> Coupon { get; set; }
 
-    public virtual DbSet<Doctor?> Doctor { get; set; }
+    public virtual DbSet<Doctor> Doctor { get; set; }
+    public virtual DbSet<Qualification> Qualification { get; set; }
 
     public virtual DbSet<DoctorDailyAvailability> DoctorDailyAvailability { get; set; }
 
@@ -181,30 +182,54 @@ public partial class SmDbContext(
 
             entity.HasIndex(e => e.ClinicId, "clinic_id");
 
-            entity.HasIndex(e => e.Userid, "userid");
+            entity.HasIndex(e => e.UserId, "userid");
 
             entity.Property(e => e.Id).HasMaxLength(36);
             entity.Property(e => e.Address).HasMaxLength(255);
-            entity.Property(e => e.ApprovalStatus).HasMaxLength(50);
-            entity.Property(e => e.ClinicId).HasMaxLength(36);
-            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.FatherName).HasMaxLength(50).HasColumnName("father_name");
+            entity.Property(e => e.RegistrationType).HasMaxLength(50).HasColumnName("registration_type");
+            entity.Property(e => e.RegistrationDate).HasColumnType("date").HasColumnName("registration_date");
+            entity.Property(e => e.LicenseExpiry).HasColumnType("date").HasColumnName("license_expiry");
+            entity.Property(e => e.ApprovalStatus).HasMaxLength(50).HasColumnName("approval_status");
+            entity.Property(e => e.ClinicId).HasMaxLength(36).HasColumnName("clinic_id");
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime").HasColumnName("created_at");
             entity.Property(e => e.Email).HasMaxLength(255);
-            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime").HasColumnName("modified_at");
             entity.Property(e => e.Name).HasMaxLength(255);
             entity.Property(e => e.Phone).HasMaxLength(15);
-            entity.Property(e => e.ProfileInfo).HasMaxLength(255);
-            entity.Property(e => e.RegistrationId).HasMaxLength(50);
+            entity.Property(e => e.ProfileInfo).HasMaxLength(255).HasColumnName("profile_info");
+            entity.Property(e => e.RegistrationId).HasMaxLength(50).HasColumnName("registration_id");
             entity.Property(e => e.Specialty).HasMaxLength(255);
-            entity.Property(e => e.Userid).HasMaxLength(36);
+            entity.Property(e => e.UserId).HasMaxLength(36).HasColumnName("userid");
 
             entity.HasOne(d => d.Clinic).WithMany(p => p.Doctor)
                 .HasForeignKey(d => d.ClinicId)
                 .HasConstraintName("doctor_ibfk_2");
 
             entity.HasOne(d => d.User).WithMany(p => p.Doctor)
-                .HasForeignKey(d => d.Userid)
+                .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("doctor_ibfk_1");
+            entity.HasMany(e => e.Qualifications)
+                .WithMany(e => e.Doctors)
+                .UsingEntity(
+                    "doctorqualification",
+                    l => l.HasOne(typeof(Qualification)).WithMany().HasForeignKey("qualification_id").HasPrincipalKey(nameof(Domain.Entities.Qualification.Id)),
+                    r => r.HasOne(typeof(Doctor)).WithMany().HasForeignKey("doctor_id").HasPrincipalKey(nameof(Domain.Entities.Doctor.Id)),
+                    j => j.HasKey("doctor_id", "qualification_id"));
+        });
+        
+        modelBuilder.Entity<Qualification>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("Qualification", "sehatmand_db");
+
+            entity.Property(e => e.Id).HasMaxLength(36);
+            entity.Property(e => e.Speciality).HasMaxLength(50);
+            entity.Property(e => e.Degree).HasMaxLength(50);
+            entity.Property(e => e.University).HasMaxLength(50);
+            entity.Property(e => e.PassingYear).HasColumnType("date").HasColumnName("passing_year");
         });
 
         modelBuilder.Entity<DoctorDailyAvailability>(entity =>

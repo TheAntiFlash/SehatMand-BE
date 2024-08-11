@@ -19,12 +19,18 @@ public class AuthRepository(
     IPatientRepository patientRepo
     ): IAuthRepository
 {
-    public Task<string?> RegisterDoctor(Doctor doctor)
+    public async Task<string?> RegisterDoctor(Doctor doctor)
     {
-        User user = doctor.User;
-        user.PasswordHash
-            = BCrypt.Net.BCrypt.HashPassword(doctor.User.PasswordHash);
-        throw new NotImplementedException();
+        
+        var exists = await dbContext.User.AnyAsync(u => u.Email == doctor.Email);
+        if (exists)
+        {
+            return null;
+        }
+        await dbContext.User.AddAsync(doctor.User);
+        await dbContext.Doctor.AddAsync(doctor);
+        await dbContext.SaveChangesAsync();
+        return CreateToken(doctor.User);
         
     }
 

@@ -16,14 +16,14 @@ public static class PatientMapper
             User = new User
             {
                 Email = dto.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                Role = "Patient",
+                IsActive = true
             }
         };
         patient.UserId = patient.User.Id;
         
-        patient.User.Role = "Patient";
         patient.CreatedAt = DateTime.Now;
-        patient.User.IsActive = true;
         return patient;
     }
     

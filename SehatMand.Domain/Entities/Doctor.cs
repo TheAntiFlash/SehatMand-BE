@@ -2,12 +2,16 @@
 
 public partial class Doctor
 {
-    public string Id { get; set; } = null!;
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
-    public string Userid { get; set; } = null!;
+    public string UserId { get; set; } = null!;
 
     public string Name { get; set; } = null!;
 
+    public string FatherName { get; set; } = null!;
+    public string RegistrationType { get; set; } = null!;
+    public DateTime RegistrationDate { get; set; }
+    public DateTime LicenseExpiry { get; set; }
     public string Specialty { get; set; } = null!;
 
     public string Phone { get; set; } = null!;
@@ -37,4 +41,6 @@ public partial class Doctor
     public virtual Clinic? Clinic { get; set; }
 
     public virtual User User { get; set; } = null!;
+
+    public List<Qualification> Qualifications { get; set; } = [];
 }
