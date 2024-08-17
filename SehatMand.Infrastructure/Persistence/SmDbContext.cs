@@ -52,7 +52,7 @@ public partial class SmDbContext(
 
     public virtual DbSet<MedicalHistoryDocument> MedicalHistoryDocument { get; set; }
 
-    public virtual DbSet<Patient> Patient { get; set; }
+    public virtual DbSet<Patient?> Patient { get; set; }
 
     public virtual DbSet<RecordedSessions> RecordedSessions { get; set; }
 
@@ -200,6 +200,7 @@ public partial class SmDbContext(
             entity.Property(e => e.ProfileInfo).HasMaxLength(255).HasColumnName("profile_info");
             entity.Property(e => e.RegistrationId).HasMaxLength(50).HasColumnName("registration_id");
             entity.Property(e => e.Specialty).HasMaxLength(255);
+            entity.Property(e => e.City).HasMaxLength(50);
             entity.Property(e => e.UserId).HasMaxLength(36).HasColumnName("userid");
 
             entity.HasOne(d => d.Clinic).WithMany(p => p.Doctor)

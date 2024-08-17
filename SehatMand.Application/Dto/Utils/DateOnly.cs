@@ -14,3 +14,10 @@ public record DateOnly(
     }
 }
 
+public static class DateOnlyExtensions
+{
+    public static DateOnly ToDateOnly(this DateTime dateTime)
+    {
+        return new DateOnly(dateTime.Year, dateTime.Month, dateTime.Day);
+    }
+}

@@ -1,4 +1,6 @@
+using SehatMand.Application.Dto;
 using SehatMand.Application.Dto.Authentication;
+using SehatMand.Application.Dto.Dctor;
 using SehatMand.Application.Dto.PmcDoctor;
 using SehatMand.Domain.Entities;
 
@@ -43,7 +45,20 @@ public static class DoctorMapper
             ClinicId = null,
             Address = dto.Address,
             ProfileInfo = "",
+            City = dto.City
             
         };
+    }
+    
+    public static ReadNearestDoctorDto ToReadNearestDoctorDto(this Doctor doctor)
+    {
+        return new ReadNearestDoctorDto(
+            doctor.Name,
+            doctor.Qualifications.Select(q=>q.Speciality).ToList(),
+            doctor.Qualifications.Select(q => q.Degree).ToList(),
+            doctor.Email,
+            doctor.Phone,
+            doctor.Address ?? ""
+        );
     }
 }

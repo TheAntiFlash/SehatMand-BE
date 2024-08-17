@@ -13,7 +13,7 @@ public class PatientRepository(SmDbContext context): IPatientRepository
         return await context.Patient.Include(d => d.User).FirstOrDefaultAsync(x => x.Email == email);
     }
     
-    public async Task<bool> UpdatePatientProfile(
+    public async Task<bool> CompletePatientProfile(
         string id,
         string address,
         string city,
@@ -35,5 +35,42 @@ public class PatientRepository(SmDbContext context): IPatientRepository
         patient.DateOfBirth = dateOfBirth;
         
         return await context.SaveChangesAsync() > 0;
+    }
+    
+    public async Task<bool> UpdatePatientProfile(
+        string? id,
+        string? fullName,
+        string? email,
+        string? phoneNumber,
+        string? address,
+        string? city,
+        float height,
+        float weight,
+        string? gender,
+        string? bloodGroup,
+        DateTime? dateOfBirth,
+        string? profileInfo
+    )
+    {
+        var patient = await context.Patient.FirstOrDefaultAsync(p => p.UserId == id);
+        if (patient == null) throw new Exception("Patient Not Found");
+        if (fullName != null) patient.Name = fullName;
+        if (email != null) patient.Email = email;
+        if (phoneNumber != null) patient.Phone = phoneNumber;
+        if (address != null) patient.Address = address;
+        if (height != 0.0) patient.Height = height;
+        if (weight != 0.0) patient.Weight = weight;
+        if (!string.IsNullOrWhiteSpace(bloodGroup)) patient.BloodGroup = bloodGroup;
+        if (city != null) patient.City = city;
+        if (!string.IsNullOrWhiteSpace(gender)) patient.Gender = gender;
+        if (dateOfBirth.HasValue) patient.DateOfBirth = dateOfBirth.Value;
+        if (profileInfo != null) patient.ProfileInfo = profileInfo;
+        
+        return await context.SaveChangesAsync() > 0;
+    }
+
+    public async Task<Patient?> GetByIdAsync(string id)
+    {
+       return await context.Patient.FirstOrDefaultAsync(p => p.UserId == id);
     }
 }

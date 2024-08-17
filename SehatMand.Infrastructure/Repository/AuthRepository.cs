@@ -4,8 +4,6 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Org.BouncyCastle.Crypto.Generators;
-using SehatMand.Domain;
 using SehatMand.Domain.Entities;
 using SehatMand.Domain.Interface.Repository;
 using SehatMand.Infrastructure.Persistence;
@@ -35,7 +33,7 @@ public class AuthRepository(
     }
 
     //consider fixing so a doctor can make a patient accound and a patient can make a doctor account
-    public async Task<string?> RegisterPatient(Patient patient)
+    public async Task<string?> RegisterPatient(Patient? patient)
     {
         var exists = await dbContext.User.AnyAsync(u => u.Email == patient.Email);
         if (exists)
@@ -90,12 +88,12 @@ public class AuthRepository(
 
     private string CreateToken(User user)
     {
-        List<Claim> claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new (ClaimTypes.Email, user.Email),
-            new (ClaimTypes.Role, user.Role)
-        };
+        List<Claim> claims =
+        [
+            new(ClaimTypes.NameIdentifier, user.Id),
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Role, user.Role)
+        ];
         
         var key = 
             new SymmetricSecurityKey(

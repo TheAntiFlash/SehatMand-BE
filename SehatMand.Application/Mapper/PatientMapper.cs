@@ -1,12 +1,13 @@
 using SehatMand.Application.Dto.Authentication;
 using SehatMand.Application.Dto.Patient;
+using SehatMand.Application.Dto.Utils;
 using SehatMand.Domain.Entities;
 
 namespace SehatMand.Application.Mapper;
 
 public static class PatientMapper
 {
-    public static Patient ToPatient(this RegisterPatientDto dto)
+    public static Patient? ToPatient(this RegisterPatientDto dto)
     {
         var patient = new Patient
         {
@@ -26,7 +27,23 @@ public static class PatientMapper
         patient.CreatedAt = DateTime.Now;
         return patient;
     }
-    
+
+    public static ReadPatientProfileDto ToReadPatientProfileDto(this Patient patient)
+    {
+        return new ReadPatientProfileDto(
+            patient.Name ?? "",
+            patient.Gender ?? "",
+            patient.DateOfBirth.ToShortDateString(),
+            patient.Phone,
+            patient.Email,
+            patient.Address ?? "",
+            patient.City ?? "",
+            patient.Height ?? 0.0f,
+            patient.Weight ?? 0.0f,
+            patient.BloodGroup ?? "",
+            patient.ProfileInfo ?? ""
+        );
+    }
     
 
 }

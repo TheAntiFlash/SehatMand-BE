@@ -126,7 +126,7 @@ public class PatientController(
             if (email == null) throw new Exception("User not found");
             logger.LogInformation(id);
             logger.LogInformation(email);
-            var response = await patientRepo.UpdatePatientProfile(
+            var response = await patientRepo.CompletePatientProfile(
                 id,
                 dto.Address,
                 dto.City,
@@ -146,6 +146,69 @@ public class PatientController(
         {
             return StatusCode(500, new ErrorResponseDto(
                 "Unable to complete profile",
+                e.Message
+            ));
+        }
+    }
+    [Authorize]
+    [HttpPatch]
+    [Route("update-profile")]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdatePatientProfileDto dto)
+    {
+        try
+        {
+            if (HttpContext.User.Identity is not ClaimsIdentity identity)
+                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+        
+            var claims = identity.Claims;
+            var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            await patientRepo.UpdatePatientProfile(
+                id,
+                dto.FullName,
+                dto.Email,
+                dto.PhoneNumber,
+                dto.Address,
+                dto.City,
+                dto.Height ?? 0.0f,
+                dto.Weight ?? 0.0f,
+                dto.Gender,
+                dto.BloodGroup,
+                dto.DateOfBirth?.ToDateTime() ,  
+                dto.ProfileInfo
+            );
+            return Ok();  
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new ErrorResponseDto(
+                "Unable to update profile",
+                e.Message
+            ));
+        }
+    }
+    
+    [Authorize]
+    [HttpGet]
+    [Route("profile")]
+    public async Task<IActionResult> GetProfile()
+    {
+        try
+        {
+            if (HttpContext.User.Identity is not ClaimsIdentity identity)
+                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+        
+            var claims = identity.Claims;
+            var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (id == null) throw new Exception("User not found");
+            var patient = await patientRepo.GetByIdAsync(id);
+            if (patient == null) throw new Exception("Patient not found");
+            return Ok(patient.ToReadPatientProfileDto());
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new ErrorResponseDto(
+                "Unable to get profile",
                 e.Message
             ));
         }

@@ -1,4 +1,6 @@
 
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SehatMand.Application.Dto.Authentication;
@@ -14,7 +16,11 @@ namespace SehatMand.API.Controllers;
 
 [Route("api/doctor")]
 [ApiController]
-public class DoctorController(IAuthRepository repo, IDoctorVerificationService service) : ControllerBase
+public class DoctorController(
+    IAuthRepository repo,
+    IPatientRepository patientRepo, 
+    IDoctorRepository docRepo, 
+    IDoctorVerificationService service) : ControllerBase
 {
     [HttpPost]
     [Route("login")]
@@ -56,5 +62,32 @@ public class DoctorController(IAuthRepository repo, IDoctorVerificationService s
         }
     }
 
+    [Authorize]
+    [HttpGet]
+    [Route("nearest-doctors")]
+    public async Task<IActionResult> GetNearestDoctors()
+    {
+        try
+        {
+            if (HttpContext.User.Identity is not ClaimsIdentity identity)
+                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+        
+            var claims = identity.Claims;
+            var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (id == null) throw new Exception("User not found");
+            var patient = await patientRepo.GetByIdAsync(id);
+            if (patient == null) throw new Exception("Patient not found");
+            var doctors = await docRepo.GetNearestDoctors(patient.City);
+            return Ok(doctors.Select(d => d.ToReadNearestDoctorDto()).ToList());
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new ErrorResponseDto(
+                "Unable to get nearest doctors",
+                e.Message
+            ));
+        }
+    }
+    
 }   
 
