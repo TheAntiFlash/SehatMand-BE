@@ -2,7 +2,7 @@
 
 public partial class DoctorDailyAvailability
 {
-    public string id { get; set; } = null!;
+    public string id { get; set; } = Guid.NewGuid().ToString();
 
     public string? doctor_id { get; set; }
 

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SehatMand.Application.Dto.Appointment;
 using SehatMand.Application.Dto.Authentication;
 using SehatMand.Application.Dto.Patient;
 using SehatMand.Application.Mapper;
@@ -104,6 +105,31 @@ public class PatientController(
         {
             return StatusCode(500, new ErrorResponseDto(
                 "Unable to reset password",
+                e.Message
+            ));
+        }
+    }
+    
+    [Authorize]
+    [HttpPatch]
+    [Route("update-password")]
+    public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordDto dto)
+    {
+        try
+        {
+            if (HttpContext.User.Identity is not ClaimsIdentity identity)
+                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+        
+            var claims = identity.Claims;
+            var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (id == null) throw new Exception("User not found");
+            await patientRepo.UpdatePatientPassword(id, dto.OldPassword, dto.NewPassword);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new ErrorResponseDto(
+                "Unable to update password",
                 e.Message
             ));
         }
@@ -213,5 +239,7 @@ public class PatientController(
             ));
         }
     }
+
+    
 }   
 

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SehatMand.Application.Dto.Authentication;
+using SehatMand.Application.Dto.Dctor;
 using SehatMand.Application.Mapper;
 using SehatMand.Domain;
 using SehatMand.Domain.Entities;
@@ -87,6 +88,14 @@ public class DoctorController(
                 e.Message
             ));
         }
+    }
+
+    [Authorize]
+    [HttpPatch]
+    [Route("profile")]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateDoctorProfileDto dto)
+    {
+        throw new NotImplementedException();
     }
     
 }   

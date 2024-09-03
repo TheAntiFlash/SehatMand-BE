@@ -45,7 +45,21 @@ public static class DoctorMapper
             ClinicId = null,
             Address = dto.Address,
             ProfileInfo = "",
-            City = dto.City
+            City = dto.City,
+            DoctorDailyAvailability = new List<DoctorDailyAvailability>
+            {
+                new DoctorDailyAvailability
+                {
+                    day_of_week = 1,
+                    availability_start = new DateTime(),
+                    availability_end = null,
+                    created_at = null,
+                    modified_at = null,
+                    created_by = null,
+                    created_byNavigation = null,
+                    doctor = null
+                }
+            }
             
         };
     }
@@ -53,12 +67,16 @@ public static class DoctorMapper
     public static ReadNearestDoctorDto ToReadNearestDoctorDto(this Doctor doctor)
     {
         return new ReadNearestDoctorDto(
+            doctor.Id,
             doctor.Name,
             doctor.Qualifications.Select(q=>q.Speciality).ToList(),
+            $"doctor/doctor.Id",
             doctor.Qualifications.Select(q => q.Degree).ToList(),
+            doctor.DoctorDailyAvailability.FirstOrDefault(a => a.day_of_week! == (int?)DateTime.Now.DayOfWeek)?.availability_start.ToString() ?? "unassigned",
+            doctor.DoctorDailyAvailability.FirstOrDefault(a => a.day_of_week! == (int?)DateTime.Now.DayOfWeek)?.availability_end.ToString() ?? "unassigned",
             doctor.Email,
             doctor.Phone,
-            doctor.Address ?? ""
+            4.8f
         );
     }
 }

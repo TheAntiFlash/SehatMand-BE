@@ -22,7 +22,7 @@ public class PatientRepository(SmDbContext context): IPatientRepository
         string gender,
         string bloodGroup,
         DateTime dateOfBirth
-        )
+    )
     {
         var patient = await context.Patient.FirstOrDefaultAsync(p => p.UserId == id);
         if (patient == null) throw new Exception("Patient Not Found");
@@ -69,8 +69,20 @@ public class PatientRepository(SmDbContext context): IPatientRepository
         return await context.SaveChangesAsync() > 0;
     }
 
+    public async Task UpdatePatientPassword(string id, string oldPassword, string newPassword)
+    {
+        var patient = await GetByIdAsync(id);
+        if (patient == null) throw new Exception("Patient not found");
+        if (!BCrypt.Net.BCrypt.Verify(oldPassword, patient.User.PasswordHash))
+        {
+            throw new Exception("Invalid Password");
+        }
+        patient.User.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        await context.SaveChangesAsync();
+    }
+
     public async Task<Patient?> GetByIdAsync(string id)
     {
-       return await context.Patient.FirstOrDefaultAsync(p => p.UserId == id);
+        return await context.Patient.FirstOrDefaultAsync(p => p.UserId == id);
     }
 }

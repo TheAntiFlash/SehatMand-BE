@@ -32,5 +32,6 @@ public interface IPatientRepository
         string profileInfo
     );
 
+    public Task UpdatePatientPassword(string id, string oldPassword, string newPassword);
     public Task<Patient?> GetByIdAsync(string id);
 }

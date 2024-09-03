@@ -25,6 +25,7 @@ public class AuthRepository(
         {
             return null;
         }
+
         await dbContext.User.AddAsync(doctor.User);
         await dbContext.Doctor.AddAsync(doctor);
         await dbContext.SaveChangesAsync();
