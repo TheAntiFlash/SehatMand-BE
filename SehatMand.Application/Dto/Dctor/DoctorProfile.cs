@@ -1,6 +1,6 @@
 namespace SehatMand.Application.Dto.Dctor;
 
-public class DoctorProfileDto
+public class DocProfilebyIDDto
 {
-   public string Id { get; set; }
+   public string DocId { get; set; }
 }

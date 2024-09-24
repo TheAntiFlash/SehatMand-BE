@@ -19,6 +19,6 @@ public class DoctorRepository(SmDbContext context): IDoctorRepository
     
     public async Task<Doctor> getByIdAsync(string id)
     {
-        return await context.Doctor.Include(d => d.Qualifications).FirstOrDefaultAsync(d => d.UserId == id);
+        return await context.Doctor.FirstOrDefaultAsync(d => d.UserId == id);
     }
 }

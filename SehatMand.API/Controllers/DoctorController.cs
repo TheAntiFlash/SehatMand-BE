@@ -107,7 +107,7 @@ public class DoctorController(
     [Authorize]
     [HttpGet]
     [Route("doctor-profile-by-id")]
-    public async Task<IActionResult> GetProfilebyID(DoctorProfileDto dto)
+    public async Task<IActionResult> GetProfilebyID(DocProfilebyIDDto dto)
     {
         try
         {
@@ -117,7 +117,8 @@ public class DoctorController(
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
-            var doctor = await docRepo.getByIdAsync(dto.Id);
+            var doctor = await docRepo.getByIdAsync(dto.DocId);
+            Console.WriteLine(doctor);
             if (doctor == null) throw new Exception("Doctor not found");
             return Ok(doctor);
         }
