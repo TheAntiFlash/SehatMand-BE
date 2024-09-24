@@ -1,3 +1,4 @@
+using System.Globalization;
 using SehatMand.Application.Dto;
 using SehatMand.Application.Dto.Authentication;
 using SehatMand.Application.Dto.Dctor;
@@ -23,8 +24,8 @@ public static class DoctorMapper
             Name = pmc.Data.Name,
             FatherName = pmc.Data.FatherName,
             RegistrationType = pmc.Data.RegistrationType,
-            RegistrationDate = DateTime.Parse(pmc.Data.RegistrationDate),
-            LicenseExpiry = DateTime.Parse(pmc.Data.ValidUpto),
+            RegistrationDate = DateTime.ParseExact(pmc.Data.RegistrationDate, "dd/MM/yyyy", CultureInfo.InvariantCulture),
+            LicenseExpiry = DateTime.ParseExact(pmc.Data.ValidUpto,"dd/MM/yyyy",CultureInfo.InvariantCulture),
             Qualifications = pmc.Data.Qualifications.Select(q=>
                 new Qualification
                 {

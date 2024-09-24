@@ -16,4 +16,9 @@ public class DoctorRepository(SmDbContext context): IDoctorRepository
     {
         return await context.Doctor.Include(d => d.Qualifications).Where(d => d.City != null && d.City.Equals(patientCity, StringComparison.CurrentCultureIgnoreCase)).ToListAsync();
     }
+    
+    public async Task<Doctor> getByIdAsync(string id)
+    {
+        return await context.Doctor.Include(d => d.Qualifications).FirstOrDefaultAsync(d => d.UserId == id);
+    }
 }

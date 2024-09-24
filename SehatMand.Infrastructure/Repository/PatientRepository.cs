@@ -72,12 +72,14 @@ public class PatientRepository(SmDbContext context): IPatientRepository
     public async Task UpdatePatientPassword(string id, string oldPassword, string newPassword)
     {
         var patient = await GetByIdAsync(id);
+        Console.WriteLine(patient);
         if (patient == null) throw new Exception("Patient not found");
         if (!BCrypt.Net.BCrypt.Verify(oldPassword, patient.User.PasswordHash))
         {
             throw new Exception("Invalid Password");
         }
         patient.User.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        Console.WriteLine("Password Updated -  in funtions");
         await context.SaveChangesAsync();
     }
 
