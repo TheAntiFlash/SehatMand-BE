@@ -9,4 +9,6 @@ public interface IDoctorRepository
     
     Task<Doctor> getByIdAsync(string id);
     
+    Task UpdatePassword(string id, string oldPassword,string newPassword);
+    
 }

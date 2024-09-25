@@ -157,5 +157,30 @@ public class DoctorController(
         }
     }
     
+    [Authorize]
+    [HttpPatch]
+    [Route("update-password")]
+    public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordDto dto)
+    {
+        try
+        {
+            if (HttpContext.User.Identity is not ClaimsIdentity identity)
+                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+        
+            var claims = identity.Claims;
+            var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (id == null) throw new Exception("User not found");
+            await docRepo.UpdatePassword(id, dto.OldPassword, dto.NewPassword);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new ErrorResponseDto(
+                "Unable to update password",
+                e.Message
+            ));
+        }
+    }
+    
 }   
 
