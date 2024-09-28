@@ -4,15 +4,15 @@ public partial class DoctorDailyAvailability
 {
     public string id { get; set; } = Guid.NewGuid().ToString();
 
-    public string? doctor_id { get; set; }
+    public string doctor_id { get; set; }
 
-    public int? day_of_week { get; set; }
+    public int day_of_week { get; set; }
 
-    public DateTime? availability_start { get; set; }
+    public TimeSpan availability_start { get; set; }
 
-    public DateTime? availability_end { get; set; }
+    public TimeSpan availability_end { get; set; }
 
-    public DateTime? created_at { get; set; }
+    public DateTime created_at { get; set; }
 
     public DateTime? modified_at { get; set; }
 

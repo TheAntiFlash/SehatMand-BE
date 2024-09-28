@@ -1,7 +1,7 @@
 using System.Globalization;
 using SehatMand.Application.Dto;
 using SehatMand.Application.Dto.Authentication;
-using SehatMand.Application.Dto.Dctor;
+using SehatMand.Application.Dto.Doctor;
 using SehatMand.Application.Dto.PmcDoctor;
 using SehatMand.Domain.Entities;
 
@@ -9,7 +9,7 @@ namespace SehatMand.Application.Mapper;
 
 public static class DoctorMapper
 {
-    public static Doctor ToDoctor(this RegisterDoctorDto dto, PmcDoctor pmc)
+    public static Doctor? ToDoctor(this RegisterDoctorDto dto, PmcDoctor pmc)
     {
         var doctorUser = new User
         {
@@ -19,6 +19,20 @@ public static class DoctorMapper
             IsActive = true,
             
         };
+        var availability = new List<DoctorDailyAvailability>();
+        for (int i = 1; i < 8; i++)
+        {
+            availability.Add(
+                new DoctorDailyAvailability()
+                {
+                    day_of_week = i,
+                    availability_start = new TimeSpan(9, 0, 0), 
+                    availability_end = new TimeSpan(17, 0 , 0),
+                    created_at = DateTime.Now,
+                    created_by = doctorUser.Id,
+                }
+                );
+        }
         return new Doctor
         {
             Name = pmc.Data.Name,
@@ -47,21 +61,7 @@ public static class DoctorMapper
             Address = dto.Address,
             ProfileInfo = "",
             City = dto.City,
-            DoctorDailyAvailability = new List<DoctorDailyAvailability>
-            {
-                new DoctorDailyAvailability
-                {
-                    day_of_week = 1,
-                    availability_start = new DateTime(),
-                    availability_end = null,
-                    created_at = null,
-                    modified_at = null,
-                    created_by = null,
-                    created_byNavigation = null,
-                    doctor = null
-                }
-            }
-            
+            DoctorDailyAvailability = availability
         };
     }
     
@@ -78,6 +78,39 @@ public static class DoctorMapper
             doctor.Email,
             doctor.Phone,
             4.8f
+        );
+    }
+
+
+    public static ReadDoctorProfileDto ToReadDoctorProfileDto(this Doctor d)
+    {
+        var currDay = DateTime.Now.Date;
+        var availabilities = new List<ReadDoctorDailyAvailability>();
+        for (var i = 0; i < 14; i++)
+        {
+            var availability = new ReadDoctorDailyAvailability(
+                currDay.DayOfWeek.ToString(),
+                currDay.ToShortDateString(),
+                d.DoctorDailyAvailability.FirstOrDefault(a => a.day_of_week == (int)currDay.DayOfWeek)?.availability_start.ToString() ?? "unassigned",
+                d.DoctorDailyAvailability.FirstOrDefault(a => a.day_of_week == (int)currDay.DayOfWeek)?.availability_end.ToString() ?? "unassigned",
+                d.Appointment.Where(a => a.appointment_date.Date == currDay.Date && a.status == "scheduled").Select(t => t.appointment_date.ToString("HH:mm")).ToList()
+                );
+            availabilities.Add(availability);
+            currDay = currDay.AddDays(1);
+        }
+        return new ReadDoctorProfileDto(
+            d.Id,
+            d.Name,
+            d.City?? "N/A",
+            d.Qualifications.Select(q => q.Speciality).ToList(),
+            d.Qualifications.Select(q => q.Degree).ToList(),
+            d.Email,
+            d.Phone,
+            4.5f,
+            d.ClinicId?? "N/A",
+            d.Address?? "N/A",
+            d.ProfileInfo?? "N/A",
+            availabilities
         );
     }
 }

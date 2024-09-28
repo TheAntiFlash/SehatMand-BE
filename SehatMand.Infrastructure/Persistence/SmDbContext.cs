@@ -35,7 +35,7 @@ public partial class SmDbContext(
 
     public virtual DbSet<Coupon> Coupon { get; set; }
 
-    public virtual DbSet<Doctor> Doctor { get; set; }
+    public virtual DbSet<Doctor?> Doctor { get; set; }
     public virtual DbSet<Qualification> Qualification { get; set; }
 
     public virtual DbSet<DoctorDailyAvailability> DoctorDailyAvailability { get; set; }
@@ -52,7 +52,7 @@ public partial class SmDbContext(
 
     public virtual DbSet<MedicalHistoryDocument> MedicalHistoryDocument { get; set; }
 
-    public virtual DbSet<Patient?> Patient { get; set; }
+    public virtual DbSet<Patient> Patient { get; set; }
 
     public virtual DbSet<RecordedSessions> RecordedSessions { get; set; }
 
@@ -244,8 +244,8 @@ public partial class SmDbContext(
             entity.HasIndex(e => e.doctor_id, "doctor_id");
 
             entity.Property(e => e.id).HasMaxLength(36);
-            entity.Property(e => e.availability_end).HasColumnType("datetime");
-            entity.Property(e => e.availability_start).HasColumnType("datetime");
+            entity.Property(e => e.availability_end).HasColumnType("time");
+            entity.Property(e => e.availability_start).HasColumnType("time");
             entity.Property(e => e.created_at).HasColumnType("datetime");
             entity.Property(e => e.created_by).HasMaxLength(36);
             entity.Property(e => e.doctor_id).HasMaxLength(36);
@@ -287,9 +287,9 @@ public partial class SmDbContext(
 
         modelBuilder.Entity<MedicalForumCommentVotes>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("MedicalForumCommentVotes", "sehatmand_db");
+            entity.HasKey(e => new { e.comment_id, e.doctor_id }).HasName("PRIMARY");
+
+            entity.ToTable("MedicalForumCommentVotes", "sehatmand_db");
 
             entity.HasIndex(e => e.comment_id, "comment_id");
 
@@ -299,7 +299,7 @@ public partial class SmDbContext(
             entity.Property(e => e.created_at).HasColumnType("datetime");
             entity.Property(e => e.doctor_id).HasMaxLength(36);
 
-            entity.HasOne(d => d.comment).WithMany()
+            entity.HasOne(d => d.comment).WithMany(p => p.Votes)
                 .HasForeignKey(d => d.comment_id)
                 .HasConstraintName("medicalforumcommentvotes_ibfk_2");
 
@@ -318,6 +318,7 @@ public partial class SmDbContext(
 
             entity.Property(e => e.id).HasMaxLength(36);
             entity.Property(e => e.author_id).HasMaxLength(36);
+            entity.Property(e => e.heading).HasMaxLength(255);
             entity.Property(e => e.content).HasMaxLength(500);
             entity.Property(e => e.created_at).HasColumnType("datetime");
 
@@ -328,24 +329,23 @@ public partial class SmDbContext(
 
         modelBuilder.Entity<MedicalForumPostVotes>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("MedicalForumPostVotes", "sehatmand_db");
+            entity.HasKey(e => new { e.post_id, e.voted_by }).HasName("PRIMARY");
+            entity.ToTable("MedicalForumPostVotes", "sehatmand_db");
 
             entity.HasIndex(e => e.post_id, "post_id");
 
-            entity.HasIndex(e => e.upvoted_by, "upvoted_by");
+            entity.HasIndex(e => e.voted_by, "upvoted_by");
 
             entity.Property(e => e.created_at).HasColumnType("datetime");
             entity.Property(e => e.post_id).HasMaxLength(36);
-            entity.Property(e => e.upvoted_by).HasMaxLength(36);
+            entity.Property(e => e.voted_by).HasMaxLength(36);
 
-            entity.HasOne(d => d.post).WithMany()
+            entity.HasOne(d => d.post).WithMany(p => p.Votes)
                 .HasForeignKey(d => d.post_id)
                 .HasConstraintName("medicalforumpostvotes_ibfk_1");
 
-            entity.HasOne(d => d.upvoted_byNavigation).WithMany()
-                .HasForeignKey(d => d.upvoted_by)
+            entity.HasOne(d => d.voted_byNavigation).WithMany()
+                .HasForeignKey(d => d.voted_by)
                 .HasConstraintName("medicalforumpostvotes_ibfk_2");
         });
 

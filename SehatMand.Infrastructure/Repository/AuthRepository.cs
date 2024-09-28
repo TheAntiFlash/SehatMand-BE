@@ -17,7 +17,7 @@ public class AuthRepository(
     IPatientRepository patientRepo
     ): IAuthRepository
 {
-    public async Task<string?> RegisterDoctor(Doctor doctor)
+    public async Task<string?> RegisterDoctor(Doctor? doctor)
     {
         
         var exists = await dbContext.User.AnyAsync(u => u.Email == doctor.Email);

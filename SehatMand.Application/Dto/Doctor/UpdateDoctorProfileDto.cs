@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace SehatMand.Application.Dto.Dctor;
+namespace SehatMand.Application.Dto.Doctor;
 
 public record UpdateDoctorProfileDto(
     

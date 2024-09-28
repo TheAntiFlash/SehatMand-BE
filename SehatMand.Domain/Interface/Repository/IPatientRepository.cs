@@ -34,4 +34,6 @@ public interface IPatientRepository
 
     public Task UpdatePatientPassword(string id, string oldPassword, string newPassword);
     public Task<Patient?> GetByIdAsync(string id);
+
+    public Task<string?> GetPatientIdByUserId(string userId);
 }

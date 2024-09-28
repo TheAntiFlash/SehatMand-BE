@@ -1,4 +1,4 @@
-namespace SehatMand.Application.Dto.Dctor;
+namespace SehatMand.Application.Dto.Doctor;
 
 public record ReadNearestDoctorDto(
     string Id,

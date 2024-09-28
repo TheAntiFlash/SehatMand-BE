@@ -44,7 +44,8 @@ public class PatientController(
             return Ok(response);
         } catch (Exception e)
         {
-            return StatusCode(500, new ErrorResponseDto(
+            logger.LogError(e, "Unable to login");
+            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
                 "Unable to login",
                 e.Message
             ));
@@ -74,7 +75,8 @@ public class PatientController(
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ErrorResponseDto(
+            logger.LogError(e, "Unable to register patient");
+            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
                 "Unable to register patient",
                 e.Message
             ));
@@ -103,7 +105,8 @@ public class PatientController(
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ErrorResponseDto(
+            logger.LogError(e, "Unable to reset password");
+            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
                 "Unable to reset password",
                 e.Message
             ));
@@ -132,7 +135,8 @@ public class PatientController(
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ErrorResponseDto(
+            logger.LogError(e, "Unable to update password");
+            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
                 "Unable to update password",
                 e.Message
             ));
@@ -174,7 +178,8 @@ public class PatientController(
             return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
         } catch (Exception e)
         {
-            return StatusCode(500, new ErrorResponseDto(
+            logger.LogError(e, "Unable to complete profile");
+            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
                 "Unable to complete profile",
                 e.Message
             ));
@@ -211,7 +216,8 @@ public class PatientController(
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ErrorResponseDto(
+            logger.LogError(e, "Unable to update profile");
+            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
                 "Unable to update profile",
                 e.Message
             ));
@@ -237,7 +243,8 @@ public class PatientController(
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ErrorResponseDto(
+            logger.LogError(e, "Unable to get profile");
+            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
                 "Unable to get profile",
                 e.Message
             ));

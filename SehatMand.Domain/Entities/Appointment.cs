@@ -2,19 +2,19 @@
 
 public partial class Appointment
 {
-    public string id { get; set; } = null!;
+    public string id { get; set; } = Guid.NewGuid().ToString(); 
 
-    public string patient_id { get; set; } = null!;
+    public string patient_id { get; set; } 
 
-    public string doctor_id { get; set; } = null!;
+    public string doctor_id { get; set; } 
 
     public bool online { get; set; }
 
-    public decimal latitude { get; set; }
+    public decimal? latitude { get; set; }
 
-    public decimal longitude { get; set; }
+    public decimal? longitude { get; set; }
 
-    public string status { get; set; } = null!;
+    public string status { get; set; } = "pending"; 
 
     public DateTime appointment_date { get; set; }
 
@@ -28,7 +28,7 @@ public partial class Appointment
 
     public virtual ICollection<Review> Review { get; set; } = new List<Review>();
 
-    public virtual Doctor doctor { get; set; } = null!;
+    public virtual Doctor? doctor { get; set; } 
 
-    public virtual Patient patient { get; set; } = null!;
+    public virtual Patient? patient { get; set; }
 }

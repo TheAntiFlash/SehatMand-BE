@@ -17,14 +17,18 @@ public class DoctorRepository(SmDbContext context): IDoctorRepository
         return await context.Doctor.Include(d => d.Qualifications).Where(d => d.City != null && d.City.Equals(patientCity, StringComparison.CurrentCultureIgnoreCase)).ToListAsync();
     }
     
-    public async Task<Doctor> getByIdAsync(string id)
+    public async Task<Doctor?> GetByIdAsync(string id)
     {
-        return await context.Doctor.FirstOrDefaultAsync(d => d.UserId == id);
+        return await context.Doctor
+            .Include(d => d.DoctorDailyAvailability)
+            .Include(d => d.Qualifications)
+            .Include(d => d.Appointment)
+            .FirstOrDefaultAsync(d => d.Id == id);
     }
     
     public async Task UpdatePassword(string id, string oldPassword, string newPassword)
     {
-        var doctor = await getByIdAsync(id);
+        var doctor = await GetByIdAsync(id);
         Console.WriteLine(doctor);
         if (doctor == null) throw new Exception("Doctor Not Found");
         
@@ -44,4 +48,8 @@ public class DoctorRepository(SmDbContext context): IDoctorRepository
         await context.SaveChangesAsync();
     }
 
+    public Task<string?> GetDoctorIdByUserId(string id)
+    {
+        return context.Doctor.Where(d => d.UserId == id).Select(d => d.Id).FirstOrDefaultAsync();
+    }
 }

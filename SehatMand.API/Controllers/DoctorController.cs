@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SehatMand.Application.Dto.Authentication;
-using SehatMand.Application.Dto.Dctor;
+using SehatMand.Application.Dto.Doctor;
 using SehatMand.Application.Mapper;
 using SehatMand.Domain;
 using SehatMand.Domain.Entities;
@@ -21,20 +21,30 @@ public class DoctorController(
     IAuthRepository repo,
     IPatientRepository patientRepo, 
     IDoctorRepository docRepo, 
-    IDoctorVerificationService service) : ControllerBase
+    IDoctorVerificationService service,
+    ILogger<DoctorController> logger) : ControllerBase
 {
     [HttpPost]
     [Route("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto creds)
     {
-        var response = await repo.LoginDoctor(creds.Email, creds.Password);
-
-        if (response == null)
+        try
         {
-            return Unauthorized("Invalid credentials");
+            var response = await repo.LoginDoctor(creds.Email, creds.Password);
+            if (response == null)
+            {
+                return Unauthorized("Invalid credentials");
+            }
+            return Ok(response);
         }
-
-        return Ok(response);
+        catch (Exception e)
+        {
+            logger.LogError(e, "Unable to login");
+            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
+                "Unable to login",
+                e.Message
+            ));
+        }
 
     }
     
@@ -62,12 +72,15 @@ public class DoctorController(
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ErrorResponseDto(
+            logger.LogError(e, "Unable to register");
+            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
                 "Unable to register",
                 e.Message
             ));
         }
     }
+    
+    
 
     [Authorize]
     [HttpGet]
@@ -89,7 +102,8 @@ public class DoctorController(
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ErrorResponseDto(
+            logger.LogError(e, "Unable to get nearest doctors");
+            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
                 "Unable to get nearest doctors",
                 e.Message
             ));
@@ -104,27 +118,21 @@ public class DoctorController(
         throw new NotImplementedException();
     }
     
-    [Authorize]
     [HttpGet]
-    [Route("doctor-profile-by-id")]
-    public async Task<IActionResult> GetProfilebyID(DocProfilebyIDDto dto)
+    [Route("profile/{Id}")]
+    public async Task<IActionResult> GetProfileById([FromRoute] string Id)
     {
         try
         {
-            if (HttpContext.User.Identity is not ClaimsIdentity identity)
-                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
-        
-            var claims = identity.Claims;
-            var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-            if (id == null) throw new Exception("User not found");
-            var doctor = await docRepo.getByIdAsync(dto.DocId);
-            Console.WriteLine(doctor);
+            
+            var doctor = await docRepo.GetByIdAsync(Id);
             if (doctor == null) throw new Exception("Doctor not found");
-            return Ok(doctor);
+            return Ok(doctor.ToReadDoctorProfileDto());
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ErrorResponseDto(
+            logger.LogError(e, "Unable to get profile");
+            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
                 "Unable to get profile",
                 e.Message
             ));
@@ -144,13 +152,14 @@ public class DoctorController(
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
-            var doctor = await docRepo.getByIdAsync(id);
+            var doctor = await docRepo.GetByIdAsync(id);
             if (doctor == null) throw new Exception("Doctor not found");
             return Ok(doctor);
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ErrorResponseDto(
+            logger.LogError(e, "Unable to get profile");
+            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
                 "Unable to get profile",
                 e.Message
             ));
@@ -175,12 +184,14 @@ public class DoctorController(
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ErrorResponseDto(
+            logger.LogError(e, "Unable to update password");
+            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
                 "Unable to update password",
                 e.Message
             ));
         }
     }
+    
     
 }   
 

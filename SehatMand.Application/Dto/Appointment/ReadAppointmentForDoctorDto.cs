@@ -1,9 +1,9 @@
 namespace SehatMand.Application.Dto.Appointment;
 
-public record ReadAppointmentDto(
+public record ReadAppointmentForDoctorDto(
     string Id,
-    string DoctorName,
-    string MedicalField,
+    string PatientName,
+    bool IsOnline,
     string Status,
     string Date,
     string Time,
