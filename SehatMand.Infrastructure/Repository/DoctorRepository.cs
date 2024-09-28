@@ -52,4 +52,13 @@ public class DoctorRepository(SmDbContext context): IDoctorRepository
     {
         return context.Doctor.Where(d => d.UserId == id).Select(d => d.Id).FirstOrDefaultAsync();
     }
+
+    public async Task<Doctor?> GetByUserIdAsync(string uid)
+    {
+        return await context.Doctor
+            .Include(d => d.DoctorDailyAvailability)
+            .Include(d => d.Qualifications)
+            .Include(d => d.Appointment)
+            .FirstOrDefaultAsync(d => d.UserId == uid);
+    }
 }

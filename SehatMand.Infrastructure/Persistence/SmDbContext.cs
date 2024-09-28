@@ -35,7 +35,7 @@ public partial class SmDbContext(
 
     public virtual DbSet<Coupon> Coupon { get; set; }
 
-    public virtual DbSet<Doctor?> Doctor { get; set; }
+    public virtual DbSet<Doctor> Doctor { get; set; }
     public virtual DbSet<Qualification> Qualification { get; set; }
 
     public virtual DbSet<DoctorDailyAvailability> DoctorDailyAvailability { get; set; }

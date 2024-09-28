@@ -141,7 +141,7 @@ public class DoctorController(
     
     [Authorize]
     [HttpGet]
-    [Route("get-doctor-profile")]
+    [Route("profile")]
     public async Task<IActionResult> GetProfile()
     {
         try
@@ -152,9 +152,10 @@ public class DoctorController(
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
-            var doctor = await docRepo.GetByIdAsync(id);
+            
+            var doctor = await docRepo.GetByUserIdAsync(id);
             if (doctor == null) throw new Exception("Doctor not found");
-            return Ok(doctor);
+            return Ok(doctor.ToReadDoctorProfileDto());
         }
         catch (Exception e)
         {
