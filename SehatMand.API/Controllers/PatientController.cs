@@ -122,8 +122,12 @@ public class PatientController(
         
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            Console.WriteLine(id);
             if (id == null) throw new Exception("User not found");
+            Console.WriteLine("Old Password: " + dto.OldPassword + " New Password " + dto.NewPassword);
             await patientRepo.UpdatePatientPassword(id, dto.OldPassword, dto.NewPassword);
+            
+            Console.WriteLine("Password Updated");
             return Ok();
         }
         catch (Exception e)
