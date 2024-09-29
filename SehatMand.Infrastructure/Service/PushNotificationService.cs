@@ -12,10 +12,10 @@ public class PushNotificationService(
     IConfiguration config
     ): IPushNotificationService
 {
-    public async Task SendPushNotificationAsync(string title, string subtitle, string message, string? imageUrl,
+    public async Task SendPushNotificationAsync(string title, string subtitle, string message, /*string? imageUrl,*/
         List<string> users, string context)
     {
-        imageUrl = config.GetSection("Wso2:ApiManager:BaseUrl").Value +"/assets/1"+ imageUrl;
+        //imageUrl = config.GetSection("Wso2:ApiManager:BaseUrl").Value +"/assets/1"+ imageUrl;
         var httpClient = httpClientFactory.CreateClient("OneSignal");
         const string url = "/notifications";
         var appId = config.GetSection("OneSignal:AppId").Value ?? throw new Exception("OneSignal App ID not found in environment");
@@ -27,8 +27,8 @@ public class PushNotificationService(
             subtitle = new { en = subtitle },
             contents = new { en = message },
             target_channel = "push",
-            big_picture = imageUrl,
-            ios_attachments = imageUrl,
+            /*big_picture = imageUrl,
+            ios_attachments = imageUrl,*/
             include_aliases = new
             {
                 external_id = users.ToArray()

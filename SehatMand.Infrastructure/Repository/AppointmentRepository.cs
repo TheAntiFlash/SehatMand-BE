@@ -32,7 +32,8 @@ public class AppointmentRepository(SmDbContext context): IAppointmentRepository
         }
         await context.Appointment.AddAsync(appointment);
         await context.SaveChangesAsync();
-        var appointmentSaved = await context.Appointment.Include(a => a.doctor)
+        var appointmentSaved = await context.Appointment
+            .Include(a => a.doctor)
             .ThenInclude(d => d.Qualifications)
             .FirstOrDefaultAsync(a => a.id == appointment.id);
         return appointmentSaved;

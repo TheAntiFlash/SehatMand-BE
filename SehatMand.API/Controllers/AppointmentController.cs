@@ -5,6 +5,8 @@ using SehatMand.Application.Dto.Appointment;
 using SehatMand.Application.Dto.Error;
 using SehatMand.Application.Mapper;
 using SehatMand.Domain.Interface.Repository;
+using SehatMand.Domain.Interface.Service;
+using SehatMand.Domain.Utils.Notification;
 
 namespace SehatMand.API.Controllers;
 
@@ -12,7 +14,8 @@ namespace SehatMand.API.Controllers;
 [Route("api/appointment")]
 public class AppointmentController(
     IAppointmentRepository appointmentRepo,
-    ILogger<AppointmentController> logger
+    ILogger<AppointmentController> logger,
+    IPushNotificationService notificationServ
     ): ControllerBase
 {
     [Authorize]
@@ -54,6 +57,11 @@ public class AppointmentController(
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
             var appointment = await appointmentRepo.CreateAppointmentAsync(dto.ToAppointment(), id);
+            await notificationServ.SendPushNotificationAsync(
+                "New Appointment Request",
+                "New Appointment Request",
+                $"You have a new appointment request on {appointment.appointment_date.ToLongDateString()} at {appointment.appointment_date.ToString("h:mm tt")}",
+                [appointment.doctor?.UserId?? ""], NotificationContext.APPOINTMENT_REQUEST);
             return Ok(appointment.ToReadAppointmentDto());
         }
         catch (Exception e)
