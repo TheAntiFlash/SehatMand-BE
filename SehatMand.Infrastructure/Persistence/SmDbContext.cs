@@ -516,6 +516,9 @@ public partial class SmDbContext(
                 .HasColumnName("password_hash");
             entity.Property(e => e.Role).HasMaxLength(255);
             entity.Property(e => e.IsActive).HasColumnName("is_active");
+            entity.Property(e => e.Otp).HasMaxLength(20);
+            entity.Property(e => e.OtpExpiry).HasColumnType("datetime")
+                .HasColumnName("otp_expiry");
         });
 
         OnModelCreatingPartial(modelBuilder);

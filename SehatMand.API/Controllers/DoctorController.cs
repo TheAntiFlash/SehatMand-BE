@@ -5,13 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SehatMand.Application.Dto.Authentication;
 using SehatMand.Application.Dto.Doctor;
+using SehatMand.Application.Dto.Error;
 using SehatMand.Application.Mapper;
 using SehatMand.Domain;
 using SehatMand.Domain.Entities;
 using SehatMand.Domain.Interface.Repository;
 using SehatMand.Domain.Interface.Service;
 using SehatMand.Infrastructure.Persistence;
-using Zong_HRM.Application.DTOs.Error;
+using SehatMand.Infrastructure.Service;
 
 namespace SehatMand.API.Controllers;
 
@@ -22,6 +23,8 @@ public class DoctorController(
     IPatientRepository patientRepo, 
     IDoctorRepository docRepo, 
     IDoctorVerificationService service,
+    IEmailService smtp,
+    IOtpService otpServ,
     ILogger<DoctorController> logger) : ControllerBase
 {
     [HttpPost]
@@ -40,7 +43,7 @@ public class DoctorController(
         catch (Exception e)
         {
             logger.LogError(e, "Unable to login");
-            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to login",
                 e.Message
             ));
@@ -61,19 +64,27 @@ public class DoctorController(
             {
                 return BadRequest("Invalid PMC registration code");
             }
-            
-            var response = await repo.RegisterDoctor(dto.ToDoctor(pmcDoctorInfo));
+
+            var doctor = dto.ToDoctor(pmcDoctorInfo);
+            var response = await repo.RegisterDoctor(doctor);
             if(response == null)
             {
                 return BadRequest("Email already exists");
             }
-            return Ok(response);
+
+            var otp = OtpService.GenerateOtp();
+            await otpServ.SaveOtpForUserAsync(
+                doctor?.User.Id?? throw new Exception("Something went wrong while registering doctor"),
+                otp, 5);
+            await smtp.SendOtpEmailAsync(doctor.Email, otp, doctor.Name, 10);
+            
+            return Ok(new {userId = doctor.User.Id});
     
         }
         catch (Exception e)
         {
             logger.LogError(e, "Unable to register");
-            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to register",
                 e.Message
             ));
@@ -90,7 +101,7 @@ public class DoctorController(
         try
         {
             if (HttpContext.User.Identity is not ClaimsIdentity identity)
-                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+                return BadRequest(new ResponseDto("Error", "Something went wrong"));
         
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -103,7 +114,7 @@ public class DoctorController(
         catch (Exception e)
         {
             logger.LogError(e, "Unable to get nearest doctors");
-            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to get nearest doctors",
                 e.Message
             ));
@@ -132,7 +143,7 @@ public class DoctorController(
         catch (Exception e)
         {
             logger.LogError(e, "Unable to get profile");
-            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to get profile",
                 e.Message
             ));
@@ -147,7 +158,7 @@ public class DoctorController(
         try
         {
             if (HttpContext.User.Identity is not ClaimsIdentity identity)
-                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+                return BadRequest(new ResponseDto("Error", "Something went wrong"));
         
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -160,7 +171,7 @@ public class DoctorController(
         catch (Exception e)
         {
             logger.LogError(e, "Unable to get profile");
-            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to get profile",
                 e.Message
             ));
@@ -175,7 +186,7 @@ public class DoctorController(
         try
         {
             if (HttpContext.User.Identity is not ClaimsIdentity identity)
-                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+                return BadRequest(new ResponseDto("Error", "Something went wrong"));
         
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -186,7 +197,7 @@ public class DoctorController(
         catch (Exception e)
         {
             logger.LogError(e, "Unable to update password");
-            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to update password",
                 e.Message
             ));

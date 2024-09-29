@@ -16,7 +16,7 @@ public static class DoctorMapper
             Email = dto.Email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
             Role = "Doctor",
-            IsActive = true,
+            IsActive = false,
             
         };
         var availability = new List<DoctorDailyAvailability>();

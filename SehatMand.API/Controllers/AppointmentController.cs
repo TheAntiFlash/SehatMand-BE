@@ -2,9 +2,9 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SehatMand.Application.Dto.Appointment;
+using SehatMand.Application.Dto.Error;
 using SehatMand.Application.Mapper;
 using SehatMand.Domain.Interface.Repository;
-using Zong_HRM.Application.DTOs.Error;
 
 namespace SehatMand.API.Controllers;
 
@@ -22,7 +22,7 @@ public class AppointmentController(
         try
         {
             if (HttpContext.User.Identity is not ClaimsIdentity identity)
-                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+                return BadRequest(new ResponseDto("Error", "Something went wrong"));
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
@@ -33,7 +33,7 @@ public class AppointmentController(
         catch (Exception e)
         {
             logger.LogError(e, "Unable to get appointments");
-            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to get appointments",
                 e.Message
             ));
@@ -49,7 +49,7 @@ public class AppointmentController(
         try
         {
             if (HttpContext.User.Identity is not ClaimsIdentity identity)
-                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+                return BadRequest(new ResponseDto("Error", "Something went wrong"));
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
@@ -59,7 +59,7 @@ public class AppointmentController(
         catch (Exception e)
         {
             logger.LogError(e, "Unable to create appointment");
-            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to create appointment",
                 e.Message
             ));
@@ -75,7 +75,7 @@ public class AppointmentController(
         try
         {
             if (HttpContext.User.Identity is not ClaimsIdentity identity)
-                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+                return BadRequest(new ResponseDto("Error", "Something went wrong"));
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
@@ -85,7 +85,7 @@ public class AppointmentController(
         catch (Exception e)
         {
             logger.LogError(e, "Unable to get appointments");
-            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to get appointments",
                 e.Message
             ));
@@ -102,7 +102,7 @@ public class AppointmentController(
         try
         {
             if (HttpContext.User.Identity is not ClaimsIdentity identity)
-                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+                return BadRequest(new ResponseDto("Error", "Something went wrong"));
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
@@ -113,7 +113,7 @@ public class AppointmentController(
         catch (Exception e)
         {
             logger.LogError(e, "Unable to update appointment status");
-            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to update appointment status",
                 e.Message
             ));

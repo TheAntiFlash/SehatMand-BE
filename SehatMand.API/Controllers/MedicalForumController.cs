@@ -2,10 +2,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SehatMand.Application.Dto.Error;
 using SehatMand.Application.Dto.MedicalForum;
 using SehatMand.Application.Mapper;
 using SehatMand.Domain.Interface.Repository;
-using Zong_HRM.Application.DTOs.Error;
 
 namespace SehatMand.API.Controllers;
 
@@ -26,7 +26,7 @@ public class MedicalForumController(
         try
         {
             if (HttpContext.User.Identity is not ClaimsIdentity identity)
-                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+                return BadRequest(new ResponseDto("Error", "Something went wrong"));
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
@@ -38,7 +38,7 @@ public class MedicalForumController(
         catch (Exception e)
         {
             logger.LogError(e, "Unable to post question");
-            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to post question",
                 e.Message
             ));
@@ -58,7 +58,7 @@ public class MedicalForumController(
         catch (Exception e)
         {
             logger.LogError(e, "Unable to get questions");
-            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to get questions",
                 e.Message
             ));
@@ -73,7 +73,7 @@ public class MedicalForumController(
         try
         {
             if (HttpContext.User.Identity is not ClaimsIdentity identity)
-                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+                return BadRequest(new ResponseDto("Error", "Something went wrong"));
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
@@ -88,7 +88,7 @@ public class MedicalForumController(
         catch (Exception e)
         {
             logger.LogError(e, "Unable to vote");
-            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to vote",
                 e.Message
             ));
@@ -108,7 +108,7 @@ public class MedicalForumController(
         catch (Exception e)
         {
             logger.LogError(e, "Unable to get comments");
-            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to get comments",
                 e.Message
             ));
@@ -123,7 +123,7 @@ public class MedicalForumController(
         try
         {
             if (HttpContext.User.Identity is not ClaimsIdentity identity)
-                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+                return BadRequest(new ResponseDto("Error", "Something went wrong"));
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
@@ -136,7 +136,7 @@ public class MedicalForumController(
         catch (Exception e)
         {
             logger.LogError(e, "Unable to post comment");
-            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to post comment",
                 e.Message
             ));
@@ -151,7 +151,7 @@ public class MedicalForumController(
         try
         {
             if (HttpContext.User.Identity is not ClaimsIdentity identity)
-                return BadRequest(new ErrorResponseDto("Error", "Something went wrong"));
+                return BadRequest(new ResponseDto("Error", "Something went wrong"));
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
@@ -167,7 +167,7 @@ public class MedicalForumController(
         catch (Exception e)
         {
             logger.LogError(e, "Unable to vote comment");
-            return StatusCode(StatusCodes.Status400BadRequest, new ErrorResponseDto(
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to vote comment",
                 e.Message
             ));

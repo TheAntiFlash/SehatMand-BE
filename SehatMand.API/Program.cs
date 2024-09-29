@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -6,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using MySql.EntityFrameworkCore.Extensions;
 using SehatMand.Domain.Interface.Repository;
 using SehatMand.Domain.Interface.Service;
+using SehatMand.Domain.Utils.Smtp;
 using SehatMand.Infrastructure.Extensions;
 using SehatMand.Infrastructure.Persistence;
 using SehatMand.Infrastructure.Repository;
@@ -37,6 +39,16 @@ builder.Services.AddHttpClient(
         // Set the base address of the named client.
         client.BaseAddress = new Uri("https://www.pmc.gov.pk/api/");
     });
+
+builder.Services.AddHttpClient("OneSignal", client =>
+{
+    var apiKey = config.GetSection("OneSignal:ApiKey").Value ?? throw new Exception("OneSignal API key not found");
+    
+    client.BaseAddress = new Uri("https://api.onesignal.com"); 
+    client.DefaultRequestHeaders.Add("Authorization", apiKey); 
+});
+
+builder.Services.Configure<SmtpSettings>(config.GetSection("SmtpSettings"));
 builder.Services.AddDbContext<SmDbContext>(options => options.UseMySQL(config.GetConnectionString("SmDb")!));
 builder.Services.AddScoped<DbContext, SmDbContext>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
@@ -45,6 +57,10 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IDoctorVerificationService, DoctorVerificationService>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IMedicalForumRepository, MedicalForumRepository>();
+builder.Services.AddScoped<IOtpService, OtpService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IPushNotificationService, PushNotificationService>();
+builder.Services.AddScoped<IFtpService, FtpService>();
 
 //builder.Services.AddInfrastructure(config);
 

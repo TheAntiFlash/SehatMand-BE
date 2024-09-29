@@ -20,31 +20,43 @@ public class AuthRepository(
     public async Task<string?> RegisterDoctor(Doctor? doctor)
     {
         
-        var exists = await dbContext.User.AnyAsync(u => u.Email == doctor.Email);
-        if (exists)
+        var exists = await dbContext.User.FirstOrDefaultAsync(u => u.Email == doctor.Email);
+        
+        if (exists != null)
         {
+            if (!exists.IsActive)
+            {
+               throw new Exception("Doctor account already exists. Verify email to activate"); 
+            }
+
             return null;
         }
 
         await dbContext.User.AddAsync(doctor.User);
         await dbContext.Doctor.AddAsync(doctor);
         await dbContext.SaveChangesAsync();
-        return CreateToken(doctor.User);
-        
+        return "";  //CreateToken(doctor.User);
+
     }
 
     //consider fixing so a doctor can make a patient accound and a patient can make a doctor account
     public async Task<string?> RegisterPatient(Patient? patient)
     {
-        var exists = await dbContext.User.AnyAsync(u => u.Email == patient.Email);
-        if (exists)
+        var exists = await dbContext.User.FirstOrDefaultAsync(u => u.Email == patient.Email);
+        
+        if (exists != null)
         {
+            if (!exists.IsActive)
+            {
+               throw new Exception("Patient account already exists. Verify email to activate"); 
+            }
+
             return null;
         }
         await dbContext.User.AddAsync(patient.User);
         await dbContext.Patient.AddAsync(patient);
         await dbContext.SaveChangesAsync();
-        return CreateToken(patient.User);
+        return "";  //CreateToken(patient.User);
     }
 
     public async Task<string?> LoginPatient(string email, string password)
@@ -53,6 +65,11 @@ public class AuthRepository(
         if (patient == null)
         {
             return null;
+        }
+
+        if (!patient.User.IsActive)
+        {
+            throw new Exception("Email Address Not Verified");
         }
 
         return 

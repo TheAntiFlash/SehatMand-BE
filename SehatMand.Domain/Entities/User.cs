@@ -11,6 +11,10 @@ public partial class User
     public string Role { get; set; } = null!;
 
     public bool IsActive { get; set; }
+    
+    public string? Otp { get; set; }
+    
+    public DateTime? OtpExpiry { get; set; }
 
     public virtual ICollection<Clinic> CliniccreatedByNavigation { get; set; } = new List<Clinic>();
 
