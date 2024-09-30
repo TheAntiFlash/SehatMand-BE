@@ -28,22 +28,15 @@ public class DoctorRepository(SmDbContext context): IDoctorRepository
     
     public async Task UpdatePassword(string id, string oldPassword, string newPassword)
     {
-        var doctor = await GetByIdAsync(id);
+        var doctor = await GetByUserIdAsync(id);
         Console.WriteLine(doctor);
         if (doctor == null) throw new Exception("Doctor Not Found");
-        
-            
-        Console.WriteLine(doctor.User);
-        doctor.User = await context.User.FirstOrDefaultAsync(u => u.Id == doctor.UserId);
         
         if (!BCrypt.Net.BCrypt.Verify(oldPassword, doctor.User.PasswordHash))
         {
             throw new Exception("Invalid Password");
         }
         
-        // Check if the 'User' is null
-        if (doctor.User == null) throw new Exception("User associated with doctor not found");
-    
         doctor.User.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
         await context.SaveChangesAsync();
     }
@@ -57,6 +50,7 @@ public class DoctorRepository(SmDbContext context): IDoctorRepository
     {
         return await context.Doctor
             .Include(d => d.DoctorDailyAvailability)
+            .Include(d => d.User)
             .Include(d => d.Qualifications)
             .Include(d => d.Appointment)
             .FirstOrDefaultAsync(d => d.UserId == uid);

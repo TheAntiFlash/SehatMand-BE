@@ -41,7 +41,7 @@ public partial class Doctor
 
     public virtual Clinic? Clinic { get; set; }
 
-    public virtual User User { get; set; } = null!;
+    public virtual User? User { get; set; }  
 
     public List<Qualification> Qualifications { get; set; } = [];
 }

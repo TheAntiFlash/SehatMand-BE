@@ -61,6 +61,7 @@ builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPushNotificationService, PushNotificationService>();
 builder.Services.AddScoped<IFtpService, FtpService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 //builder.Services.AddInfrastructure(config);
 
