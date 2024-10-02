@@ -78,7 +78,7 @@ public class DoctorController(
                 otp, 5);
             await smtp.SendOtpEmailAsync(doctor.Email, otp, doctor.Name, 10);
             
-            return Ok(new {userId = doctor.User.Id});
+            return Ok(new {userId = doctor.User.Email});
     
         }
         catch (Exception e)

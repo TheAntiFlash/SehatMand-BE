@@ -5,7 +5,7 @@ namespace SehatMand.Infrastructure.Service;
 
 public class OtpService(IEmailService emailService, IUserRepository userRepo): IOtpService
 {
-    public static string GenerateOtp(int length = 6)
+    public static string GenerateOtp(int length = 4)
     {
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         return new string(Enumerable.Range(1, length).Select(_ => chars[Random.Shared.Next(chars.Length)]).ToArray());

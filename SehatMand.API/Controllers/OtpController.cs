@@ -30,9 +30,9 @@ public class OtpController(
                 ));
             }
             
-            var otp = OtpService.GenerateOtp(length: 6);
+            var otp = OtpService.GenerateOtp(length: 4);
             var otpExpireInMinutes = 10;
-            await otpService.SendOtp(otp, "yahya.bin.naveed@gmail.com", user.Email.Split("@")[0], otpExpireInMinutes); // replace in real user.Email 
+            await otpService.SendOtp(otp, user.Email, user.Email.Split("@")[0], otpExpireInMinutes); // replace in real user.Email 
             await otpService.SaveOtpForUserAsync(user.Id, otp, otpExpireInMinutes);
             return Ok();
         }
