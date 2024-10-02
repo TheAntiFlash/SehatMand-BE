@@ -6,6 +6,6 @@ public record UpdatePasswordDto(
     [Required(ErrorMessage = "Old password is required")]
     string OldPassword,
     [Required(ErrorMessage = "New password is required")]
-    [MinLength(4, ErrorMessage = "Password must be at least 4 characters long")]
+    [MinLength(8, ErrorMessage = "Password must be at least 8 characters long")]
     string NewPassword
     );

@@ -4,7 +4,7 @@ public record ReadDoctorProfileDto(
     string Id,
     string Name,
     string City,
-    List<string> Specialities,
+    string Speciality,
     List<string> Degrees,
     string Email,
     string Phone,

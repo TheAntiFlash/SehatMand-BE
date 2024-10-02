@@ -13,4 +13,5 @@ public interface IDoctorRepository
 
     Task<string?> GetDoctorIdByUserId(string id);
     Task<Doctor?> GetByUserIdAsync(string uid);
+    Task UpdateProfile(string id, string? dtoCity, string? dtoAddress, string? dtoProfileInfo, string? dtoSpeciality, IEnumerable<DoctorAvailability>? availability, string? dtoPhone, string? dtoClinicId);
 }

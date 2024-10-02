@@ -86,6 +86,16 @@ public class AppointmentRepository(SmDbContext context): IAppointmentRepository
            .Include(a => a.doctor)
            .FirstOrDefault(a => a.id == appointmentId);
        if (appointment == null) throw new Exception("Appointment not found");
+
+       var scheduledAtTime = await context.Appointment
+           .Where(a => a.doctor_id == appointment.doctor_id &&
+               (a.appointment_date == appointment.appointment_date ||
+                (a.appointment_date < appointment.appointment_date &&
+                 a.appointment_date.AddMinutes(60) >= appointment.appointment_date)) &&
+               a.status == "scheduled" || a.status == "completed").AnyAsync();
+       
+       if (scheduledAtTime) throw new Exception("Doctor is already scheduled at this time");
+       
        if (appointment.doctor == null || appointment.doctor.UserId != id) 
            throw new Exception("Unauthorized");
        if (appointment.status is not "pending" and not "scheduled") 

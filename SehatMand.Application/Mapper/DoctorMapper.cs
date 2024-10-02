@@ -20,7 +20,7 @@ public static class DoctorMapper
             
         };
         var availability = new List<DoctorDailyAvailability>();
-        for (int i = 1; i < 8; i++)
+        for (int i = 0; i < 7; i++)
         {
             availability.Add(
                 new DoctorDailyAvailability()
@@ -102,7 +102,7 @@ public static class DoctorMapper
             d.Id,
             d.Name,
             d.City?? "N/A",
-            d.Qualifications.Select(q => q.Speciality).ToList(),
+            d.Specialty,
             d.Qualifications.Select(q => q.Degree).ToList(),
             d.Email,
             d.Phone,
@@ -112,5 +112,14 @@ public static class DoctorMapper
             d.ProfileInfo?? "N/A",
             availabilities
         );
+    }
+
+    public static DoctorAvailability ToDoctorAvailability(this DoctorAvailabilityDto dto)
+    {
+        return new DoctorAvailability(
+            dto.DayOfWeek,
+            dto.StartTimeInternal,
+            dto.EndTimeInternal
+            );
     }
 }

@@ -1,22 +1,31 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace SehatMand.Application.Dto.Doctor;
 
 public record UpdateDoctorProfileDto(
-    
-    List<UpdateDoctorAvailability>? Availabilities,
-    string? Email,
+    [MaxLength(7, ErrorMessage = "Max 7 possible.")]
+    List<DoctorAvailabilityDto>? Availabilities,
+    [Phone]
     string? Phone,
-    string? ClinicId
+    string? ClinicId,
+    string? Speciality,
+    string? Address,
+    string? ProfileInfo,
+    string? City
     );
 
-public record UpdateDoctorAvailability(
-    int? DayOfWeek,
-    string? StartTime,
-    string? EndTime
+public record DoctorAvailabilityDto(
+    [Range(0,6, ErrorMessage = "Invalid day of week.")]
+    [Required]
+    int DayOfWeek,
+    [Required]
+    string StartTime,
+    [Required]
+    string EndTime
 )
 {
-    [JsonIgnore] public TimeSpan? StartTimeInternal { get; } = StartTime is not null? TimeSpan.Parse(StartTime) : null;
-    [JsonIgnore] public TimeSpan? EndTimeInternal { get; } = EndTime is not null? TimeSpan.Parse(EndTime) : null;
+    [JsonIgnore] public TimeSpan StartTimeInternal { get; init;} =  TimeSpan.Parse(StartTime);
+    [JsonIgnore] public TimeSpan EndTimeInternal { get; init; } =  TimeSpan.Parse(EndTime);
 
 }

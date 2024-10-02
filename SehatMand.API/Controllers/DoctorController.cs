@@ -126,7 +126,27 @@ public class DoctorController(
     [Route("profile")]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateDoctorProfileDto dto)
     {
-        throw new NotImplementedException();
+        try
+        {
+            if (HttpContext.User.Identity is not ClaimsIdentity identity)
+                return BadRequest(new ResponseDto("Error", "Something went wrong"));
+        
+            var claims = identity.Claims;
+            var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (id == null) throw new Exception("User not found");
+            
+            await docRepo.UpdateProfile(id, dto.City, dto.Address, dto.ProfileInfo,
+                dto.Speciality, dto.Availabilities?.Select(d => d.ToDoctorAvailability()), dto.Phone, dto.ClinicId);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Unable to update profile");
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
+                "Unable to update profile",
+                e.Message
+            ));
+        }
     }
     
     [HttpGet]

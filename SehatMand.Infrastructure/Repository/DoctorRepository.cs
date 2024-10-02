@@ -55,4 +55,48 @@ public class DoctorRepository(SmDbContext context): IDoctorRepository
             .Include(d => d.Appointment)
             .FirstOrDefaultAsync(d => d.UserId == uid);
     }
+
+    public async Task UpdateProfile(string id, string? dtoCity, string? dtoAddress, string? dtoProfileInfo, string? dtoSpeciality,
+        IEnumerable<DoctorAvailability>? availability, string? dtoPhone, string? dtoClinicId)
+    {
+        var doctor = await GetByUserIdAsync(id);
+        if (doctor == null) throw new Exception("Doctor not found");
+
+        if (dtoCity == null && dtoAddress == null && dtoProfileInfo == null && dtoSpeciality == null && availability == null && dtoPhone == null && dtoClinicId == null)
+        {
+            throw new Exception("No values provided to update");
+        }
+
+        if (dtoCity != null) doctor.City = dtoCity;
+        if (dtoAddress != null) doctor.Address = dtoAddress;
+        if (dtoProfileInfo != null) doctor.ProfileInfo = dtoProfileInfo;
+        if (dtoSpeciality != null) doctor.Specialty = dtoSpeciality;
+        if (availability != null)
+        {
+            foreach (var doctorAvailability in availability)
+            {
+                var availabilityFound =
+                    doctor.DoctorDailyAvailability.FirstOrDefault(a => a.day_of_week == doctorAvailability.DayOfWeek);
+                if (availabilityFound == null)
+                {
+                    doctor.DoctorDailyAvailability.Add(new DoctorDailyAvailability
+                    {
+                        day_of_week = doctorAvailability.DayOfWeek,
+                        availability_start = doctorAvailability.AvailabilityStart,
+                        availability_end = doctorAvailability.AvailabilityEnd
+                    });
+                }
+                else
+                {
+                    availabilityFound.availability_start = doctorAvailability.AvailabilityStart;
+                    availabilityFound.availability_end = doctorAvailability.AvailabilityEnd;
+                
+                }
+            }
+        }
+        if (dtoPhone != null) doctor.Phone = dtoPhone;
+        if (dtoClinicId != null) doctor.ClinicId = dtoClinicId;
+
+        await context.SaveChangesAsync();
+    }
 }
