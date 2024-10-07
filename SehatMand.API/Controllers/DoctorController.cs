@@ -18,6 +18,17 @@ namespace SehatMand.API.Controllers;
 
 [Route("api/doctor")]
 [ApiController]
+/***
+ * This controller is responsible for handling all the doctor related requests.
+ * It includes the following functionalities:
+ * - Login
+ * - Register
+ * - Get nearest doctors
+ * - Update profile
+ * - Get profile by id
+ * - Get profile
+ * - Update password
+ */
 public class DoctorController(
     IAuthRepository repo,
     IPatientRepository patientRepo, 
@@ -27,6 +38,11 @@ public class DoctorController(
     IOtpService otpServ,
     ILogger<DoctorController> logger) : ControllerBase
 {
+    /// <summary>
+    /// Login doctor with email and password
+    /// </summary>
+    /// <param name="creds"></param>
+    /// <returns>Returns a JWT Token</returns>
     [HttpPost]
     [Route("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto creds)
@@ -51,6 +67,12 @@ public class DoctorController(
 
     }
     
+    /// <summary>
+    /// Register a doctor
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [HttpPost]
     [Route("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDoctorDto dto)
@@ -92,7 +114,11 @@ public class DoctorController(
     }
     
     
-
+    /// <summary>
+    /// Get nearest doctors
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [Authorize]
     [HttpGet]
     [Route("nearest-doctors")]
@@ -121,6 +147,12 @@ public class DoctorController(
         }
     }
 
+    /// <summary>
+    /// Update doctor profile
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [Authorize]
     [HttpPatch]
     [Route("profile")]
@@ -149,6 +181,12 @@ public class DoctorController(
         }
     }
     
+    /// <summary>
+    /// Get doctor profile by id
+    /// </summary>
+    /// <param name="Id"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [HttpGet]
     [Route("profile/{Id}")]
     public async Task<IActionResult> GetProfileById([FromRoute] string Id)
@@ -170,6 +208,11 @@ public class DoctorController(
         }
     }
     
+    /// <summary>
+    /// Get doctor profile
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [Authorize]
     [HttpGet]
     [Route("profile")]
@@ -198,6 +241,12 @@ public class DoctorController(
         }
     }
     
+    /// <summary>
+    /// Update doctor password
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [Authorize]
     [HttpPatch]
     [Route("update-password")]

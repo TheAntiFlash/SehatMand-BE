@@ -10,7 +10,7 @@ public partial class MedicalHistoryDocument
 
     public string? diagnosed_disease { get; set; }
 
-    public string medical_history_id { get; set; } = null!;
+    public string patient_id { get; set; } = null!;
 
     public string? document_path { get; set; }
 
@@ -30,7 +30,7 @@ public partial class MedicalHistoryDocument
 
     public virtual User created_byNavigation { get; set; } = null!;
 
-    public virtual MedicalHistory medical_history { get; set; } = null!;
+    public virtual Patient patient { get; set; } = null!;
 
     public virtual User? modified_byNavigation { get; set; }
 }

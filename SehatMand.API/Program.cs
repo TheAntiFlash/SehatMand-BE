@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using MySql.EntityFrameworkCore.Extensions;
 using SehatMand.Domain.Interface.Repository;
 using SehatMand.Domain.Interface.Service;
@@ -23,8 +24,12 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+var xmlDocsPath = Path.Combine(AppContext.BaseDirectory, typeof(Program).Assembly.GetName().Name + ".xml");
+
 builder.Services.AddSwaggerGen(options =>
 {
+    //options.SwaggerDoc("v1", new OpenApiInfo { Title = "SehatMand.API", Version = "v1" });
+    options.IncludeXmlComments(xmlDocsPath);
     options.SupportNonNullableReferenceTypes();
 });
 
@@ -62,6 +67,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPushNotificationService, PushNotificationService>();
 builder.Services.AddScoped<IFtpService, FtpService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IMedicalHistoryRepository, MedicalHistoryRepository>();
 
 //builder.Services.AddInfrastructure(config);
 

@@ -360,7 +360,7 @@ public partial class SmDbContext(
             entity.Property(e => e.id).HasMaxLength(36);
             entity.Property(e => e.patient_id).HasMaxLength(36);
 
-            entity.HasOne(d => d.patient).WithMany(p => p.MedicalHistory)
+            entity.HasOne(d => d.patient).WithMany(/*p => p.MedicalHistory*/)
                 .HasForeignKey(d => d.patient_id)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("medicalhistory_ibfk_1");
@@ -376,7 +376,7 @@ public partial class SmDbContext(
 
             entity.HasIndex(e => e.created_by, "created_by");
 
-            entity.HasIndex(e => e.medical_history_id, "medical_history_id");
+            entity.HasIndex(e => e.patient_id, "patient_id");
 
             entity.HasIndex(e => e.modified_by, "modified_by");
 
@@ -387,7 +387,7 @@ public partial class SmDbContext(
             entity.Property(e => e.doctors_comments).HasMaxLength(1000);
             entity.Property(e => e.document_path).HasMaxLength(500);
             entity.Property(e => e.id).HasMaxLength(36);
-            entity.Property(e => e.medical_history_id).HasMaxLength(36);
+            entity.Property(e => e.patient_id).HasMaxLength(36);
             entity.Property(e => e.modified_at).HasColumnType("datetime");
             entity.Property(e => e.modified_by).HasMaxLength(36);
             entity.Property(e => e.record_date).HasColumnType("date");
@@ -402,8 +402,8 @@ public partial class SmDbContext(
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("medicalhistorydocument_ibfk_3");
 
-            entity.HasOne(d => d.medical_history).WithMany()
-                .HasForeignKey(d => d.medical_history_id)
+            entity.HasOne(d => d.patient).WithMany(p => p.MedicalHistory)
+                .HasForeignKey(d => d.patient_id )
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("medicalhistorydocument_ibfk_2");
 

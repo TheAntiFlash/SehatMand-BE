@@ -9,12 +9,24 @@ namespace SehatMand.API.Controllers;
 
 [ApiController]
 [Route("api/otp")]
+/***
+ * This controller is responsible for handling all the OTP related requests.
+ * It includes the following functionalities:
+ * - Generate OTP
+ * - Verify OTP
+ */
 public class OtpController(
     IOtpService otpService,
     ILogger<OtpController> logger,
     IUserRepository userRepo
     ): ControllerBase
 {
+    
+    /// <summary>
+    /// Generate OTP
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns></returns>
     [HttpPost]
     [Route("{email}")]
     public async Task<IActionResult> GenerateOtp([FromRoute] string email)
@@ -46,6 +58,12 @@ public class OtpController(
         }
     }
 
+    /// <summary>
+    /// Verify OTP
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <param name="email"></param>
+    /// <returns></returns>
     [HttpPost]
     [Route("{email}/verify")]
     public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpDto dto, [FromRoute] string email)

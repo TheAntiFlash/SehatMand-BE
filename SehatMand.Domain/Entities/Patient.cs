@@ -34,7 +34,7 @@ public partial class Patient
 
     public virtual ICollection<MedicalForumPost> MedicalForumPost { get; set; } = new List<MedicalForumPost>();
 
-    public virtual ICollection<MedicalHistory> MedicalHistory { get; set; } = new List<MedicalHistory>();
+    public virtual ICollection<MedicalHistoryDocument> MedicalHistory { get; set; } = new List<MedicalHistoryDocument>();
 
     public virtual User User { get; set; } = null!;
 }

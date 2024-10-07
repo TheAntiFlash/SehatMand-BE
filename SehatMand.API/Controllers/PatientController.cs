@@ -21,6 +21,17 @@ namespace SehatMand.API.Controllers;
 
 [Route("api/patient")]
 [ApiController]
+/***
+ * This controller is responsible for handling all the patient related requests.
+ * It includes the following functionalities:
+ * - Login
+ * - Register
+ * - Forgot Password
+ * - Update Password
+ * - Complete Profile
+ * - Update Profile
+ * - Get Profile
+ */
 public class PatientController(
     IAuthRepository repo,
     IPatientRepository patientRepo,
@@ -29,6 +40,11 @@ public class PatientController(
     ILogger<PatientController> logger
     ) : ControllerBase
 {
+    /// <summary>
+    /// Login patient with email and password
+    /// </summary>
+    /// <param name="creds"></param>
+    /// <returns>Returns a JWT Token</returns>
     [HttpPost]
     [Route("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto creds)
@@ -58,6 +74,12 @@ public class PatientController(
 
     }
     
+    /// <summary>
+    /// Register a patient
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [HttpPost]
     [Route("register")]
     public async Task<IActionResult> Register([FromBody]RegisterPatientDto dto)
@@ -92,6 +114,12 @@ public class PatientController(
             ));
         }
     }
+    /// <summary>
+    /// Forgot password
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [HttpPut]
     [Route("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
@@ -123,6 +151,12 @@ public class PatientController(
         }
     }
     
+    /// <summary>
+    /// Update password
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [Authorize]
     [HttpPatch]
     [Route("update-password")]
@@ -153,6 +187,12 @@ public class PatientController(
         }
     }
 
+    /// <summary>
+    /// Complete profile
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [Authorize]
     [HttpPatch]
     [Route("complete-profile")]
@@ -195,6 +235,11 @@ public class PatientController(
             ));
         }
     }
+    /// <summary>
+    /// Update profile
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpPatch]
     [Route("update-profile")]
@@ -234,6 +279,11 @@ public class PatientController(
         }
     }
     
+    /// <summary>
+    /// Get profile
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [Authorize]
     [HttpGet]
     [Route("profile")]
@@ -260,7 +310,5 @@ public class PatientController(
             ));
         }
     }
-
-    
 }   
 

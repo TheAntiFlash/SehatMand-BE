@@ -11,6 +11,16 @@ namespace SehatMand.API.Controllers;
 
 [ApiController]
 [Route("api/medical-forum")]
+/***
+ * This controller is responsible for handling all the medical forum related requests.
+ * It includes the following functionalities:
+ * - Post a question
+ * - Get all questions
+ * - Vote on a question
+ * - Get comments on a question
+ * - Comment on a question
+ * - Vote on a comment
+ */
 public class MedicalForumController(
     IMedicalForumRepository forumRepo,
     IPatientRepository patientRepo,
@@ -18,6 +28,13 @@ public class MedicalForumController(
     ILogger<MedicalForumController> logger
     ): ControllerBase
 {
+    
+    /// <summary>
+    /// Post a question
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [Authorize]
     [HttpPost]
     [Route("post")]
@@ -45,6 +62,10 @@ public class MedicalForumController(
         }
     }
     
+    /// <summary>
+    /// Get all questions
+    /// </summary>
+    /// <returns></returns>
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -65,6 +86,13 @@ public class MedicalForumController(
         }
     }
     
+    /// <summary>
+    /// Vote on a question
+    /// </summary>
+    /// <param name="postId"></param>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [Authorize]
     [HttpPost]
     [Route("{postId}/vote/{type}")]
@@ -95,6 +123,11 @@ public class MedicalForumController(
         }
     }
     
+    /// <summary>
+    /// Get comments on a question
+    /// </summary>
+    /// <param name="postId"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpGet]
     [Route("{postId}/comment")]
@@ -115,6 +148,13 @@ public class MedicalForumController(
         }
     }
     
+    /// <summary>
+    /// Comment on a question
+    /// </summary>
+    /// <param name="postId"></param>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [Authorize]
     [HttpPost]
     [Route("{postId}/comment")]
@@ -143,6 +183,13 @@ public class MedicalForumController(
         }
     }
     
+    /// <summary>
+    /// Vote on a comment
+    /// </summary>
+    /// <param name="commentId"></param>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [Authorize]
     [HttpPost]
     [Route("comment/{commentId}/vote/{type}")]

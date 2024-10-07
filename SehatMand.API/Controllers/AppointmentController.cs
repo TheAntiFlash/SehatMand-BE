@@ -10,6 +10,17 @@ using SehatMand.Domain.Utils.Notification;
 
 namespace SehatMand.API.Controllers;
 
+/// <summary>
+///This controller is responsible for handling all the appointment related requests.
+/// It includes the following functionalities:
+/// - Get all appointments for a patient
+/// - Request an appointment
+/// - Get all appointments for a doctor
+/// - Update appointment status for a doctor 
+/// </summary>
+/// <param name="appointmentRepo"></param>
+/// <param name="logger"></param>
+/// <param name="notificationServ"></param>
 [ApiController]
 [Route("api/appointment")]
 public class AppointmentController(
@@ -18,6 +29,12 @@ public class AppointmentController(
     IPushNotificationService notificationServ
     ): ControllerBase
 {
+    /// <summary>
+    /// Get all appointments for a patient
+    /// </summary>
+    /// <param name="query">query by status</param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAppointments([FromQuery] QueryAppointmentStatus? query)
@@ -44,6 +61,12 @@ public class AppointmentController(
         }
     }
     
+    /// <summary>
+    /// Request an appointment
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [Authorize]
     [HttpPost]
     [Route("request")]
@@ -75,6 +98,12 @@ public class AppointmentController(
         }
     }
     
+    /// <summary>
+    /// Get all appointments for a doctor
+    /// </summary>
+    /// <param name="query"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [Authorize]
     [HttpGet]
     [Route("doctor")]
@@ -101,6 +130,13 @@ public class AppointmentController(
     }
     
     
+    /// <summary>
+    /// Update appointment status for a doctor
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <param name="appointmentId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     [Authorize]
     [HttpPatch]
     [Route("doctor/{appointmentId}/update-status")]

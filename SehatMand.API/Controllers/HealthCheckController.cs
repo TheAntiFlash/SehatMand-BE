@@ -7,6 +7,10 @@ namespace SehatMand.API.Controllers;
 [Route("api/healthcheck")]
 public class HealthCheckController: ControllerBase
 {
+    /// <summary>
+    /// Health check endpoint
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     public IActionResult HealthCheck()
     {
