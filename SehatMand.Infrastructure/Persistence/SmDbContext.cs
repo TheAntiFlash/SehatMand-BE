@@ -48,7 +48,7 @@ public partial class SmDbContext(
 
     public virtual DbSet<MedicalForumPostVotes> MedicalForumPostVotes { get; set; }
 
-    public virtual DbSet<MedicalHistory> MedicalHistory { get; set; }
+    //public virtual DbSet<MedicalHistory> MedicalHistory { get; set; }
 
     public virtual DbSet<MedicalHistoryDocument> MedicalHistoryDocument { get; set; }
 
@@ -349,7 +349,7 @@ public partial class SmDbContext(
                 .HasConstraintName("medicalforumpostvotes_ibfk_2");
         });
 
-        modelBuilder.Entity<MedicalHistory>(entity =>
+        /*modelBuilder.Entity<MedicalHistory>(entity =>
         {
             entity.HasKey(e => e.id).HasName("PRIMARY");
 
@@ -360,16 +360,16 @@ public partial class SmDbContext(
             entity.Property(e => e.id).HasMaxLength(36);
             entity.Property(e => e.patient_id).HasMaxLength(36);
 
-            entity.HasOne(d => d.patient).WithMany(/*p => p.MedicalHistory*/)
+            /*entity.HasOne(d => d.patient).WithMany(/*p => p.MedicalHistory#2#)
                 .HasForeignKey(d => d.patient_id)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("medicalhistory_ibfk_1");
-        });
+                .HasConstraintName("medicalhistory_ibfk_1");#1#
+        });*/
 
         modelBuilder.Entity<MedicalHistoryDocument>(entity =>
         {
+            entity.HasKey(e => e.id).HasName("PRIMARY");
             entity
-                .HasNoKey()
                 .ToTable("MedicalHistoryDocument", "sehatmand_db");
 
             entity.HasIndex(e => e.appointment_id, "appointment_id");
