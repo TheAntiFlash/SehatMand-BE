@@ -105,8 +105,14 @@ public class AppointmentRepository(SmDbContext context, ILogger<AppointmentRepos
        logger.LogError((appointment.status != "scheduled").ToString());
        logger.LogError((appointment.status != "pending" && appointment.status != "scheduled").ToString());*/
            
-       if (appointment.status != "pending" && appointment.status != "scheduled") 
-           throw new Exception("Appointment is already completed, cancelled, or rejected");
+       if (appointment.status == "pending")
+           if(dtoStatus != "scheduled" && dtoStatus != "rejected")
+            throw new Exception("Appointment is already completed, cancelled, or rejected");
+       
+       if (appointment.status == "scheduled")
+           if(dtoStatus != "cancelled")
+            throw new Exception("Appointment is already completed, cancelled, or rejected");
+       
        appointment.status = dtoStatus;
        await context.SaveChangesAsync();
     }
