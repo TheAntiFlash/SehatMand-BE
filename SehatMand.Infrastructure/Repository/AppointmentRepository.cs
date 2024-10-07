@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SehatMand.Domain.Entities;
 using SehatMand.Domain.Interface.Repository;
 using SehatMand.Infrastructure.Persistence;
 
 namespace SehatMand.Infrastructure.Repository;
 
-public class AppointmentRepository(SmDbContext context): IAppointmentRepository
+public class AppointmentRepository(SmDbContext context, ILogger<AppointmentRepository> logger): IAppointmentRepository
 {
     public async Task<Appointment> CreateAppointmentAsync(Appointment appointment, string patientUid)
     {
@@ -95,13 +96,16 @@ public class AppointmentRepository(SmDbContext context): IAppointmentRepository
                a.status == "scheduled" || a.status == "completed").AnyAsync();
        
        if (scheduledAtTime && dtoStatus == "scheduled") throw new Exception("Doctor is already scheduled at this time");
-       if (dtoStatus == "rejected")
-       {
-           appointment.status = dtoStatus;
-       }
+       
        if (appointment.doctor == null || appointment.doctor.UserId != id) 
            throw new Exception("Unauthorized");
-       if (appointment.status is not "pending" and not "scheduled") 
+       
+       /*logger.LogError(appointment.status);
+       logger.LogError((appointment.status != "pending").ToString());
+       logger.LogError((appointment.status != "scheduled").ToString());
+       logger.LogError((appointment.status != "pending" && appointment.status != "scheduled").ToString());*/
+           
+       if (appointment.status != "pending" && appointment.status != "scheduled") 
            throw new Exception("Appointment is already completed, cancelled, or rejected");
        appointment.status = dtoStatus;
        await context.SaveChangesAsync();

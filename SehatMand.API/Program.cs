@@ -91,7 +91,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         
     });
 
-Console.WriteLine(config.GetSection("JWT:Key").Value!);
 builder.Services.AddAuthorization();
 var app = builder.Build();
 
