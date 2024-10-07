@@ -16,12 +16,12 @@ public class OtpService(IEmailService emailService, IUserRepository userRepo): I
         await emailService.SendOtpEmailAsync(email, otp, firstName, expireInMinutes);
     }
     
-    public async Task SaveOtpForUserAsync(string userId, string otp, int expireInMinutes)
+    public async Task SaveOtpForUserAsync(string? userId, string otp, int expireInMinutes)
     {
         await userRepo.SaveOtp(userId, otp, DateTime.Now.AddMinutes(expireInMinutes));
     }
 
-    public async Task<bool> VerifyOtpAsync(string userId, string otp)
+    public async Task<bool> VerifyOtpAsync(string? userId, string otp)
     {
         var dbOtp = await userRepo.GetOtpAsync(userId);
 

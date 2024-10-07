@@ -81,10 +81,11 @@ public class AppointmentRepository(SmDbContext context, ILogger<AppointmentRepos
         return appointments;
     }
 
-    public async Task UpdateAppointmentStatusAsync(string appointmentId, string id, string dtoStatus)
+    public async Task<Appointment> UpdateAppointmentStatusAsync(string appointmentId, string id, string dtoStatus)
     {
        var appointment = context.Appointment
            .Include(a => a.doctor)
+           .Include(a => a.patient)
            .FirstOrDefault(a => a.id == appointmentId);
        if (appointment == null) throw new Exception("Appointment not found");
 
@@ -115,5 +116,6 @@ public class AppointmentRepository(SmDbContext context, ILogger<AppointmentRepos
        
        appointment.status = dtoStatus;
        await context.SaveChangesAsync();
+       return appointment;
     }
 }

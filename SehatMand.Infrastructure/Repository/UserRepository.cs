@@ -7,7 +7,7 @@ namespace SehatMand.Infrastructure.Repository;
 
 public class UserRepository(SmDbContext dbContext) : IUserRepository
 {
-    public async Task SaveOtp(string userId, string otp, DateTime expiry)
+    public async Task SaveOtp(string? userId, string otp, DateTime expiry)
     {
         var user = await dbContext.User.FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null) throw new Exception("User not found for otp");
@@ -16,7 +16,7 @@ public class UserRepository(SmDbContext dbContext) : IUserRepository
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<Otp> GetOtpAsync(string userId)
+    public async Task<Otp> GetOtpAsync(string? userId)
     {
         var user = await dbContext.User.Select(u => new
         {
@@ -31,7 +31,7 @@ public class UserRepository(SmDbContext dbContext) : IUserRepository
         return new Otp(user.Otp, user.OtpExpiry);
     }
 
-    public async Task ClearOtp(string userId)
+    public async Task ClearOtp(string? userId)
     {
         var user = await dbContext.User.FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null) throw new Exception("User not found to clear otp");
@@ -45,7 +45,7 @@ public class UserRepository(SmDbContext dbContext) : IUserRepository
         return await dbContext.User.FirstOrDefaultAsync(u => u.Id == userId);
     }
 
-    public async Task Activate(string userId)
+    public async Task Activate(string? userId)
     {
         var user = await dbContext.User.FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null) throw new Exception("User not found to activate");

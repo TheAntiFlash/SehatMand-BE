@@ -85,6 +85,7 @@ public class AppointmentController(
                 "New Appointment Request",
                 $"You have a new appointment request on {appointment.appointment_date.ToLongDateString()} at {appointment.appointment_date.ToString("h:mm tt")}",
                 [appointment.doctor?.UserId?? ""], NotificationContext.APPOINTMENT_REQUEST);
+            
             return Ok(appointment.ToReadAppointmentDto());
         }
         catch (Exception e)
@@ -151,7 +152,14 @@ public class AppointmentController(
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
 
-            await appointmentRepo.UpdateAppointmentStatusAsync(appointmentId, id, dto.Status);
+            var appointment = await appointmentRepo.UpdateAppointmentStatusAsync(appointmentId, id, dto.Status);
+            if (appointment == null) throw new Exception("Unable to update appointment status");
+            await notificationServ.SendPushNotificationAsync(
+                "New Appointment Request",
+                "New Appointment Request",
+                $"Your appointment with {appointment.doctor?.Name} on {appointment.appointment_date.ToLongDateString()} has been {appointment.status}",
+                [appointment.patient?.UserId?? ""], NotificationContext.APPOINTMENT_REQUEST);
+            
             return Ok();
         }
         catch (Exception e)
