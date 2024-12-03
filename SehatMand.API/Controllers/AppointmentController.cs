@@ -25,6 +25,7 @@ namespace SehatMand.API.Controllers;
 [Route("api/appointment")]
 public class AppointmentController(
     IAppointmentRepository appointmentRepo,
+    IAgoraService agoraService,
     ILogger<AppointmentController> logger,
     IPushNotificationService notificationServ
     ): ControllerBase
@@ -154,6 +155,10 @@ public class AppointmentController(
 
             var appointment = await appointmentRepo.UpdateAppointmentStatusAsync(appointmentId, id, dto.Status);
             if (appointment == null) throw new Exception("Unable to update appointment status");
+            if (appointment.status == "scheduled")
+            {
+                await agoraService.ScheduleRoom(appointmentId, appointment.appointment_date);
+            }
             await notificationServ.SendPushNotificationAsync(
                 "New Appointment Request",
                 "New Appointment Request",

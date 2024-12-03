@@ -13,7 +13,7 @@ public record CreateAppointmentDto(
 {
     [JsonIgnore]
     public DateTime InternalAppointmentTime =   DateTime
-        .ParseExact(AppointmentDate, "dd/MM/yyyy", CultureInfo.InvariantCulture)
+        .ParseExact(AppointmentDate, "MM/dd/yyyy", CultureInfo.InvariantCulture)
         .Add(TimeSpan.Parse(AppointmentTime));
     
 }

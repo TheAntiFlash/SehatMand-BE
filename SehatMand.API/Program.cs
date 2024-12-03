@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using MySql.EntityFrameworkCore.Extensions;
 using SehatMand.Domain.Interface.Repository;
 using SehatMand.Domain.Interface.Service;
+using SehatMand.Domain.Utils.Agora;
 using SehatMand.Domain.Utils.Smtp;
 using SehatMand.Infrastructure.Extensions;
 using SehatMand.Infrastructure.Persistence;
@@ -53,7 +54,16 @@ builder.Services.AddHttpClient("OneSignal", client =>
     client.DefaultRequestHeaders.Add("Authorization", apiKey); 
 });
 
+builder.Services.AddHttpClient(
+    
+    "Agora",
+    client =>
+    {
+        client.BaseAddress = new Uri("https://api.agora.io");
+    });
+
 builder.Services.Configure<SmtpSettings>(config.GetSection("SmtpSettings"));
+builder.Services.Configure<AgoraSettings>(config.GetSection("AgoraSettings"));
 builder.Services.AddDbContext<SmDbContext>(options => options.UseMySQL(config.GetConnectionString("SmDb")!));
 builder.Services.AddScoped<DbContext, SmDbContext>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
@@ -68,6 +78,7 @@ builder.Services.AddScoped<IPushNotificationService, PushNotificationService>();
 builder.Services.AddScoped<IFtpService, FtpService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IMedicalHistoryRepository, MedicalHistoryRepository>();
+builder.Services.AddScoped<IAgoraService, AgoraService>();
 
 //builder.Services.AddInfrastructure(config);
 

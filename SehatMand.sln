@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SehatMand.Infrastructure", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SehatMand.Application", "SehatMand.Application\SehatMand.Application.csproj", "{3BEED8C7-94D9-4A74-A807-A1D8D2E11AF6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgoraIO", "AgoraIO\AgoraIO.csproj", "{91D3C9C9-625C-4BD5-8096-C8281342BD22}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{3BEED8C7-94D9-4A74-A807-A1D8D2E11AF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3BEED8C7-94D9-4A74-A807-A1D8D2E11AF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3BEED8C7-94D9-4A74-A807-A1D8D2E11AF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91D3C9C9-625C-4BD5-8096-C8281342BD22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91D3C9C9-625C-4BD5-8096-C8281342BD22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91D3C9C9-625C-4BD5-8096-C8281342BD22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91D3C9C9-625C-4BD5-8096-C8281342BD22}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

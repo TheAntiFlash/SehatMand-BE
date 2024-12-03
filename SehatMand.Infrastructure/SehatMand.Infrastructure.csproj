@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+      <PackageReference Include="Google.Cloud.Storage.V1" Version="4.10.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -23,6 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\..\..\Downloads\AgoraDynamicKey\src\AgoraIO\AgoraIO.csproj" />
       <ProjectReference Include="..\SehatMand.Application\SehatMand.Application.csproj" />
     </ItemGroup>
 
