@@ -6,6 +6,7 @@ using SehatMand.Application.Dto.Error;
 using SehatMand.Application.Mapper;
 using SehatMand.Domain.Interface.Repository;
 using SehatMand.Domain.Interface.Service;
+using SehatMand.Domain.Utils.Constants;
 using SehatMand.Domain.Utils.Notification;
 
 namespace SehatMand.API.Controllers;
@@ -172,6 +173,37 @@ public class AppointmentController(
             logger.LogError(e, "Unable to update appointment status");
             return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to update appointment status",
+                e.Message
+            ));
+        }
+    }
+    
+    /// <summary>
+    /// Get agora rtc token
+    /// </summary>
+    /// <param name="appointmentId"></param>
+    /// <returns></returns>
+    [Authorize]
+    [HttpGet]
+    [Route("{appointmentId}/token")]
+    public  IActionResult GetAgoraTokenAsync([FromRoute] string appointmentId)
+    {
+        try
+        {
+            if (HttpContext.User.Identity is not ClaimsIdentity identity)
+                return BadRequest(new ResponseDto("Error", "Something went wrong"));
+            var claims = identity.Claims;
+            var role = claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
+            var roleType = role == "Doctor" ? SehatMandConstants.DOCTOR : SehatMandConstants.PATIENT;
+            logger.LogInformation(role + " " + roleType);
+            var token = agoraService.GenerateRtcToken(roleType, appointmentId);
+            return Ok(token);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Unable to get agora token");
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
+                "Unable to get agora token",
                 e.Message
             ));
         }

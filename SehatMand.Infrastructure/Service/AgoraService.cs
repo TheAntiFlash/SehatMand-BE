@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using AgoraIO.Media;
+using AgoraIO.Rtm;
 using Microsoft.Extensions.Options;
 using SehatMand.Domain.Interface.Service;
 using SehatMand.Domain.Utils.Agora;
@@ -14,6 +15,22 @@ public class AgoraService(IOptions<AgoraSettings> conf, IHttpClientFactory clien
     {
         var accessToken = new AccessToken2(_appId, _appCertificate, 36000);
         return accessToken.build();
+    }
+
+    public string GenerateRtcToken(uint uid, string channel)
+    {
+        var token = RtcTokenBuilder2
+            .buildTokenWithUid(
+                _appId,
+                _appCertificate,
+                channel,
+                uid,
+                RtcTokenBuilder2.Role.RolePublisher,
+                3600,
+                3600
+                );
+        return token;
+
     }
 
     public async Task ScheduleRoom(string appointmentId, DateTime startTime)
