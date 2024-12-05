@@ -25,6 +25,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\..\Downloads\AgoraDynamicKey\src\AgoraIO\AgoraIO.csproj" />
+      <ProjectReference Include="..\AgoraIO\AgoraIO.csproj" />
       <ProjectReference Include="..\SehatMand.Application\SehatMand.Application.csproj" />
     </ItemGroup>
 
