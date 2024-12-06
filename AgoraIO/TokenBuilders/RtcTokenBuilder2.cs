@@ -1,4 +1,6 @@
-﻿namespace AgoraIO.Media
+﻿using AgoraIO.Media;
+
+namespace AgoraIO.TokenBuilders
 {
     public class RtcTokenBuilder2
     {
