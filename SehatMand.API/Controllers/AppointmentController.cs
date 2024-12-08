@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SehatMand.Application.Dto.Appointment;
 using SehatMand.Application.Dto.Error;
+using SehatMand.Application.Dto.Review;
 using SehatMand.Application.Mapper;
 using SehatMand.Domain.Interface.Repository;
 using SehatMand.Domain.Interface.Service;
@@ -26,6 +27,7 @@ namespace SehatMand.API.Controllers;
 [Route("api/appointment")]
 public class AppointmentController(
     IAppointmentRepository appointmentRepo,
+    IPatientRepository patientRepo,
     IAgoraService agoraService,
     ILogger<AppointmentController> logger,
     IPushNotificationService notificationServ
@@ -204,6 +206,40 @@ public class AppointmentController(
             logger.LogError(e, "Unable to get agora token");
             return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
                 "Unable to get agora token",
+                e.Message
+            ));
+        }
+    }
+    
+    /// <summary>
+    /// Add review
+    /// </summary>
+    /// <param name="appointmentId"></param>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    [HttpPost]
+    [Route("{appointmentId}/review")]
+    public async Task<IActionResult> AddReview([FromRoute] string appointmentId, [FromBody] CreateReviewDto dto)
+    {
+        try
+        {
+            if (HttpContext.User.Identity is not ClaimsIdentity identity)
+                return BadRequest(new ResponseDto("Error", "Something went wrong"));
+            var claims = identity.Claims;
+            var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (id == null) throw new Exception("User not found");
+            var patientId = await patientRepo.GetPatientIdByUserId(id); 
+            if (patientId == null) throw new Exception("Patient not found");
+            var review = dto.ToReview(appointmentId);
+            await appointmentRepo.AddReviewAsync(review, patientId);
+            return Created(review.id, review.ToReadReviewDto());
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Unable to add review");
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
+                "Unable to add review",
                 e.Message
             ));
         }

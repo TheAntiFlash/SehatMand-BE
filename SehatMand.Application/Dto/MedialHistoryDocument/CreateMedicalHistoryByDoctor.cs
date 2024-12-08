@@ -1,16 +1,19 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
-using DateOnly = SehatMand.Application.Dto.Utils.DateOnly;
 
 namespace SehatMand.Application.Dto.MedialHistoryDocument;
 
-public record CreateMedicalHistoryByPatientDocument(
+public record CreateMedicalHistoryByDoctor(
     [Required]
     string Name,
     [Required]
     string Description,
     [Required]
-    DateOnly RecordDate,
+    List<string> Symptoms,
+    [Required]
+    string Diagnosis,
+    [Required]
+    string Comments,
     [Required]
     IFormFile File
     );

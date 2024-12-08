@@ -386,6 +386,8 @@ public partial class SmDbContext(
             entity.Property(e => e.diagnosed_disease).HasMaxLength(255);
             entity.Property(e => e.doctors_comments).HasMaxLength(1000);
             entity.Property(e => e.document_path).HasMaxLength(500);
+            entity.Property(e => e.document_name).HasMaxLength(255);
+            entity.Property(e => e.document_description).HasMaxLength(500);
             entity.Property(e => e.id).HasMaxLength(36);
             entity.Property(e => e.patient_id).HasMaxLength(36);
             entity.Property(e => e.modified_at).HasColumnType("datetime");

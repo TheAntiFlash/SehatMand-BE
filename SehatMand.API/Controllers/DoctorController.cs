@@ -16,19 +16,26 @@ using SehatMand.Infrastructure.Service;
 
 namespace SehatMand.API.Controllers;
 
+/// <summary>
+/// * This controller is responsible for handling all the doctor related requests.
+/// * It includes the following functionalities:
+/// * - Login
+/// * - Register
+/// * - Get nearest doctors
+/// * - Update profile
+/// * - Get profile by id
+/// * - Get profile
+/// * - Update password 
+/// </summary>
+/// <param name="repo"></param>
+/// <param name="patientRepo"></param>
+/// <param name="docRepo"></param>
+/// <param name="service"></param>
+/// <param name="smtp"></param>
+/// <param name="otpServ"></param>
+/// <param name="logger"></param>
 [Route("api/doctor")]
 [ApiController]
-/***
- * This controller is responsible for handling all the doctor related requests.
- * It includes the following functionalities:
- * - Login
- * - Register
- * - Get nearest doctors
- * - Update profile
- * - Get profile by id
- * - Get profile
- * - Update password
- */
 public class DoctorController(
     IAuthRepository repo,
     IPatientRepository patientRepo, 

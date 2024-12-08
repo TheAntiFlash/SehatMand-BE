@@ -77,7 +77,9 @@ public static class DoctorMapper
             doctor.DoctorDailyAvailability.FirstOrDefault(a => a.day_of_week! == (int?)DateTime.Now.DayOfWeek)?.availability_end.ToString() ?? "unassigned",
             doctor.Email,
             doctor.Phone,
-            4.8f
+            (float)doctor.Appointment
+                .Where(a => a.Review.Count > 0)
+                .Select(a => a.Review.Average(r => r.rating)).FirstOrDefault()/2f
         );
     }
 
@@ -106,7 +108,9 @@ public static class DoctorMapper
             d.Qualifications.Select(q => q.Degree).ToList(),
             d.Email,
             d.Phone,
-            4.5f,
+            (float)d.Appointment
+                .Where(a => a.Review.Count > 0)
+                .Select(a => a.Review.Average(r => r.rating)).FirstOrDefault()/2f,
             d.ClinicId?? "N/A",
             d.Address?? "N/A",
             d.ProfileInfo?? "N/A",

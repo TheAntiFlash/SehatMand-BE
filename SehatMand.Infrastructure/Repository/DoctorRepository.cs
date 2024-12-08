@@ -14,7 +14,11 @@ public class DoctorRepository(SmDbContext context): IDoctorRepository
 
     public async Task<List<Doctor>> GetNearestDoctors(string? patientCity)
     {
-        return await context.Doctor.Include(d => d.Qualifications).Where(d => d.City != null && d.City.Equals(patientCity, StringComparison.CurrentCultureIgnoreCase)).ToListAsync();
+        return await context.Doctor
+            .Include(d => d.Qualifications)
+            .Include(d => d.Appointment)
+            .ThenInclude(d => d.Review)
+            .Where(d => d.City != null && d.City.Equals(patientCity, StringComparison.CurrentCultureIgnoreCase)).ToListAsync();
     }
     
     public async Task<Doctor?> GetByIdAsync(string id)
@@ -23,6 +27,7 @@ public class DoctorRepository(SmDbContext context): IDoctorRepository
             .Include(d => d.DoctorDailyAvailability)
             .Include(d => d.Qualifications)
             .Include(d => d.Appointment)
+            .ThenInclude(d => d.Review)
             .FirstOrDefaultAsync(d => d.Id == id);
     }
     
@@ -53,6 +58,7 @@ public class DoctorRepository(SmDbContext context): IDoctorRepository
             .Include(d => d.User)
             .Include(d => d.Qualifications)
             .Include(d => d.Appointment)
+            .ThenInclude(d => d.Review)
             .FirstOrDefaultAsync(d => d.UserId == uid);
     }
 

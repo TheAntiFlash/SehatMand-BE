@@ -2,7 +2,7 @@
 
 public partial class MedicalHistoryDocument
 {
-    public string id { get; set; } = null!;
+    public string id { get; set; } = Guid.NewGuid().ToString();
 
     public string? appointment_id { get; set; }
 
@@ -13,6 +13,8 @@ public partial class MedicalHistoryDocument
     public string patient_id { get; set; } = null!;
 
     public string? document_path { get; set; }
+    public string? document_name { get; set; }
+    public string? document_description { get; set; }
 
     public string? doctors_comments { get; set; }
 

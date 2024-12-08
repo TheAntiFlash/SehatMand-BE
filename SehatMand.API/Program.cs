@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using System.Text.Json.Serialization;
+using Amazon.S3;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -79,6 +80,7 @@ builder.Services.AddScoped<IFtpService, FtpService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IMedicalHistoryRepository, MedicalHistoryRepository>();
 builder.Services.AddScoped<IAgoraService, AgoraService>();
+builder.Services.AddScoped<IStorageService, AwsService>();
 
 //builder.Services.AddInfrastructure(config);
 
@@ -103,6 +105,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddAWSService<IAmazonS3>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

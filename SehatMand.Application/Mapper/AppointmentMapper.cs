@@ -6,7 +6,7 @@ namespace SehatMand.Application.Mapper;
 
 public static class AppointmentMapper
 {
-    public static Appointment ToAppointment(this CreateAppointmentDto dto)
+    public static Appointment? ToAppointment(this CreateAppointmentDto dto)
     {
         
         

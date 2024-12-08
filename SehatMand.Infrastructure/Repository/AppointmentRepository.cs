@@ -8,7 +8,7 @@ namespace SehatMand.Infrastructure.Repository;
 
 public class AppointmentRepository(SmDbContext context, ILogger<AppointmentRepository> logger): IAppointmentRepository
 {
-    public async Task<Appointment> CreateAppointmentAsync(Appointment appointment, string patientUid)
+    public async Task<Appointment> CreateAppointmentAsync(Appointment? appointment, string patientUid)
     {
         var patientId = await context.Patient
             .Where(p => p.UserId == patientUid)
@@ -83,39 +83,58 @@ public class AppointmentRepository(SmDbContext context, ILogger<AppointmentRepos
 
     public async Task<Appointment> UpdateAppointmentStatusAsync(string appointmentId, string id, string dtoStatus)
     {
-       var appointment = context.Appointment
-           .Include(a => a.doctor)
-           .Include(a => a.patient)
-           .FirstOrDefault(a => a.id == appointmentId);
-       if (appointment == null) throw new Exception("Appointment not found");
+        var appointment = context.Appointment
+            .Include(a => a.doctor)
+            .Include(a => a.patient)
+            .FirstOrDefault(a => a.id == appointmentId);
+        if (appointment == null) throw new Exception("Appointment not found");
 
-       var scheduledAtTime = await context.Appointment
-           .Where(a => a.doctor_id == appointment.doctor_id &&
-               (a.appointment_date == appointment.appointment_date ||
-                (a.appointment_date < appointment.appointment_date &&
-                 a.appointment_date.AddMinutes(59) >= appointment.appointment_date)) &&
-               a.status == "scheduled" || a.status == "completed").AnyAsync();
+        var scheduledAtTime = await context.Appointment
+            .Where(a => a.doctor_id == appointment.doctor_id &&
+                (a.appointment_date == appointment.appointment_date ||
+                 (a.appointment_date < appointment.appointment_date &&
+                  a.appointment_date.AddMinutes(59) >= appointment.appointment_date)) &&
+                a.status == "scheduled" || a.status == "completed").AnyAsync();
        
-       if (scheduledAtTime && dtoStatus == "scheduled") throw new Exception("Doctor is already scheduled at this time");
+        if (scheduledAtTime && dtoStatus == "scheduled") throw new Exception("Doctor is already scheduled at this time");
        
-       if (appointment.doctor == null || appointment.doctor.UserId != id) 
-           throw new Exception("Unauthorized");
+        if (appointment.doctor == null || appointment.doctor.UserId != id) 
+            throw new Exception("Unauthorized");
        
-       /*logger.LogError(appointment.status);
-       logger.LogError((appointment.status != "pending").ToString());
-       logger.LogError((appointment.status != "scheduled").ToString());
-       logger.LogError((appointment.status != "pending" && appointment.status != "scheduled").ToString());*/
+        /*logger.LogError(appointment.status);
+        logger.LogError((appointment.status != "pending").ToString());
+        logger.LogError((appointment.status != "scheduled").ToString());
+        logger.LogError((appointment.status != "pending" && appointment.status != "scheduled").ToString());*/
            
-       if (appointment.status == "pending")
-           if(dtoStatus != "scheduled" && dtoStatus != "rejected")
-            throw new Exception("Appointment is already completed, cancelled, or rejected");
+        if (appointment.status == "pending")
+            if(dtoStatus != "scheduled" && dtoStatus != "rejected")
+                throw new Exception("Appointment is already completed, cancelled, or rejected");
        
-       if (appointment.status == "scheduled")
-           if(dtoStatus != "cancelled")
-            throw new Exception("Appointment is already completed, cancelled, or rejected");
+        if (appointment.status == "scheduled")
+            if(dtoStatus != "cancelled")
+                throw new Exception("Appointment is already completed, cancelled, or rejected");
        
-       appointment.status = dtoStatus;
-       await context.SaveChangesAsync();
-       return appointment;
+        appointment.status = dtoStatus;
+        await context.SaveChangesAsync();
+        return appointment;
+    }
+
+    public async Task<Appointment?> GetAppointmentByIdAsync(string appointmentId)
+    {
+        return await context.Appointment.FirstOrDefaultAsync(a => a.id == appointmentId);  
+    }
+
+    public async Task AddReviewAsync(Review review, string patientId)
+    {
+        var appointment = await context.Appointment.Include(a => a.Review).FirstOrDefaultAsync(a => a.id == review.appointment_id);
+        if (appointment == null) throw new Exception("Appointment not found");
+        if (appointment.patient_id != patientId) throw new Exception("Unauthorized");
+        if (appointment.status != "completed")
+        {
+            throw new Exception("Appointment is not completed yet");
+        }
+        if(appointment.Review.Count > 0) throw new Exception("Review already added");
+        await context.Review.AddAsync(review);
+        await context.SaveChangesAsync();
     }
 }
