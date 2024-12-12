@@ -33,6 +33,29 @@ builder.Services.AddSwaggerGen(options =>
     //options.SwaggerDoc("v1", new OpenApiInfo { Title = "SehatMand.API", Version = "v1" });
     options.IncludeXmlComments(xmlDocsPath);
     options.SupportNonNullableReferenceTypes();
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "bearer"
+    });
+    options.AddSecurityRequirement(
+        new OpenApiSecurityRequirement{
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type=ReferenceType.SecurityScheme,
+                        Id="Bearer"
+                    }
+                },
+                Array.Empty<string>()
+            }
+        });
 });
 
 var config = builder.Configuration;
