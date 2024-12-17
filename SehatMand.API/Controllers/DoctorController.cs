@@ -119,21 +119,22 @@ public class DoctorController(
             ));
         }
     }
-    
-    
+
+
     /// <summary>
     /// Get doctors queryable by name and speciality
     /// </summary>
     /// <param name="name"></param>
     /// <param name="speciality"></param>
+    /// <param name="symptoms"></param>
     /// <returns></returns>
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> GetDoctors([FromQuery] string? name, [FromQuery] string? speciality)
+    public async Task<IActionResult> GetDoctors([FromQuery] string? name, [FromQuery] string? speciality, [FromQuery] List<string>? symptom)
     {
         try
         {
-            var doctors = await docRepo.GetAsync(name, speciality);
+            var doctors = await docRepo.GetAsync(name, speciality, symptom);
             return Ok(doctors.Select(d => d.ToReadNearestDoctorDto()).ToList());
         }
         catch (Exception e)

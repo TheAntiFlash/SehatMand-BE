@@ -4,7 +4,7 @@ namespace SehatMand.Domain.Interface.Repository;
 
 public interface IDoctorRepository
 {
-    Task<List<Doctor>> GetAsync(string? name, string? speciality);
+    Task<List<Doctor>> GetAsync(string? name, string? speciality, List<string>? symptoms);
     Task<Doctor?> GetByEmailAsync(string email);
     Task<List<Doctor>> GetNearestDoctors(string? patientCity);
     

@@ -1,14 +1,30 @@
+using System.Net.Http.Json;
+using Amazon.Runtime.Internal.Util;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SehatMand.Domain.Entities;
 using SehatMand.Domain.Interface.Repository;
 using SehatMand.Infrastructure.Persistence;
 
 namespace SehatMand.Infrastructure.Repository;
 
-public class DoctorRepository(SmDbContext context): IDoctorRepository
+public class DoctorRepository(SmDbContext context, ILogger<DoctorRepository> logger): IDoctorRepository
 {
-    public async Task<List<Doctor>> GetAsync(string? name, string? speciality)
+    public async Task<List<Doctor>> GetAsync(string? name, string? speciality, List<string>? symptoms)
     {
+        Task<HttpResponseMessage>? response = null;
+        if (symptoms is { Count: > 0 })
+        {
+            var http = new HttpClient();
+            http.BaseAddress = new Uri("http://localhost:8000");
+            var request = new
+            {
+                symptoms = symptoms.ToArray()
+            };
+            
+            response = http.PostAsJsonAsync("/recommendations", request);
+        }
+        
         var query = context.Doctor
             .Include(d => d.User)
             .Include(d => d.Qualifications)
@@ -21,8 +37,18 @@ public class DoctorRepository(SmDbContext context): IDoctorRepository
         }
         if (speciality != null)
         {
-            query = query.Where(d => d.SpecialityId.ToLower().Contains(speciality.ToLower()));
+            query = query.Where(d => d.Speciality.Value.ToLower().Contains(speciality.ToLower()));
         }
+
+        if (response != null)
+        {
+            var diagnosis = await (await response).Content.ReadFromJsonAsync<List<AiDiagnosis>>();
+            diagnosis = diagnosis.OrderByDescending(a => a.Chance).ToList();
+            var recommendedSpeciality = diagnosis.FirstOrDefault()?.Specialist ?? "";
+            logger.LogInformation("Recommended Speciality: {0}", recommendedSpeciality);
+            query = query.Where(d => d.Speciality.Value.ToLower().Contains(recommendedSpeciality.ToLower()));
+        }
+        
 
         return await query.ToListAsync();
     }
