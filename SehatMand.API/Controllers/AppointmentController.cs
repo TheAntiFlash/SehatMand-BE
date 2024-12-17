@@ -9,6 +9,7 @@ using SehatMand.Domain.Interface.Repository;
 using SehatMand.Domain.Interface.Service;
 using SehatMand.Domain.Utils.Constants;
 using SehatMand.Domain.Utils.Notification;
+using Stripe;
 
 namespace SehatMand.API.Controllers;
 
@@ -29,6 +30,7 @@ public class AppointmentController(
     IAppointmentRepository appointmentRepo,
     IPatientRepository patientRepo,
     IAgoraService agoraService,
+    IPaymentService StripeServ,
     ILogger<AppointmentController> logger,
     IPushNotificationService notificationServ
     ): ControllerBase
@@ -83,14 +85,15 @@ public class AppointmentController(
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
-            var appointment = await appointmentRepo.CreateAppointmentAsync(dto.ToAppointment(), id);
+            var (appointment, clientSecret) = await appointmentRepo.CreateAppointmentAsync(dto.ToAppointment(), id);
             await notificationServ.SendPushNotificationAsync(
                 "New Appointment Request",
                 "New Appointment Request",
                 $"You have a new appointment request on {appointment.appointment_date.ToLongDateString()} at {appointment.appointment_date.ToString("h:mm tt")}",
                 [appointment.doctor?.UserId?? ""], NotificationContext.APPOINTMENT_REQUEST);
             
-            return Ok(appointment.ToReadAppointmentDto());
+            //return Ok(appointment.ToReadAppointmentDto());
+            return Ok (new { appointment = appointment.ToReadAppointmentDto(), clientSecret });
         }
         catch (Exception e)
         {
@@ -200,6 +203,40 @@ public class AppointmentController(
             logger.LogInformation(role + " " + roleType);
             var token = agoraService.GenerateRtcToken(roleType, appointmentId);
             return Ok(token);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Unable to get agora token");
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
+                "Unable to get agora token",
+                e.Message
+            ));
+        }
+    }
+    
+    /// <summary>
+    /// Complete appointment
+    /// </summary>
+    /// <param name="appointmentId"></param>
+    /// <returns></returns>
+    [Authorize]
+    [HttpGet]
+    [Route("{appointmentId}/complete")]
+    public async Task<IActionResult> CompleteAppointment([FromRoute] string appointmentId)
+    {
+        try
+        {
+            if (HttpContext.User.Identity is not ClaimsIdentity identity)
+                return BadRequest(new ResponseDto("Error", "Something went wrong"));
+            var claims = identity.Claims;
+            var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (id == null) throw new Exception("User not found");
+            var appointment = await appointmentRepo.UpdateAppointmentStatusAsync(appointmentId, id, "completed");
+            var paymentIntentService = new PaymentIntentService();
+            if (appointment.paymentIntentId == null) throw new Exception("Payment not found");
+            
+            var paymentIntent = await paymentIntentService.CaptureAsync(appointment.paymentIntentId);
+            return Ok(paymentIntent);
         }
         catch (Exception e)
         {

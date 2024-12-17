@@ -3,7 +3,7 @@ namespace SehatMand.Application.Dto.Doctor;
 public record ReadNearestDoctorDto(
     string Id,
     string Name,
-    List<string> Specialities,
+    string Speciality,
     string ProfileUrl,
     List<string> Degrees,
     string WorkingStart,

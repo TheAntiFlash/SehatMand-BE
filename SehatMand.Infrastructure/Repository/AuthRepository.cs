@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SehatMand.Domain.Entities;
 using SehatMand.Domain.Interface.Repository;
+using SehatMand.Domain.Interface.Service;
 using SehatMand.Infrastructure.Persistence;
 
 namespace SehatMand.Infrastructure.Repository;
@@ -14,6 +15,7 @@ public class AuthRepository(
     IConfiguration conf,
     SmDbContext dbContext,
     IDoctorRepository docRepo,
+    IPaymentService stripeServ,
     IPatientRepository patientRepo
     ): IAuthRepository
 {
@@ -31,7 +33,8 @@ public class AuthRepository(
 
             return null;
         }
-
+        var docPaymentId = await stripeServ.CreateDoctorAccountAsync(doctor.Email);
+        doctor.DoctorPaymentId = docPaymentId;
         await dbContext.User.AddAsync(doctor.User);
         await dbContext.Doctor.AddAsync(doctor);
         await dbContext.SaveChangesAsync();

@@ -10,6 +10,7 @@
       <PackageReference Include="AWSSDK.S3" Version="3.7.410.1" />
       <PackageReference Include="Google.Cloud.Storage.V1" Version="4.10.0" />
       <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+      <PackageReference Include="Stripe.net" Version="47.1.0" />
     </ItemGroup>
 
 </Project>

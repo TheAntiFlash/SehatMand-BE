@@ -15,6 +15,8 @@ public partial class Appointment
     public decimal? longitude { get; set; }
 
     public string status { get; set; } = "pending"; 
+    
+    public string? paymentIntentId { get; set; } 
 
     public DateTime appointment_date { get; set; }
 

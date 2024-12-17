@@ -4,7 +4,7 @@ namespace SehatMand.Domain.Interface.Repository;
 
 public interface IAppointmentRepository
 {
-    public Task<Appointment> CreateAppointmentAsync(Appointment? appointment, string patientUid);
+    public Task<(Appointment, string)> CreateAppointmentAsync(Appointment? appointment, string patientUid);
     
     public Task<List<Appointment>> GetAppointmentsAsync(string patientUid, string? statusQuery);
     Task<List<Appointment>> GetDoctorAppointmentsAsync(string doctorUid, string? queryStatus);

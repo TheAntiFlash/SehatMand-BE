@@ -7,12 +7,13 @@ public partial class Doctor
     public string? UserId { get; set; } = null!;
 
     public string Name { get; set; } = null!;
+    public string? DoctorPaymentId { get; set; }
 
     public string FatherName { get; set; } = null!;
     public string RegistrationType { get; set; } = null!;
     public DateTime RegistrationDate { get; set; }
     public DateTime LicenseExpiry { get; set; }
-    public string Specialty { get; set; } = null!;
+    public string SpecialityId { get; set; } = null!;
 
     public string Phone { get; set; } = null!;
 
@@ -42,6 +43,8 @@ public partial class Doctor
     public virtual Clinic? Clinic { get; set; }
 
     public virtual User? User { get; set; }  
+    
+    public virtual Speciality? Speciality { get; set; }
 
     public List<Qualification> Qualifications { get; set; } = [];
 }

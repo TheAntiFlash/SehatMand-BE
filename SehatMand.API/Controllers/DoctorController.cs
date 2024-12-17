@@ -122,6 +122,31 @@ public class DoctorController(
     
     
     /// <summary>
+    /// Get doctors queryable by name and speciality
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="speciality"></param>
+    /// <returns></returns>
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> GetDoctors([FromQuery] string? name, [FromQuery] string? speciality)
+    {
+        try
+        {
+            var doctors = await docRepo.GetAsync(name, speciality);
+            return Ok(doctors.Select(d => d.ToReadNearestDoctorDto()).ToList());
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Unable to get doctors");
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
+                "Unable to get doctors",
+                e.Message
+            ));
+        }
+    }
+    
+    /// <summary>
     /// Get nearest doctors
     /// </summary>
     /// <returns></returns>
@@ -280,6 +305,30 @@ public class DoctorController(
         }
     }
     
+    
+    /// <summary>
+    /// Get all specialities
+    /// </summary>
+    /// <returns></returns>
+    [Authorize]
+    [HttpGet]
+    [Route("speciality")]
+    public async Task<IActionResult> GetAllSpecialities()
+    {
+        try
+        {
+            var specialities = await docRepo.GetSpecialities();
+            return Ok(specialities.Select(s => s.ToReadSpecialityDto()));
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Unable to get specialities");
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
+                "Unable to get specialities",
+                e.Message
+            ));
+        }
+    }
     
 }   
 

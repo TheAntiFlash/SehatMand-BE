@@ -2,13 +2,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SehatMand.Domain.Entities;
 using SehatMand.Domain.Interface.Repository;
+using SehatMand.Domain.Interface.Service;
 using SehatMand.Infrastructure.Persistence;
 
 namespace SehatMand.Infrastructure.Repository;
 
-public class AppointmentRepository(SmDbContext context, ILogger<AppointmentRepository> logger): IAppointmentRepository
+public class AppointmentRepository(SmDbContext context, IPaymentService stripeServ, ILogger<AppointmentRepository> logger): IAppointmentRepository
 {
-    public async Task<Appointment> CreateAppointmentAsync(Appointment? appointment, string patientUid)
+    public async Task<(Appointment, string)> CreateAppointmentAsync(Appointment? appointment, string patientUid)
     {
         var patientId = await context.Patient
             .Where(p => p.UserId == patientUid)
@@ -31,13 +32,17 @@ public class AppointmentRepository(SmDbContext context, ILogger<AppointmentRepos
         {
             throw new Exception("Doctor not available at this time");
         }
+        if (doctor.DoctorPaymentId == null) throw new Exception("Doctor payment account not found");
+        
+        var intent = await stripeServ.CreatePaymentIntentAsync(5000, doctor.DoctorPaymentId, appointment.id);
+        appointment.paymentIntentId = intent.Id;
         await context.Appointment.AddAsync(appointment);
         await context.SaveChangesAsync();
         var appointmentSaved = await context.Appointment
             .Include(a => a.doctor)
             .ThenInclude(d => d.Qualifications)
             .FirstOrDefaultAsync(a => a.id == appointment.id);
-        return appointmentSaved;
+        return (appointmentSaved!, intent.ClientSecret);
     }
 
     public async Task<List<Appointment>> GetAppointmentsAsync(string patientUid, string? statusQuery)

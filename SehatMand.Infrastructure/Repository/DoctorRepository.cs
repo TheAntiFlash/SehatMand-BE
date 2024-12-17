@@ -7,6 +7,26 @@ namespace SehatMand.Infrastructure.Repository;
 
 public class DoctorRepository(SmDbContext context): IDoctorRepository
 {
+    public async Task<List<Doctor>> GetAsync(string? name, string? speciality)
+    {
+        var query = context.Doctor
+            .Include(d => d.User)
+            .Include(d => d.Qualifications)
+            .Include(d => d.Speciality)
+            .Include(d => d.Appointment)
+            .ThenInclude(d => d.Review).AsQueryable();
+        if (name != null)
+        {
+            query = query.Where(d => d.Name.ToLower().Contains(name.ToLower()));
+        }
+        if (speciality != null)
+        {
+            query = query.Where(d => d.SpecialityId.ToLower().Contains(speciality.ToLower()));
+        }
+
+        return await query.ToListAsync();
+    }
+
     public async Task<Doctor?> GetByEmailAsync(string email)
     {
         return await context.Doctor.Include(d => d.User).FirstOrDefaultAsync(x => x.Email == email);
@@ -76,7 +96,7 @@ public class DoctorRepository(SmDbContext context): IDoctorRepository
         if (dtoCity != null) doctor.City = dtoCity;
         if (dtoAddress != null) doctor.Address = dtoAddress;
         if (dtoProfileInfo != null) doctor.ProfileInfo = dtoProfileInfo;
-        if (dtoSpeciality != null) doctor.Specialty = dtoSpeciality;
+        if (dtoSpeciality != null) doctor.SpecialityId = dtoSpeciality;
         if (availability != null)
         {
             foreach (var doctorAvailability in availability)
@@ -104,5 +124,10 @@ public class DoctorRepository(SmDbContext context): IDoctorRepository
         if (dtoClinicId != null) doctor.ClinicId = dtoClinicId;
 
         await context.SaveChangesAsync();
+    }
+
+    public async Task<List<Speciality>> GetSpecialities()
+    {
+        return await context.Speciality.ToListAsync();
     }
 }

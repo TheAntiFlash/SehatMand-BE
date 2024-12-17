@@ -15,8 +15,12 @@ using SehatMand.Infrastructure.Extensions;
 using SehatMand.Infrastructure.Persistence;
 using SehatMand.Infrastructure.Repository;
 using SehatMand.Infrastructure.Service;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//initialize stripe Configuration
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 // Add services to the container.
 
@@ -104,6 +108,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IMedicalHistoryRepository, MedicalHistoryRepository>();
 builder.Services.AddScoped<IAgoraService, AgoraService>();
 builder.Services.AddScoped<IStorageService, AwsService>();
+builder.Services.AddScoped<IPaymentService, StripeService>();
 
 //builder.Services.AddInfrastructure(config);
 
