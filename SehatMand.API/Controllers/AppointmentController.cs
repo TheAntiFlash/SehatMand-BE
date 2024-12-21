@@ -80,6 +80,8 @@ public class AppointmentController(
     {
         try
         {
+            if (dto.InternalAppointmentTime < DateTime.Now)
+                return BadRequest(new ResponseDto("Invalid DateTime", "Appointment can only be scheduled in future."));
             if (HttpContext.User.Identity is not ClaimsIdentity identity)
                 return BadRequest(new ResponseDto("Error", "Something went wrong"));
             var claims = identity.Claims;

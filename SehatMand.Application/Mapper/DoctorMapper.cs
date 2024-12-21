@@ -114,6 +114,7 @@ public static class DoctorMapper
             d.ClinicId?? "N/A",
             d.Address?? "N/A",
             d.ProfileInfo?? "N/A",
+            d.Appointment.SelectMany(a => a.Review).Select(r => r.ToReadReviewDto()).ToList(),
             availabilities
         );
     }

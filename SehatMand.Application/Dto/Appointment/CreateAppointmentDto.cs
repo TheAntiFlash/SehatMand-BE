@@ -15,5 +15,6 @@ public record CreateAppointmentDto(
     public DateTime InternalAppointmentTime =   DateTime
         .ParseExact(AppointmentDate, "MM/dd/yyyy", CultureInfo.InvariantCulture)
         .Add(TimeSpan.Parse(AppointmentTime));
+   
     
 }

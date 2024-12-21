@@ -1,3 +1,5 @@
+using SehatMand.Application.Dto.Review;
+
 namespace SehatMand.Application.Dto.Doctor;
 
 public record ReadDoctorProfileDto(
@@ -12,5 +14,6 @@ public record ReadDoctorProfileDto(
     string ClinicId,
     string Address,
     string ProfileInfo,
+    List<ReadReviewDto> Reviews,
     List<ReadDoctorDailyAvailability> Availability
     );

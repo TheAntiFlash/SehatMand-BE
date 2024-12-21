@@ -16,7 +16,7 @@ public class DoctorRepository(SmDbContext context, ILogger<DoctorRepository> log
         if (symptoms is { Count: > 0 })
         {
             var http = new HttpClient();
-            http.BaseAddress = new Uri("http://sehatmand.live/");//Uri("http://localhost:8000");
+            http.BaseAddress = new Uri("http://api.sehatmand.live:8080");//Uri("http://localhost:8000");
             var request = new
             {
                 symptoms = symptoms.ToArray()
@@ -66,6 +66,7 @@ public class DoctorRepository(SmDbContext context, ILogger<DoctorRepository> log
             .Include(d => d.Qualifications)
             .Include(d => d.Appointment)
             .ThenInclude(d => d.Review)
+            .Include(d => d.Speciality)
             .Where(d => d.City != null && d.City.Equals(patientCity, StringComparison.CurrentCultureIgnoreCase)).ToListAsync();
     }
     
@@ -74,8 +75,11 @@ public class DoctorRepository(SmDbContext context, ILogger<DoctorRepository> log
         return await context.Doctor
             .Include(d => d.DoctorDailyAvailability)
             .Include(d => d.Qualifications)
+            .Include(d => d.Speciality)
             .Include(d => d.Appointment)
             .ThenInclude(d => d.Review)
+            .Include(d => d.Appointment)
+            .ThenInclude(a => a.patient)
             .FirstOrDefaultAsync(d => d.Id == id);
     }
     
@@ -105,8 +109,11 @@ public class DoctorRepository(SmDbContext context, ILogger<DoctorRepository> log
             .Include(d => d.DoctorDailyAvailability)
             .Include(d => d.User)
             .Include(d => d.Qualifications)
+            .Include(d => d.Speciality)
             .Include(d => d.Appointment)
             .ThenInclude(d => d.Review)
+            .Include(d => d.Appointment)
+            .ThenInclude(a => a.patient)
             .FirstOrDefaultAsync(d => d.UserId == uid);
     }
 

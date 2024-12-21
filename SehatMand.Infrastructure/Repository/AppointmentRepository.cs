@@ -69,6 +69,14 @@ public class AppointmentRepository(SmDbContext context/*, IPaymentService stripe
             dbQuery = dbQuery.Where(a => a.status == statusQuery);
         }
         var appointments = await dbQuery.ToListAsync();
+        foreach (var appointment in appointments)
+        {
+            if (appointment.appointment_date < DateTime.Now.AddHours(1) && (appointment is {status: "scheduled" or "pending" or "payment-pending"}))
+            {
+                appointment.status = "cancelled";
+            }
+        }
+        await context.SaveChangesAsync();
         return appointments;
     }
 
@@ -95,6 +103,14 @@ public class AppointmentRepository(SmDbContext context/*, IPaymentService stripe
             dbQuery = dbQuery.Where(a => a.status == queryStatus);
         }
         var appointments = await dbQuery.ToListAsync();
+        foreach (var appointment in appointments)
+        {
+           if (appointment.appointment_date < DateTime.Now.AddHours(1) && (appointment is {status: "scheduled" or "pending" or "payment-pending"}))
+           {
+               appointment.status = "cancelled";
+           }
+        }
+        await context.SaveChangesAsync();
         return appointments;
     }
 
@@ -124,14 +140,18 @@ public class AppointmentRepository(SmDbContext context/*, IPaymentService stripe
         if (appointment.doctor == null || appointment.doctor.UserId != id) 
             throw new Exception("Unauthorized");
        
-        /*logger.LogError(appointment.status);
-        logger.LogError((appointment.status != "pending").ToString());
-        logger.LogError((appointment.status != "scheduled").ToString());
-        logger.LogError((appointment.status != "pending" && appointment.status != "scheduled").ToString());*/
-           
+        
         if (appointment.status == "pending")
+        {
             if(dtoStatus != "scheduled" && dtoStatus != "rejected")
-                throw new Exception("Appointment is already completed, cancelled, or rejected");
+                throw new Exception("appointment can only be scheduled or rejected from pending state.");
+            if (dtoStatus == "scheduled" && appointment.appointment_date < DateTime.Now)
+            {
+                appointment.status = "cancelled";
+                await context.SaveChangesAsync();
+                throw new Exception("Appointment time has passed and can not be scheduled");
+            }
+        }
        
         if (appointment.status == "scheduled")
             if(dtoStatus != "cancelled")
