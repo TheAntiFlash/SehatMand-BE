@@ -56,7 +56,8 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         var dbQuery = context.Appointment
             .Include(a => a.doctor)
             .ThenInclude(d => d.Qualifications)
-            .Where(a => a.patient_id == patientId);
+            .Where(a => a.patient_id == patientId)
+            .Where(a => a.appointment_date.AddMinutes(30) >= DateTime.Now);
 
         if (!string.IsNullOrWhiteSpace(statusQuery))
         {
