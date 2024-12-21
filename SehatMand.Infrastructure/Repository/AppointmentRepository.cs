@@ -32,7 +32,7 @@ public class AppointmentRepository(SmDbContext context/*, IPaymentService stripe
         {
             throw new Exception("Doctor not available at this time");
         }
-        if (doctor.DoctorPaymentId == null) throw new Exception("Doctor payment account not found");
+        //if (doctor.DoctorPaymentId == null) throw new Exception("Doctor payment account not found");
         
         // var intent = await stripeServ.CreatePaymentIntentAsync(5000, doctor.DoctorPaymentId, appointment.id);
         // appointment.paymentIntentId = intent.Id;

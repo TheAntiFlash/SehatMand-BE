@@ -15,7 +15,7 @@ public class MedicalHistoryRepository(
 {
     public async Task<string> AddMedicalHistoryDocumentAsync(MedicalHistoryDocument document, IFormFile file, string rootFolder)
     {
-        var path = Path.Join("medical-history",$"{document.created_at:yyyy-MM-dd}--{document.patient_id}", rootFolder);
+        var path = Path.Join("medical-history",$"{document.patient_id}", rootFolder);
         await awsService.UploadFileAsync(file, document.id, path);
         await context.MedicalHistoryDocument.AddAsync(document);
         await context.SaveChangesAsync();
