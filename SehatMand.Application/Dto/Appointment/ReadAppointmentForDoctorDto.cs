@@ -7,5 +7,6 @@ public record ReadAppointmentForDoctorDto(
     string Status,
     string Date,
     string Time,
+    bool CanJoin,
     string CreatedAt
     );

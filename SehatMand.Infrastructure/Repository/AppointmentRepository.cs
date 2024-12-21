@@ -45,7 +45,8 @@ public class AppointmentRepository(SmDbContext context/*, IPaymentService stripe
         return appointmentSaved!;
     }
 
-    public async Task<List<Appointment>> GetAppointmentsAsync(string patientUid, string? statusQuery)
+    public async Task<List<Appointment>> GetAppointmentsAsync(string patientUid, string? statusQuery,
+        bool? queryShowPastAppointments)
     {
         var patientId = await context.Patient
             .Where(p => p.UserId == patientUid)
@@ -56,8 +57,12 @@ public class AppointmentRepository(SmDbContext context/*, IPaymentService stripe
         var dbQuery = context.Appointment
             .Include(a => a.doctor)
             .ThenInclude(d => d.Qualifications)
-            .Where(a => a.patient_id == patientId)
-            .Where(a => a.appointment_date.AddMinutes(30) >= DateTime.Now);
+            .Where(a => a.patient_id == patientId);
+
+        if (queryShowPastAppointments == false)
+        {
+            dbQuery = dbQuery.Where(a => a.appointment_date.AddMinutes(60) >= DateTime.Now);
+        }
 
         if (!string.IsNullOrWhiteSpace(statusQuery))
         {
@@ -67,7 +72,8 @@ public class AppointmentRepository(SmDbContext context/*, IPaymentService stripe
         return appointments;
     }
 
-    public async Task<List<Appointment>> GetDoctorAppointmentsAsync(string doctorUid, string? queryStatus)
+    public async Task<List<Appointment>> GetDoctorAppointmentsAsync(string doctorUid, string? queryStatus,
+        bool? queryShowPastAppointments)
     {
         var doctorId = await context.Doctor
             .Where(p => p.UserId == doctorUid)
@@ -79,6 +85,11 @@ public class AppointmentRepository(SmDbContext context/*, IPaymentService stripe
             .Include(a => a.patient)
             .Where(a => a.doctor_id == doctorId);
 
+        if (queryShowPastAppointments == false)
+        {
+            dbQuery = dbQuery.Where(a => a.appointment_date.AddMinutes(60) >= DateTime.Now);
+        }
+        
         if (!string.IsNullOrWhiteSpace(queryStatus))
         {
             dbQuery = dbQuery.Where(a => a.status == queryStatus);

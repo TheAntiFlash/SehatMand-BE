@@ -52,7 +52,7 @@ public class AppointmentController(
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
-            var appointments = await appointmentRepo.GetAppointmentsAsync(id, query?.Status);
+            var appointments = await appointmentRepo.GetAppointmentsAsync(id, query?.Status, query?.ShowPastAppointments);
 
             return Ok(appointments.Select(a => a.ToReadAppointmentDto()));
         }
@@ -124,7 +124,7 @@ public class AppointmentController(
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
-            var appointments = await appointmentRepo.GetDoctorAppointmentsAsync(id, query?.Status);
+            var appointments = await appointmentRepo.GetDoctorAppointmentsAsync(id, query?.Status, query?.ShowPastAppointments);
             return Ok(appointments.Select(a => a.ToReadAppointmentForDoctorDto()));
         }
         catch (Exception e)
