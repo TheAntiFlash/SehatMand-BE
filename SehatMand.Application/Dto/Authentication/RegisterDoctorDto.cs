@@ -17,6 +17,8 @@ public record RegisterDoctorDto(
     string Address,
     [Required]
     string City,
+    [Required]
+    string SpecialityId,
     [Required] 
     string PmcRegistrationCode
 )

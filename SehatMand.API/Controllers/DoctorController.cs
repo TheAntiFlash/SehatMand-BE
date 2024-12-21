@@ -201,7 +201,7 @@ public class DoctorController(
             if (id == null) throw new Exception("User not found");
             
             await docRepo.UpdateProfile(id, dto.City, dto.Address, dto.ProfileInfo,
-                dto.Speciality, dto.Availabilities?.Select(d => d.ToDoctorAvailability()), dto.Phone, dto.ClinicId);
+                dto.SpecialityId, dto.Availabilities?.Select(d => d.ToDoctorAvailability()), dto.Phone, dto.ClinicId);
             return Ok();
         }
         catch (Exception e)
@@ -311,7 +311,6 @@ public class DoctorController(
     /// Get all specialities
     /// </summary>
     /// <returns></returns>
-    [Authorize]
     [HttpGet]
     [Route("speciality")]
     public async Task<IActionResult> GetAllSpecialities()

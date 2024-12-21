@@ -16,7 +16,7 @@ public class DoctorRepository(SmDbContext context, ILogger<DoctorRepository> log
         if (symptoms is { Count: > 0 })
         {
             var http = new HttpClient();
-            http.BaseAddress = new Uri("http://localhost:8000");
+            http.BaseAddress = new Uri("http://sehatmand.live/");//Uri("http://localhost:8000");
             var request = new
             {
                 symptoms = symptoms.ToArray()
@@ -42,6 +42,8 @@ public class DoctorRepository(SmDbContext context, ILogger<DoctorRepository> log
 
         if (response != null)
         {
+            var res = await response;
+            logger.LogCritical("Response: {0}", await res.Content.ReadAsStringAsync());
             var diagnosis = await (await response).Content.ReadFromJsonAsync<List<AiDiagnosis>>();
             diagnosis = diagnosis.OrderByDescending(a => a.Chance).ToList();
             var recommendedSpeciality = diagnosis.FirstOrDefault()?.Specialist ?? "";

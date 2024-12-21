@@ -96,11 +96,17 @@ public class AppointmentRepository(SmDbContext context/*, IPaymentService stripe
         if (appointment == null) throw new Exception("Appointment not found");
 
         var scheduledAtTime = await context.Appointment
-            .Where(a => a.doctor_id == appointment.doctor_id &&
-                (a.appointment_date == appointment.appointment_date ||
-                 (a.appointment_date < appointment.appointment_date &&
-                  a.appointment_date.AddMinutes(59) >= appointment.appointment_date)) &&
-                a.status == "scheduled" || a.status == "completed").AnyAsync();
+            .Where(a => (a.doctor_id == appointment.doctor_id) &&
+                ((a.appointment_date == appointment.appointment_date) || (a.appointment_date < appointment.appointment_date && a.appointment_date.AddMinutes(59) >= appointment.appointment_date)) &&
+                (a.status == "scheduled" || a.status == "completed")).AnyAsync();
+        
+        // var appointments = await context.Appointment.Where(a => a.doctor_id == appointment.doctor_id).ToListAsync();
+        // appointments = appointments.Where(a => a.appointment_date == appointment.appointment_date ||
+        //                                               (a.appointment_date < appointment.appointment_date &&
+        //                                                a.appointment_date.AddMinutes(59) >=
+        //                                                appointment.appointment_date)).ToList();
+        // appointments = appointments.Where(a => a.status == "scheduled" || a.status == "completed").ToList();
+        // var scheduledAtTime = appointments.Any();
        
         if (scheduledAtTime && dtoStatus == "scheduled") throw new Exception("Doctor is already scheduled at this time");
        

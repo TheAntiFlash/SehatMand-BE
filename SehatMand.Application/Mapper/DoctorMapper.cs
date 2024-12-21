@@ -56,7 +56,7 @@ public static class DoctorMapper
             RegistrationId = pmc.Data.RegistrationNo,
             ApprovalStatus = "Approved",
             CreatedAt = DateTime.Now,
-            SpecialityId = "",
+            SpecialityId = dto.SpecialityId,
             ClinicId = null,
             Address = dto.Address,
             ProfileInfo = "",

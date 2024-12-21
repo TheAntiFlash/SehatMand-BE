@@ -9,7 +9,7 @@ public record UpdateDoctorProfileDto(
     [Phone]
     string? Phone,
     string? ClinicId,
-    string? Speciality,
+    string? SpecialityId,
     string? Address,
     string? ProfileInfo,
     string? City
