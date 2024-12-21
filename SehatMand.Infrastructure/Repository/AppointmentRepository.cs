@@ -7,9 +7,9 @@ using SehatMand.Infrastructure.Persistence;
 
 namespace SehatMand.Infrastructure.Repository;
 
-public class AppointmentRepository(SmDbContext context, IPaymentService stripeServ, ILogger<AppointmentRepository> logger): IAppointmentRepository
+public class AppointmentRepository(SmDbContext context/*, IPaymentService stripeServ*/, ILogger<AppointmentRepository> logger): IAppointmentRepository
 {
-    public async Task<(Appointment, string)> CreateAppointmentAsync(Appointment? appointment, string patientUid)
+    public async Task<Appointment> CreateAppointmentAsync(Appointment? appointment, string patientUid)
     {
         var patientId = await context.Patient
             .Where(p => p.UserId == patientUid)
@@ -34,15 +34,15 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         }
         if (doctor.DoctorPaymentId == null) throw new Exception("Doctor payment account not found");
         
-        var intent = await stripeServ.CreatePaymentIntentAsync(5000, doctor.DoctorPaymentId, appointment.id);
-        appointment.paymentIntentId = intent.Id;
+        // var intent = await stripeServ.CreatePaymentIntentAsync(5000, doctor.DoctorPaymentId, appointment.id);
+        // appointment.paymentIntentId = intent.Id;
         await context.Appointment.AddAsync(appointment);
         await context.SaveChangesAsync();
         var appointmentSaved = await context.Appointment
             .Include(a => a.doctor)
             .ThenInclude(d => d.Qualifications)
             .FirstOrDefaultAsync(a => a.id == appointment.id);
-        return (appointmentSaved!, intent.ClientSecret);
+        return appointmentSaved!;
     }
 
     public async Task<List<Appointment>> GetAppointmentsAsync(string patientUid, string? statusQuery)

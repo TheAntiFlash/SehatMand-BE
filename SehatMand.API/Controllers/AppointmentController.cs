@@ -30,7 +30,7 @@ public class AppointmentController(
     IAppointmentRepository appointmentRepo,
     IPatientRepository patientRepo,
     IAgoraService agoraService,
-    IPaymentService StripeServ,
+    // IPaymentService StripeServ,
     ILogger<AppointmentController> logger,
     IPushNotificationService notificationServ
     ): ControllerBase
@@ -85,7 +85,7 @@ public class AppointmentController(
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
-            var (appointment, clientSecret) = await appointmentRepo.CreateAppointmentAsync(dto.ToAppointment(), id);
+            var appointment = await appointmentRepo.CreateAppointmentAsync(dto.ToAppointment(), id);
             await notificationServ.SendPushNotificationAsync(
                 "New Appointment Request",
                 "New Appointment Request",
@@ -93,7 +93,7 @@ public class AppointmentController(
                 [appointment.doctor?.UserId?? ""], NotificationContext.APPOINTMENT_REQUEST);
             
             //return Ok(appointment.ToReadAppointmentDto());
-            return Ok (new { appointment = appointment.ToReadAppointmentDto(), clientSecret });
+            return Ok (appointment.ToReadAppointmentDto());
         }
         catch (Exception e)
         {
