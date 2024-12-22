@@ -15,7 +15,7 @@ public class AuthRepository(
     IConfiguration conf,
     SmDbContext dbContext,
     IDoctorRepository docRepo,
-    //IPaymentService stripeServ,
+    IPaymentService stripeServ,
     IPatientRepository patientRepo
     ): IAuthRepository
 {
@@ -33,8 +33,8 @@ public class AuthRepository(
 
             return null;
         }
-        //var docPaymentId = await stripeServ.CreateDoctorAccountAsync(doctor.Email);
-        //doctor.DoctorPaymentId = docPaymentId;
+        var docPaymentId = await stripeServ.CreateDoctorAccountAsync(doctor.Email,doctor.Name, doctor.FatherName);
+        doctor.DoctorPaymentId = docPaymentId;
         await dbContext.User.AddAsync(doctor.User);
         await dbContext.Doctor.AddAsync(doctor);
         await dbContext.SaveChangesAsync();

@@ -4,12 +4,15 @@ using SehatMand.Domain.Entities;
 using SehatMand.Domain.Interface.Repository;
 using SehatMand.Domain.Interface.Service;
 using SehatMand.Infrastructure.Persistence;
+using Stripe;
+using Review = SehatMand.Domain.Entities.Review;
 
 namespace SehatMand.Infrastructure.Repository;
 
-public class AppointmentRepository(SmDbContext context/*, IPaymentService stripeServ*/, ILogger<AppointmentRepository> logger): IAppointmentRepository
+public class AppointmentRepository(SmDbContext context, IPaymentService stripeServ, ILogger<AppointmentRepository> logger): IAppointmentRepository
 {
-    public async Task<Appointment> CreateAppointmentAsync(Appointment? appointment, string patientUid)
+    public async Task<(Appointment, string ClientSecret)> CreateAppointmentAsync(Appointment? appointment,
+        string patientUid)
     {
         var patientId = await context.Patient
             .Where(p => p.UserId == patientUid)
@@ -32,17 +35,17 @@ public class AppointmentRepository(SmDbContext context/*, IPaymentService stripe
         {
             throw new Exception("Doctor not available at this time");
         }
-        //if (doctor.DoctorPaymentId == null) throw new Exception("Doctor payment account not found");
+        if (doctor.DoctorPaymentId == null) throw new Exception("Doctor payment account not found");
         
-        // var intent = await stripeServ.CreatePaymentIntentAsync(5000, doctor.DoctorPaymentId, appointment.id);
-        // appointment.paymentIntentId = intent.Id;
+        var intent = await stripeServ.CreatePaymentIntentAsync(200000, doctor.DoctorPaymentId, appointment.id);
+        appointment.paymentIntentId = intent.Id;
         await context.Appointment.AddAsync(appointment);
         await context.SaveChangesAsync();
         var appointmentSaved = await context.Appointment
             .Include(a => a.doctor)
             .ThenInclude(d => d.Qualifications)
             .FirstOrDefaultAsync(a => a.id == appointment.id);
-        return appointmentSaved!;
+        return (appointmentSaved!, intent.ClientSecret);
     }
 
     public async Task<List<Appointment>> GetAppointmentsAsync(string patientUid, string? statusQuery,
@@ -154,8 +157,21 @@ public class AppointmentRepository(SmDbContext context/*, IPaymentService stripe
         }
        
         if (appointment.status == "scheduled")
-            if(dtoStatus != "cancelled")
+            if(dtoStatus != "cancelled" && dtoStatus != "completed")
                 throw new Exception("Appointment is already completed, cancelled, or rejected");
+
+        if (dtoStatus == "completed")
+        {
+            if (appointment.status != "scheduled")
+                throw new Exception("Appointment can only be completed from scheduled state");
+            // if (appointment.appointment_date.AddMinutes(5) >= DateTime.Now ||
+            //     appointment.appointment_date.AddHours(2) <= DateTime.Now)
+            //     throw new Exception("Appointment time has passed or is not completed yet");
+            
+            var paymentIntentService = new PaymentIntentService();
+            var paymentIntent = await paymentIntentService.CaptureAsync(appointment.paymentIntentId);
+            Console.WriteLine($"Payment captured: {paymentIntent.Status}");
+        }
        
         appointment.status = dtoStatus;
         await context.SaveChangesAsync();

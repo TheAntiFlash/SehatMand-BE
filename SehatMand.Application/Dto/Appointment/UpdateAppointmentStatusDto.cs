@@ -4,6 +4,6 @@ namespace SehatMand.Application.Dto.Appointment;
 
 public record UpdateAppointmentStatusDto(
     [Required]
-    [RegularExpression("^scheduled|rejected|cancelled$")]
+    [RegularExpression("^scheduled|rejected|cancelled|completed$")]
     string Status
     );

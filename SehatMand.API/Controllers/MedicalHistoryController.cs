@@ -19,6 +19,7 @@ public class MedicalHistoryController(
     IMedicalHistoryRepository repo,
     ILogger<MedicalHistoryController> logger,
     IPatientRepository patientRepo,
+    IDoctorRepository doctorRepo,
     IAppointmentRepository appointmentRepo) : ControllerBase
 {
     /// <summary>
@@ -69,6 +70,42 @@ public class MedicalHistoryController(
             var patientId = await patientRepo.GetPatientIdByUserId(id);
             if (patientId == null) throw new Exception("Patient not found");
             var documents = await repo.GetMedicalHistoryDocumentsByPatientIdAsync(patientId);
+            return Ok(documents.Select(d => d.ToReadMedicalHistoryDocument()));
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error while getting medical history documents");
+            return StatusCode(500);
+        }
+    }
+    
+    /// <summary>
+    /// Get medical history documents by appointment for doctor
+    /// </summary>
+    /// <param name="appointmentId"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    [Authorize]
+    [HttpGet]
+    [Route("appointment/{appointmentId}")]
+    public async Task<IActionResult> GetMedicalHistoryDocumentsByAppointment([FromRoute] string appointmentId)
+    {
+        try
+        {
+            if (HttpContext.User.Identity is not ClaimsIdentity identity)
+                return BadRequest(new ResponseDto("Error", "Something went wrong"));
+        
+            var claims = identity.Claims;
+            var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (id == null) throw new Exception("User not found");
+            var doctorId = await doctorRepo.GetDoctorIdByUserId(id);
+            if (doctorId == null) throw new Exception("doctor not found");
+            var appointment = await appointmentRepo.GetAppointmentByIdAsync(appointmentId);
+            //if (appointment.status != "completed") throw new Exception("Appointment not completed yet");
+            if (appointment.doctor_id != "doctorId") throw new Exception("Unauthorized");
+            //if (appointment.appointment_date < DateTime.Now.AddDays(1)) throw new Exception("Appointment date has passed");
+            
+            var documents = await repo.GetMedicalHistoryDocumentsByPatientIdAsync(appointment.patient_id);
             return Ok(documents.Select(d => d.ToReadMedicalHistoryDocument()));
         }
         catch (Exception e)
