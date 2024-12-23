@@ -74,7 +74,7 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         var appointments = await dbQuery.ToListAsync();
         foreach (var appointment in appointments)
         {
-            if (appointment.appointment_date < DateTime.Now.AddHours(1) && (appointment is {status: "scheduled" or "pending" or "payment-pending"}))
+            if (appointment.appointment_date.AddDays(1) < DateTime.Now && (appointment is {status: "scheduled" or "pending" or "payment-pending"}))
             {
                 appointment.status = "cancelled";
             }
@@ -94,6 +94,7 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         
         var dbQuery = context.Appointment
             .Include(a => a.patient)
+            .Include(a => a.Documents)
             .Where(a => a.doctor_id == doctorId);
 
         if (queryShowPastAppointments == false)
@@ -108,7 +109,7 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         var appointments = await dbQuery.ToListAsync();
         foreach (var appointment in appointments)
         {
-           if (appointment.appointment_date < DateTime.Now.AddHours(1) && (appointment is {status: "scheduled" or "pending" or "payment-pending"}))
+           if (appointment.appointment_date.AddDays(1) < DateTime.Now && (appointment is {status: "scheduled" or "pending" or "payment-pending"}))
            {
                appointment.status = "cancelled";
            }

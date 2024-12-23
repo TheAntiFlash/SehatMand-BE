@@ -1,14 +1,16 @@
 using System.Net.Http.Json;
 using Amazon.Runtime.Internal.Util;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SehatMand.Domain.Entities;
 using SehatMand.Domain.Interface.Repository;
+using SehatMand.Domain.Interface.Service;
 using SehatMand.Infrastructure.Persistence;
 
 namespace SehatMand.Infrastructure.Repository;
 
-public class DoctorRepository(SmDbContext context, ILogger<DoctorRepository> logger): IDoctorRepository
+public class DoctorRepository(SmDbContext context, IStorageService storageServ, ILogger<DoctorRepository> logger): IDoctorRepository
 {
     public async Task<List<Doctor>> GetAsync(string? name, string? speciality, List<string>? symptoms)
     {
@@ -117,7 +119,8 @@ public class DoctorRepository(SmDbContext context, ILogger<DoctorRepository> log
             .FirstOrDefaultAsync(d => d.UserId == uid);
     }
 
-    public async Task UpdateProfile(string id, string? dtoCity, string? dtoAddress, string? dtoProfileInfo, string? dtoSpeciality,
+    public async Task UpdateProfile(string id, string? dtoCity, string? dtoAddress, string? dtoProfileInfo,
+        IFormFile? dtoProfilePicture, string? dtoSpeciality,
         IEnumerable<DoctorAvailability>? availability, string? dtoPhone, string? dtoClinicId)
     {
         var doctor = await GetByUserIdAsync(id);
@@ -157,6 +160,24 @@ public class DoctorRepository(SmDbContext context, ILogger<DoctorRepository> log
         }
         if (dtoPhone != null) doctor.Phone = dtoPhone;
         if (dtoClinicId != null) doctor.ClinicId = dtoClinicId;
+
+        if (dtoProfilePicture != null)
+        {
+            if (dtoProfilePicture.Length > 2097152L) throw new Exception("File size too large");
+            if (dtoProfilePicture.ContentType != "image/jpeg" &&
+                dtoProfilePicture.ContentType != "image/png" &&
+                dtoProfilePicture.ContentType != "image/jpg")
+            {
+                throw new Exception("Profile picture should be in jpeg/jpg or png format");
+            }            
+            var basePath = Path.Join("doctor","profile-picture");
+            await storageServ.UploadFileAsync(dtoProfilePicture, doctor.Id, basePath); // upload
+            if (doctor.ProfilePictureUrl != null)
+            {
+                await storageServ.DeleteFileAsync(doctor.ProfilePictureUrl); // delete old profile picture
+            }
+            doctor.ProfilePictureUrl = Path.Join(basePath, doctor.Id + Path.GetExtension(dtoProfilePicture.FileName)); // save path to db
+        }
 
         await context.SaveChangesAsync();
     }

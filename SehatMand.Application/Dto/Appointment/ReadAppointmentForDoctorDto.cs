@@ -8,5 +8,7 @@ public record ReadAppointmentForDoctorDto(
     string Date,
     string Time,
     bool CanJoin,
+    bool CanComplete,
+    string? CantCompleteReason,
     string CreatedAt
     );

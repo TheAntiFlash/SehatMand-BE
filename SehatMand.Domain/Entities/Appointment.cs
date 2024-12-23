@@ -23,8 +23,14 @@ public partial class Appointment
     public DateTime created_at { get; set; }
 
     public DateTime? modified_at { get; set; }
+    
+    public bool DidDoctorJoin { get; set; } = false;
+    
+    public bool DidPatientJoin { get; set; } = false;
 
     public virtual ICollection<Billing> Billing { get; set; } = new List<Billing>();
+    
+    public virtual ICollection<MedicalHistoryDocument> Documents { get; set; } = new List<MedicalHistoryDocument>();
 
     public virtual ICollection<RecordedSessions> RecordedSessions { get; set; } = new List<RecordedSessions>();
 

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http;
 
 namespace SehatMand.Application.Dto.Doctor;
 
@@ -8,6 +9,7 @@ public record UpdateDoctorProfileDto(
     List<DoctorAvailabilityDto>? Availabilities,
     [Phone]
     string? Phone,
+    IFormFile? ProfilePicture,
     string? ClinicId,
     string? SpecialityId,
     string? Address,

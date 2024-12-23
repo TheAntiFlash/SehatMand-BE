@@ -85,7 +85,9 @@ public partial class SmDbContext(
             entity.Property(e => e.modified_at).HasColumnType("datetime");
             entity.Property(e => e.patient_id).HasMaxLength(36);
             entity.Property(e => e.status).HasColumnType("enum('pending','scheduled','rejected','completed','cancelled')");
-
+            entity.Property(e => e.DidDoctorJoin).HasColumnName("did_doctor_join").HasColumnType("tinyint(1)");
+            entity.Property(e => e.DidPatientJoin).HasColumnName("did_patient_join").HasColumnType("tinyint(1)");
+            
             entity.HasOne(d => d.doctor).WithMany(p => p.Appointment)
                 .HasForeignKey(d => d.doctor_id)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -403,7 +405,7 @@ public partial class SmDbContext(
             entity.Property(e => e.record_date).HasColumnType("date");
             entity.Property(e => e.symptoms).HasMaxLength(255);
 
-            entity.HasOne(d => d.appointment).WithMany()
+            entity.HasOne(d => d.appointment).WithMany(a => a.Documents)
                 .HasForeignKey(d => d.appointment_id)
                 .HasConstraintName("medicalhistorydocument_ibfk_1");
 

@@ -20,8 +20,9 @@ public class AssetsController(IStorageService storageServ): ControllerBase
     [Route("doctor/profile-picture/{filename}")]
     public async Task<IActionResult> GetDoctorProfilePicture(string filename)
     {
-        var basePath = Path.Join("doctor","profile-picture");
-        var filePath = Path.Join(basePath, filename);
+        
+        var basePath = Path.Join("doctor/","profile-picture");
+        var filePath = Path.Join(basePath+'/', filename);
         var file = await storageServ.DownloadFileAsync(filePath);
         return File(file.ResponseStream, file.Headers.ContentType);
     }

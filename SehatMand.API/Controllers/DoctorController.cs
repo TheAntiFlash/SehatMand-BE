@@ -205,7 +205,7 @@ public class DoctorController(
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
             
-            await docRepo.UpdateProfile(id, dto.City, dto.Address, dto.ProfileInfo,
+            await docRepo.UpdateProfile(id, dto.City, dto.Address, dto.ProfileInfo, dto.ProfilePicture,
                 dto.SpecialityId, dto.Availabilities?.Select(d => d.ToDoctorAvailability()), dto.Phone, dto.ClinicId);
             return Ok();
         }

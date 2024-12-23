@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using SehatMand.Domain.Entities;
 
 namespace SehatMand.Domain.Interface.Repository;
@@ -14,7 +15,9 @@ public interface IDoctorRepository
 
     Task<string?> GetDoctorIdByUserId(string id);
     Task<Doctor?> GetByUserIdAsync(string uid);
-    Task UpdateProfile(string id, string? dtoCity, string? dtoAddress, string? dtoProfileInfo, string? dtoSpeciality, IEnumerable<DoctorAvailability>? availability, string? dtoPhone, string? dtoClinicId);
+    Task UpdateProfile(string id, string? dtoCity, string? dtoAddress, string? dtoProfileInfo,
+        IFormFile? dtoProfilePicture, string? dtoSpeciality, IEnumerable<DoctorAvailability>? availability,
+        string? dtoPhone, string? dtoClinicId);
     Task<List<Speciality>> GetSpecialities();
     
     Task<bool> AnyWithPmdcIdAsync(string pmdcId);

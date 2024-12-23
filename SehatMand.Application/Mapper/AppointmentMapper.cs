@@ -37,6 +37,21 @@ public static class AppointmentMapper
     public static ReadAppointmentForDoctorDto ToReadAppointmentForDoctorDto(this Appointment e)
     {
         var canJoin = e.appointment_date > DateTime.Now && e.appointment_date < DateTime.Now.AddHours(1);
+        List<(bool, string)?> cantCompleteReasons =
+        [
+            (e.status == "completed", "Appointment has already been completed"),
+            (e.status != "scheduled", "Appointment can only be completed if scheduled"),
+            (e.appointment_date > DateTime.Now, "Appointment time has not arrived yet"),
+            (e.appointment_date.AddDays(1) < DateTime.Now, "Appointment time has passed, please contact admin 0348-5776651"),
+            (!e.DidDoctorJoin, "Please join the appointment first"),
+            (!e.DidPatientJoin, "Patient has not joined the appointment yet"),
+            (e.Documents.Count == 0, "Please upload your notes first")
+        ];
+        
+        var cantCompleteReason3 = e.appointment_date.AddDays(1) < DateTime.Now;
+        var cantCompleteReason4 = e.Documents.Count == 0;
+        var canComplete = !cantCompleteReasons.Any(x => x!.Value.Item1); 
+            
         return new ReadAppointmentForDoctorDto(
             e.id,
             e.patient?.Name ?? string.Empty,
@@ -45,6 +60,8 @@ public static class AppointmentMapper
             e.appointment_date.Date.ToLongDateString(),
             e.appointment_date.ToString("h:mm tt"),
             canJoin,
+            canComplete,
+            cantCompleteReasons.FirstOrDefault(a => a!.Value.Item1)?.Item2,
             e.created_at.ToString("dd/MM/yyyy h:mm tt")
         );
     }
