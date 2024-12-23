@@ -102,7 +102,7 @@ public class MedicalHistoryController(
             if (doctorId == null) throw new Exception("doctor not found");
             var appointment = await appointmentRepo.GetAppointmentByIdAsync(appointmentId);
             //if (appointment.status != "completed") throw new Exception("Appointment not completed yet");
-            if (appointment.doctor_id != "doctorId") throw new Exception("Unauthorized");
+            if (appointment?.doctor_id != doctorId) throw new Exception("Unauthorized");
             //if (appointment.appointment_date < DateTime.Now.AddDays(1)) throw new Exception("Appointment date has passed");
             
             var documents = await repo.GetMedicalHistoryDocumentsByPatientIdAsync(appointment.patient_id);

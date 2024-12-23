@@ -9,7 +9,7 @@ public static class MedicalHistoryMapper
         string patientId, string userId)
     {
         var documentId = Guid.NewGuid().ToString();
-        var documentPath = Path.Join("medical-history",$"{DateTime.Now:yyyy-MM-dd}--{patientId}", "patient", documentId);
+        var documentPath = Path.Join("medical-history",$"{patientId}", "patient", documentId);
         return new MedicalHistoryDocument
         {
             id = documentId,
@@ -41,7 +41,7 @@ public static class MedicalHistoryMapper
     public static MedicalHistoryDocument ToHistoryDocument(this CreateMedicalHistoryByDoctor h, string appointmentId, string patientId, string userId)
     {
         var documentId = Guid.NewGuid().ToString();
-        var documentPath = Path.Join("medical-history",$"{DateTime.Now:yyyy-MM-dd}--{patientId}", "doctors-notes", documentId);
+        var documentPath = Path.Join("medical-history",$"{patientId}", "doctors-notes", documentId);
         return new MedicalHistoryDocument
         {
             id = documentId,
