@@ -13,8 +13,8 @@ public static class DoctorMapper
     {
         var doctorUser = new User
         {
-            Email = dto.Email,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+            Email = dto.email,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.password),
             Role = "Doctor",
             IsActive = false,
             
@@ -50,26 +50,28 @@ public static class DoctorMapper
                     PassingYear = new DateTime(year: Convert.ToInt32(q.PassingYear), month: 1, day: 1)
                 }
             ).ToList(),
-            Email = dto.Email,
-            Phone = dto.PhoneNumber,
+            Email = dto.email,
+            Phone = dto.phoneNumber,
             User = doctorUser,
             RegistrationId = pmc.Data.RegistrationNo,
             ApprovalStatus = "Approved",
             CreatedAt = DateTime.Now,
-            SpecialityId = dto.SpecialityId,
+            SpecialityId = dto.specialityId,
             ClinicId = null,
-            Address = dto.Address,
+            Address = dto.address,
             ProfileInfo = "",
-            City = dto.City,
+            City = dto.city,
             DoctorDailyAvailability = availability
         };
     }
     
     public static ReadNearestDoctorDto ToReadNearestDoctorDto(this Doctor doctor)
     {
+        var pfpPath = doctor.ProfilePictureUrl != null? Path.Join("assets", doctor.ProfilePictureUrl) : null;
         return new ReadNearestDoctorDto(
             doctor.Id,
             doctor.Name,
+            pfpPath,
             doctor.Speciality?.Value ?? "N/A",
             $"doctor/doctor.Id",
             doctor.Qualifications.Select(q => q.Degree).ToList(),
@@ -86,6 +88,7 @@ public static class DoctorMapper
 
     public static ReadDoctorProfileDto ToReadDoctorProfileDto(this Doctor d)
     {
+        var pfpPath = d.ProfilePictureUrl != null? Path.Join("assets", d.ProfilePictureUrl) : null;
         var currDay = DateTime.Now.Date;
         var availabilities = new List<ReadDoctorDailyAvailability>();
         for (var i = 0; i < 14; i++)
@@ -103,6 +106,7 @@ public static class DoctorMapper
         return new ReadDoctorProfileDto(
             d.Id,
             d.Name,
+            pfpPath,
             d.City?? "N/A",
             d.Speciality?.Value ?? "N/A",
             d.Qualifications.Select(q => q.Degree).ToList(),

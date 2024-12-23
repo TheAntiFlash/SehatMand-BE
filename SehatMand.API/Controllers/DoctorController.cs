@@ -82,23 +82,28 @@ public class DoctorController(
     /// <exception cref="Exception"></exception>
     [HttpPost]
     [Route("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDoctorDto dto)
+    public async Task<IActionResult> Register([FromForm] RegisterDoctorDto dto)
     {
         try
         {
-            dto.ValidatePassword();
-            var pmcDoctorInfo = await service.VerifyDoctor(dto.PmcRegistrationCode);
+            dto.Validate();
+            var alreadyExistsWithPmdcId = await docRepo.AnyWithPmdcIdAsync(dto.pmcRegistrationCode);
+            if (alreadyExistsWithPmdcId)
+            {
+                throw new Exception("Doctor with this PMC registration code already exists");
+            }
+            var pmcDoctorInfo = await service.VerifyDoctor(dto.pmcRegistrationCode);
             Console.WriteLine(pmcDoctorInfo);
             if (pmcDoctorInfo == null)
             {
-                return BadRequest("Invalid PMC registration code");
+                throw new Exception("Invalid PMC registration code");
             }
 
             var doctor = dto.ToDoctor(pmcDoctorInfo);
-            var response = await repo.RegisterDoctor(doctor);
+            var response = await repo.RegisterDoctor(doctor, dto.profilePicture);
             if(response == null)
             {
-                return BadRequest("Email already exists");
+                throw new Exception("Email already exists");
             }
 
             var otp = OtpService.GenerateOtp();

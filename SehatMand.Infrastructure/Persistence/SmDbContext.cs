@@ -198,6 +198,7 @@ public partial class SmDbContext(
             entity.Property(e => e.Email).HasMaxLength(255);
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime").HasColumnName("modified_at");
             entity.Property(e => e.Name).HasMaxLength(255);
+            entity.Property(e => e.ProfilePictureUrl).HasColumnName("profile_picture_url").HasMaxLength(100);
             entity.Property(e => e.DoctorPaymentId).HasMaxLength(255).HasColumnName("doctor_payment_id");
             entity.Property(e => e.Phone).HasMaxLength(15);
             entity.Property(e => e.ProfileInfo).HasMaxLength(255).HasColumnName("profile_info");

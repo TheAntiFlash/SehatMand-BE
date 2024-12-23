@@ -165,4 +165,9 @@ public class DoctorRepository(SmDbContext context, ILogger<DoctorRepository> log
     {
         return await context.Speciality.ToListAsync();
     }
+
+    public async Task<bool> AnyWithPmdcIdAsync(string pmdcId)
+    {
+       return await context.Doctor.AnyAsync(d => d.RegistrationId == pmdcId);
+    }
 }

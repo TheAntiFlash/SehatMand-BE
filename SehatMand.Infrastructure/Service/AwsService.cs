@@ -16,7 +16,7 @@ public class AwsService(IAmazonS3 s3Client): IStorageService
         {
             BucketName = BucketName,
             ContentType = file.ContentType,
-            Key = string.IsNullOrEmpty(prefix) ? fileName : $"{prefix?.TrimEnd('/')}/{fileName}",
+            Key = string.IsNullOrEmpty(prefix) ? fileName : $"{prefix?.TrimEnd('/')}/{fileName}{Path.GetExtension(file.FileName)}",
             InputStream = file.OpenReadStream()
         };
         request.Metadata.Add("Content-Type", file.ContentType);

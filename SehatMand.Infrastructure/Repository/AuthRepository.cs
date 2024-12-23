@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -16,10 +17,11 @@ public class AuthRepository(
     SmDbContext dbContext,
     IDoctorRepository docRepo,
     IPaymentService stripeServ,
+    IStorageService storageServ,
     IPatientRepository patientRepo
     ): IAuthRepository
 {
-    public async Task<string?> RegisterDoctor(Doctor? doctor)
+    public async Task<string?> RegisterDoctor(Doctor? doctor, IFormFile dtoProfilePicture)
     {
         
         var exists = await dbContext.User.FirstOrDefaultAsync(u => u.Email == doctor.Email);
@@ -33,8 +35,14 @@ public class AuthRepository(
 
             return null;
         }
+        // payment
         var docPaymentId = await stripeServ.CreateDoctorAccountAsync(doctor.Email,doctor.Name, doctor.FatherName);
         doctor.DoctorPaymentId = docPaymentId;
+        
+        //profile picture
+        var basePath = Path.Join("doctor","profile-picture");
+        await storageServ.UploadFileAsync(dtoProfilePicture, doctor.Id, basePath); // upload
+        doctor.ProfilePictureUrl = Path.Join(basePath, doctor.Id + Path.GetExtension(dtoProfilePicture.FileName)); // save path to db
         await dbContext.User.AddAsync(doctor.User);
         await dbContext.Doctor.AddAsync(doctor);
         await dbContext.SaveChangesAsync();

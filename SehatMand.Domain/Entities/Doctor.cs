@@ -7,6 +7,8 @@ public partial class Doctor
     public string? UserId { get; set; } = null!;
 
     public string Name { get; set; } = null!;
+    
+    public string? ProfilePictureUrl { get; set; }
     public string? DoctorPaymentId { get; set; }
 
     public string FatherName { get; set; } = null!;
