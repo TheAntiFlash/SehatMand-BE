@@ -194,7 +194,7 @@ public class AppointmentController(
     [Authorize]
     [HttpGet]
     [Route("{appointmentId}/token")]
-    public  IActionResult GetAgoraTokenAsync([FromRoute] string appointmentId)
+    public async Task<IActionResult> GetAgoraTokenAsync([FromRoute] string appointmentId)
     {
         try
         {
@@ -204,7 +204,16 @@ public class AppointmentController(
             var role = claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
             var roleType = role == "Doctor" ? SehatMandConstants.DOCTOR : SehatMandConstants.PATIENT;
             logger.LogInformation(role + " " + roleType);
+            var appointment = await appointmentRepo.GetAppointmentByIdAsync(appointmentId);
+            
             var token = agoraService.GenerateRtcToken(roleType, appointmentId);
+            
+            await notificationServ.SendPushNotificationAsync(
+                $"Dr. {appointment.doctor?.Name} is waiting for you!",
+                "Join now!",
+                $"Your appointment with {appointment.doctor?.Name} has been started. Please join the call.",
+                [appointment.patient?.UserId?? ""], NotificationContext.APPOINTMENT_REQUEST);
+
             return Ok(token);
         }
         catch (Exception e)
@@ -239,6 +248,13 @@ public class AppointmentController(
             if (appointment.paymentIntentId == null) throw new Exception("Payment not found");
             
             var paymentIntent = await paymentIntentService.CaptureAsync(appointment.paymentIntentId);
+            
+            await notificationServ.SendPushNotificationAsync(
+                $"Leave a review?",
+                $"How was your experience with Dr. {appointment.doctor?.Name}?\nLeave a review now!",
+                $"Your appointment with {appointment.doctor?.Name} has been completed.",
+                [appointment.patient?.UserId?? ""], NotificationContext.APPOINTMENT_REQUEST);
+
             return Ok(paymentIntent);
         }
         catch (Exception e)
@@ -272,7 +288,15 @@ public class AppointmentController(
             var patientId = await patientRepo.GetPatientIdByUserId(id); 
             if (patientId == null) throw new Exception("Patient not found");
             var review = dto.ToReview(appointmentId);
-            await appointmentRepo.AddReviewAsync(review, patientId);
+            var appointment = await appointmentRepo.AddReviewAsync(review, patientId);
+            
+            await notificationServ.SendPushNotificationAsync(
+                $"New Review",
+                $"{appointment.patient?.Name} just left a review: {review.rating/2f} stars",
+                $"{review.feedback.Substring(0,Math.Min(50, review.feedback.Length)).TrimEnd()}...",
+                [appointment.doctor?.UserId?? ""], NotificationContext.APPOINTMENT_REQUEST);
+
+            
             return Created(review.id, review.ToReadReviewDto());
         }
         catch (Exception e)

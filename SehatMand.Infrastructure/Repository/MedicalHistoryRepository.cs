@@ -13,13 +13,23 @@ public class MedicalHistoryRepository(
     SmDbContext context
 ): IMedicalHistoryRepository
 {
-    public async Task<string> AddMedicalHistoryDocumentAsync(MedicalHistoryDocument document, IFormFile file, string rootFolder)
+    public async Task<MedicalHistoryDocument?> AddMedicalHistoryDocumentAsync(MedicalHistoryDocument document,
+        IFormFile file, string rootFolder)
     {
         var path = Path.Join("medical-history",$"{document.patient_id}", rootFolder);
         await awsService.UploadFileAsync(file, document.id, path);
         await context.MedicalHistoryDocument.AddAsync(document);
         await context.SaveChangesAsync();
-        return document.id;
+        var fetchDocumentQuery = context.MedicalHistoryDocument
+            .Include(d => d.patient)
+            .Include(d => d.appointment).AsQueryable();
+
+        if (rootFolder.Contains("doctor"))
+        {
+            fetchDocumentQuery = fetchDocumentQuery.Include(d => d.appointment!.doctor).AsQueryable();
+        }
+        var fetchedDocument = await fetchDocumentQuery.FirstOrDefaultAsync(d => d.id == document.id);
+        return fetchedDocument;
     }
 
     public async Task<GetObjectResponse> GetMedicalHistoryDocumentByIdAsync(string id)

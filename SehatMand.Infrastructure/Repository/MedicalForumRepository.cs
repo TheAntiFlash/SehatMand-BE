@@ -29,10 +29,11 @@ public class MedicalForumRepository(
             .ToListAsync();
     }
 
-    public async Task<(int, int)> Vote(string postId, string userId, string type)
+    public async Task<(int, int, string? authorId)> Vote(string postId, string userId, string type)
     {
        var post = await context.MedicalForumPost
            .Include(p => p.Votes)
+           .Include(p => p.author)
            .FirstOrDefaultAsync(p => p.id == postId);
        if (post == null) throw new Exception("Post Not Found");
        var patientId = await patientRepo.GetPatientIdByUserId(userId);
@@ -65,7 +66,7 @@ public class MedicalForumRepository(
        }
 
        await context.SaveChangesAsync();
-       return (post.Votes.Count(v => v.IsUpVote), post.Votes.Count(v => v.IsDownVote));
+       return (post.Votes.Count(v => v.IsUpVote), post.Votes.Count(v => v.IsDownVote), post.author?.UserId);
     }
 
     public async Task<MedicalForumComment> CreateCommentAsync(MedicalForumComment comment)
@@ -75,6 +76,8 @@ public class MedicalForumRepository(
 
         var commentSaved = await context.MedicalForumComment
             .Include(c => c.author)
+            .Include(c => c.post)
+            .ThenInclude(c => c!.author)
             .Include(c => c.Votes)
             .FirstOrDefaultAsync(c => c.id == comment.id);
         return commentSaved!;
@@ -89,10 +92,11 @@ public class MedicalForumRepository(
             .ToListAsync();
     }
 
-    public async Task<(int upVotes, int downVotes)> VoteComment(string commentId, string doctorId, string type)
+    public async Task<(int upVotes, int downVotes, string? authorId)> VoteComment(string commentId, string doctorId, string type)
     {
         var comment = await context.MedicalForumComment
             .Include(c => c.Votes)
+            .Include(a => a.author)
             .FirstOrDefaultAsync(c => c.id == commentId);
         if (comment == null) throw new Exception("Comment Not Found");
         if (comment.author_id == doctorId) throw new Exception("You can't vote on your own comment! >:(");
@@ -123,6 +127,6 @@ public class MedicalForumRepository(
             });
         }
         await context.SaveChangesAsync();
-        return (comment.Votes.Count(v => v.IsUpVote), comment.Votes.Count(v => v.IsDownVote));
+        return (comment.Votes.Count(v => v.IsUpVote), comment.Votes.Count(v => v.IsDownVote), comment.author.UserId);
     }
 }

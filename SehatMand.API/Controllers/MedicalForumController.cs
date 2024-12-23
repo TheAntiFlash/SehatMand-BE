@@ -6,25 +6,33 @@ using SehatMand.Application.Dto.Error;
 using SehatMand.Application.Dto.MedicalForum;
 using SehatMand.Application.Mapper;
 using SehatMand.Domain.Interface.Repository;
+using SehatMand.Domain.Interface.Service;
+using SehatMand.Domain.Utils.Notification;
 
 namespace SehatMand.API.Controllers;
 
+/// <summary>
+/// Medical Forum Controller
+/// This controller is responsible for handling all the medical forum related requests.
+/// It includes the following functionalities:
+/// - Post a question
+/// - Get all questions
+/// - Vote on a question
+/// - Get comments on a question
+/// - Comment on a question
+/// - Vote on a comment
+/// </summary>
+/// <param name="forumRepo"></param>
+/// <param name="patientRepo"></param>
+/// <param name="doctorRepo"></param>
+/// <param name="logger"></param>
 [ApiController]
 [Route("api/medical-forum")]
-/***
- * This controller is responsible for handling all the medical forum related requests.
- * It includes the following functionalities:
- * - Post a question
- * - Get all questions
- * - Vote on a question
- * - Get comments on a question
- * - Comment on a question
- * - Vote on a comment
- */
 public class MedicalForumController(
     IMedicalForumRepository forumRepo,
     IPatientRepository patientRepo,
     IDoctorRepository doctorRepo,
+    IPushNotificationService notificationServ,
     ILogger<MedicalForumController> logger
     ): ControllerBase
 {
@@ -106,7 +114,12 @@ public class MedicalForumController(
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
             
-            var (upVotes, downVotes) = await forumRepo.Vote(postId, id, type);
+            var (upVotes, downVotes, authorId) = await forumRepo.Vote(postId, id, type);
+            await notificationServ.SendPushNotificationAsync(
+                $"Someone {type}d your question",
+                $"",
+                $"You now have {upVotes} upvotes and {downVotes} downvotes on your question",
+                [authorId?? ""], NotificationContext.MEDICAL_FORUM);
             return Ok(new
             {
                 upVotes,
@@ -171,6 +184,12 @@ public class MedicalForumController(
             if (doctorId == null) throw new Exception("Logged In Doctor not found. Please log in again.");
             
             var comment = await forumRepo.CreateCommentAsync(dto.ToMedicalForumComment(postId, doctorId));
+            
+            await notificationServ.SendPushNotificationAsync(
+                $"A doctor commented on your question",
+                $"Dr. {comment.author?.Name} commented: ",
+                $"{comment.content.Substring(0, Math.Min(50, comment.content.Length))}...",
+                [comment.post?.author?.UserId?? ""], NotificationContext.MEDICAL_FORUM);
             return CreatedAtAction(nameof(Comment), comment.id, comment.ToReadMedicalForumCommentDto());
         }
         catch (Exception e)
@@ -204,7 +223,13 @@ public class MedicalForumController(
             if (id == null) throw new Exception("User not found");
             var doctorId = await doctorRepo.GetDoctorIdByUserId(id);
             if (doctorId == null) throw new Exception("Logged In Doctor not found. Please log in again.");
-            var (upVotes, downVotes) = await forumRepo.VoteComment(commentId, doctorId, type);
+            var (upVotes, downVotes, authorId) = await forumRepo.VoteComment(commentId, doctorId, type);
+            
+            await notificationServ.SendPushNotificationAsync(
+                $"Someone {type}d your comment",
+                $"",
+                $"You now have {upVotes} upvotes and {downVotes} downvotes on your question",
+                [authorId?? ""], NotificationContext.MEDICAL_FORUM);
             return Ok(new
             {
                 upVotes,

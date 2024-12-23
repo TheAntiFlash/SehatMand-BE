@@ -6,7 +6,8 @@ namespace SehatMand.Domain.Interface.Repository;
 
 public interface IMedicalHistoryRepository
 {
-    Task<string> AddMedicalHistoryDocumentAsync(MedicalHistoryDocument document, IFormFile file, string rootFolder);
+    Task<MedicalHistoryDocument?> AddMedicalHistoryDocumentAsync(MedicalHistoryDocument document, IFormFile file,
+        string rootFolder);
     Task<GetObjectResponse> GetMedicalHistoryDocumentByIdAsync(string id);
     Task<List<MedicalHistoryDocument>> GetMedicalHistoryDocumentsByPatientIdAsync(string patientId);
 }

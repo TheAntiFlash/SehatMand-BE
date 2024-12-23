@@ -5,6 +5,8 @@ using SehatMand.Application.Dto.Error;
 using SehatMand.Application.Dto.MedialHistoryDocument;
 using SehatMand.Application.Mapper;
 using SehatMand.Domain.Interface.Repository;
+using SehatMand.Domain.Interface.Service;
+using SehatMand.Domain.Utils.Notification;
 
 namespace SehatMand.API.Controllers;
 
@@ -20,6 +22,7 @@ public class MedicalHistoryController(
     ILogger<MedicalHistoryController> logger,
     IPatientRepository patientRepo,
     IDoctorRepository doctorRepo,
+    IPushNotificationService notificationServ,
     IAppointmentRepository appointmentRepo) : ControllerBase
 {
     /// <summary>
@@ -41,8 +44,8 @@ public class MedicalHistoryController(
             if (id == null) throw new Exception("User not found");
             var patientId = await patientRepo.GetPatientIdByUserId(id);
             if (patientId == null) throw new Exception("Patient not found");
-            var docId = await repo.AddMedicalHistoryDocumentAsync(request.ToHistoryDocument(patientId, id), request.File, "patient");
-            return CreatedAtAction(nameof(AddMedicalHistory), docId, new
+            var document = await repo.AddMedicalHistoryDocumentAsync(request.ToHistoryDocument(patientId, id), request.File, "patient");
+            return CreatedAtAction(nameof(AddMedicalHistory), document.id, new
             {
                 Success = true,
                 Message = "Medical history document added successfully" 
@@ -162,8 +165,15 @@ public class MedicalHistoryController(
             if (id == null) throw new Exception("User not found");
             var patientId = (await appointmentRepo.GetAppointmentByIdAsync(appointmentId))?.patient_id;
             if (patientId == null) throw new Exception("Patient not found");
-            var docId = await repo.AddMedicalHistoryDocumentAsync(request.ToHistoryDocument(appointmentId, patientId, id), request.File, "doctors-notes");
-            return CreatedAtAction(nameof(AddMedicalHistoryForAppointment), docId, new
+            var document = await repo.AddMedicalHistoryDocumentAsync(request.ToHistoryDocument(appointmentId, patientId, id), request.File, "doctors-notes");
+            
+            await notificationServ.SendPushNotificationAsync(
+                $"New medical notes!",
+                $"",
+                $"Dr. {document.appointment.doctor.Name} has added medical notes for your appointment",
+                [document.patient.UserId?? ""], NotificationContext.MEDICAL_DOCUMENT);
+            
+            return CreatedAtAction(nameof(AddMedicalHistoryForAppointment), document.id, new
             {
                 Success = true,
                 Message = "Medical history document added successfully" 

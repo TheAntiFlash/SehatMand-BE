@@ -13,7 +13,7 @@ public class PushNotificationService(
     ): IPushNotificationService
 {
     public async Task SendPushNotificationAsync(string title, string subtitle, string message, /*string? imageUrl,*/
-        List<string> users, string context)
+        List<string> users, string context, string? screenPath = null)
     {
         //imageUrl = config.GetSection("Wso2:ApiManager:BaseUrl").Value +"/assets/1"+ imageUrl;
         var httpClient = httpClientFactory.CreateClient("OneSignal");
@@ -32,7 +32,7 @@ public class PushNotificationService(
             include_aliases = new
             {
                 external_id = users.ToArray()
-            }
+            },
         };
         
         

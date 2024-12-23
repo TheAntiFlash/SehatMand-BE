@@ -177,16 +177,19 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         appointment.status = dtoStatus;
         await context.SaveChangesAsync();
         return appointment;
-    }
+    }   
 
     public async Task<Appointment?> GetAppointmentByIdAsync(string appointmentId)
     {
-        return await context.Appointment.FirstOrDefaultAsync(a => a.id == appointmentId);  
+        return await context.Appointment
+            .Include(a => a.patient)
+            .Include(a => a.doctor)
+            .FirstOrDefaultAsync(a => a.id == appointmentId);  
     }
 
-    public async Task AddReviewAsync(Review review, string patientId)
+    public async Task<Appointment> AddReviewAsync(Review review, string patientId)
     {
-        var appointment = await context.Appointment.Include(a => a.Review).FirstOrDefaultAsync(a => a.id == review.appointment_id);
+        var appointment = await context.Appointment.Include(a => a.patient).Include(a => a.doctor).Include(a => a.Review).FirstOrDefaultAsync(a => a.id == review.appointment_id);
         if (appointment == null) throw new Exception("Appointment not found");
         if (appointment.patient_id != patientId) throw new Exception("Unauthorized");
         if (appointment.status != "completed")
@@ -196,5 +199,6 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         if(appointment.Review.Count > 0) throw new Exception("Review already added");
         await context.Review.AddAsync(review);
         await context.SaveChangesAsync();
+        return appointment;
     }
 }

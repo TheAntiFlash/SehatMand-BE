@@ -12,5 +12,5 @@ public interface IAppointmentRepository
         bool? queryShowPastAppointments);
     public Task<Appointment> UpdateAppointmentStatusAsync(string appointmentId, string id, string dtoStatus);
     public Task<Appointment?> GetAppointmentByIdAsync(string appointmentId);
-    Task AddReviewAsync(Review review, string patientId);
+    Task<Appointment> AddReviewAsync(Review review, string patientId);
 }
