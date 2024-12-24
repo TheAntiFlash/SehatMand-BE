@@ -69,7 +69,7 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
 
         if (!string.IsNullOrWhiteSpace(statusQuery))
         {
-            dbQuery = dbQuery.Where(a => a.status == statusQuery);
+            dbQuery = dbQuery.Where(a => a.status == statusQuery).OrderByDescending(a => a.appointment_date);
         }
         var appointments = await dbQuery.ToListAsync();
         foreach (var appointment in appointments)
