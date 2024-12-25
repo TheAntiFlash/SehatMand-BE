@@ -194,7 +194,7 @@ public class DoctorController(
     [Authorize]
     [HttpPatch]
     [Route("profile")]
-    public async Task<IActionResult> UpdateProfile([FromBody] UpdateDoctorProfileDto dto)
+    public async Task<IActionResult> UpdateProfile([FromForm] UpdateDoctorProfileDto dto)
     {
         try
         {
@@ -205,8 +205,8 @@ public class DoctorController(
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
             
-            await docRepo.UpdateProfile(id, dto.City, dto.Address, dto.ProfileInfo, dto.ProfilePicture,
-                dto.SpecialityId, dto.Availabilities?.Select(d => d.ToDoctorAvailability()), dto.Phone, dto.ClinicId);
+            await docRepo.UpdateProfile(id, dto.city, dto.address, dto.profileInfo, dto.profilePicture,
+                dto.specialityId, dto.availabilities?.Select(d => d.ToDoctorAvailability()), dto.phone, dto.clinicId);
             return Ok();
         }
         catch (Exception e)

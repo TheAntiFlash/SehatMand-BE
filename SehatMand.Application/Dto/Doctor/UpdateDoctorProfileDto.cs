@@ -6,15 +6,15 @@ namespace SehatMand.Application.Dto.Doctor;
 
 public record UpdateDoctorProfileDto(
     [MaxLength(7, ErrorMessage = "Max 7 possible.")]
-    List<DoctorAvailabilityDto>? Availabilities,
+    List<DoctorAvailabilityDto>? availabilities,
     [Phone]
-    string? Phone,
-    IFormFile? ProfilePicture,
-    string? ClinicId,
-    string? SpecialityId,
-    string? Address,
-    string? ProfileInfo,
-    string? City
+    string? phone,
+    IFormFile? profilePicture,
+    string? clinicId,
+    string? specialityId,
+    string? address,
+    string? profileInfo,
+    string? city
     );
 
 public record DoctorAvailabilityDto(

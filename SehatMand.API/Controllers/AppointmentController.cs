@@ -232,7 +232,7 @@ public class AppointmentController(
     /// <param name="appointmentId"></param>
     /// <returns></returns>
     [Authorize]
-    [HttpGet]
+    [HttpPatch]
     [Route("{appointmentId}/complete")]
     public async Task<IActionResult> CompleteAppointment([FromRoute] string appointmentId)
     {

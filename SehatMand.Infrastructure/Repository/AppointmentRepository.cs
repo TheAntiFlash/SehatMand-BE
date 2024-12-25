@@ -151,7 +151,7 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
                 throw new Exception("appointment can only be scheduled or rejected from pending state.");
             if (dtoStatus == "scheduled" && appointment.appointment_date < DateTime.Now)
             {
-                appointment.status = "cancelled";
+                await appointment.CancelOrRejectAppointmentAsync();
                 await context.SaveChangesAsync();
                 throw new Exception("Appointment time has passed and can not be scheduled");
             }
@@ -170,6 +170,7 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
             //     throw new Exception("Appointment time has passed or is not completed yet");
             
             var paymentIntentService = new PaymentIntentService();
+            if (appointment.paymentIntentId == null) throw new Exception("Payment not found");
             var paymentIntent = await paymentIntentService.CaptureAsync(appointment.paymentIntentId);
             Console.WriteLine($"Payment captured: {paymentIntent.Status}");
         }

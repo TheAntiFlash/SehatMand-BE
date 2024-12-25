@@ -1,4 +1,6 @@
-﻿namespace SehatMand.Domain.Entities;
+﻿using Stripe;
+
+namespace SehatMand.Domain.Entities;
 
 public partial class Appointment
 {
@@ -39,4 +41,22 @@ public partial class Appointment
     public virtual Doctor? doctor { get; set; } 
 
     public virtual Patient? patient { get; set; }
+    
+    public async Task CancelOrRejectAppointmentAsync()
+    {
+        if (status == "scheduled")
+        {
+            status = "cancelled";
+        } 
+        else if (status == "pending" || status == "payment-pending")
+        {
+            status = "rejected";
+        }
+        else
+        {
+            throw new Exception("Appointment cannot be cancelled because it is either already cancelled/rejected or completed.");
+        }
+        var service = new PaymentIntentService();
+        await service.CancelAsync(paymentIntentId);
+    }
 }
