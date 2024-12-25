@@ -1,5 +1,6 @@
 using System.Globalization;
 using SehatMand.Application.Dto.Appointment;
+using SehatMand.Application.Dto.Billing;
 using SehatMand.Domain.Entities;
 
 namespace SehatMand.Application.Mapper;
@@ -64,5 +65,16 @@ public static class AppointmentMapper
             cantCompleteReasons.FirstOrDefault(a => a!.Value.Item1)?.Item2,
             e.created_at.ToString("dd/MM/yyyy h:mm tt")
         );
+    }
+    
+    public static ReadBillingInfoDto ToReadBillingInfoDto(this Appointment e)
+    {
+        return new ReadBillingInfoDto(
+            e.Billing.First().id,
+            e.id,
+            e.patient?.Name ?? string.Empty,
+            e.Billing.First().amount,
+            e.Billing.First().transaction_date
+            );
     }
 }

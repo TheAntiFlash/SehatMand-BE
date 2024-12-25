@@ -97,6 +97,7 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         var dbQuery = context.Appointment
             .Include(a => a.patient)
             .Include(a => a.Documents)
+            .Include(a => a.Billing)
             .Where(a => a.doctor_id == doctorId);
 
         if (queryShowPastAppointments == false)

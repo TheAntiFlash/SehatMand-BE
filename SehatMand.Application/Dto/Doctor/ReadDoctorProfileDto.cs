@@ -5,6 +5,7 @@ namespace SehatMand.Application.Dto.Doctor;
 public record ReadDoctorProfileDto(
     string Id,
     string Name,
+    string PmdcId,
     string? ProfilePicturePath,
     string City,
     string Speciality,

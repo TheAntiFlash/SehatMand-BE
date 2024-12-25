@@ -106,6 +106,7 @@ public static class DoctorMapper
         return new ReadDoctorProfileDto(
             d.Id,
             d.Name,
+            d.RegistrationId,
             pfpPath,
             d.City?? "N/A",
             d.Speciality?.Value ?? "N/A",
