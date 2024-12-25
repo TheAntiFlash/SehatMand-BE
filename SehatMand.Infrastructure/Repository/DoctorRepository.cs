@@ -172,10 +172,10 @@ public class DoctorRepository(SmDbContext context, IStorageService storageServ, 
             }            
             //profile picture
             var basePath = Path.Join("doctor","profile-picture");
-            if (doctor.ProfilePictureUrl != null)
+            /*if (doctor.ProfilePictureUrl != null) TODO uncomment this block before production
             {
                 await storageServ.DeleteFileAsync(doctor.ProfilePictureUrl); // delete old profile picture
-            }
+            }*/
             await storageServ.UploadFileAsync(dtoProfilePicture, doctor.Id, basePath); // upload
             
             doctor.ProfilePictureUrl = Path.Join(basePath, doctor.Id + Path.GetExtension(dtoProfilePicture.FileName)); // save path to db
