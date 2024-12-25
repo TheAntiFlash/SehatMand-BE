@@ -197,10 +197,10 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         var appointment = await context.Appointment.Include(a => a.patient).Include(a => a.doctor).Include(a => a.Review).FirstOrDefaultAsync(a => a.id == review.appointment_id);
         if (appointment == null) throw new Exception("Appointment not found");
         if (appointment.patient_id != patientId) throw new Exception("Unauthorized");
-        if (appointment.status != "completed")
-        {
-            throw new Exception("Appointment is not completed yet");
-        }
+        // if (appointment.status != "completed")
+        // {
+        //     throw new Exception("Appointment is not completed yet");
+        // }
         if(appointment.Review.Count > 0) throw new Exception("Review already added");
         await context.Review.AddAsync(review);
         await context.SaveChangesAsync();

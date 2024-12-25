@@ -12,7 +12,6 @@ public record ForgotPasswordDto(
     [MinLength(8, ErrorMessage = "Password must be at least 8 characters long")] 
     string ConfirmPassword,
     [Required]
-    [Phone]
-    string PhoneNumber
+    string Otp
     
     );

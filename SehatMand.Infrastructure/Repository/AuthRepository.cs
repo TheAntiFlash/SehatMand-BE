@@ -105,12 +105,12 @@ public class AuthRepository(
         return CreateToken(doctor.User);
     }
 
-    public async Task<bool> ForgotPassword(string dtoEmail, string dtoNewPassword, string dtoPhoneNumber)
+    public async Task<bool> ForgotPassword(string dtoEmail, string dtoNewPassword, string otp)
     {
-        var patient = await dbContext.Patient.Include(p => p.User).FirstOrDefaultAsync(p => p.Email == dtoEmail && p.Phone == dtoPhoneNumber);
-        if (patient == null) return false;
-        
-        patient.User.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dtoNewPassword);
+        var user = await dbContext.User.FirstOrDefaultAsync(p => p.Email == dtoEmail);
+        if (user == null) return false;
+        if (user.Otp != otp) throw new Exception("Invalid OTP");
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dtoNewPassword);
         await dbContext.SaveChangesAsync();
         return true;
     }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SehatMand.Application.Dto.Authentication;
 using SehatMand.Application.Dto.Error;
 using SehatMand.Application.Dto.Otp;
 using SehatMand.Domain.Interface.Repository;
@@ -18,7 +19,8 @@ namespace SehatMand.API.Controllers;
 public class OtpController(
     IOtpService otpService,
     ILogger<OtpController> logger,
-    IUserRepository userRepo
+    IUserRepository userRepo,
+    IAuthRepository repo
     ): ControllerBase
 {
     
@@ -95,6 +97,43 @@ public class OtpController(
             logger.LogError("{name} Error while verifying OTP. Error: " + e.Message, "OTP");
             return BadRequest(new ResponseDto(
                 "Error",
+                e.Message
+            ));
+        }
+    }
+    
+    /// <summary>
+    /// Forgot password
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    [HttpPut]
+    [Route("/forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+    {
+        try
+        {
+            if (dto.NewPassword != dto.ConfirmPassword) throw new Exception("Passwords do not match");
+            
+            var response = await repo.ForgotPassword(dto.Email, dto.NewPassword, dto.Otp);
+
+            if (!response)
+            {
+                return NotFound(new ResponseDto(
+                    "Invalid Details",
+                    "provided details are invalid"
+                ));
+            }
+
+            var result = "Password successfully reset";
+            return Ok(new {result});
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Unable to reset password");
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
+                "Unable to reset password",
                 e.Message
             ));
         }

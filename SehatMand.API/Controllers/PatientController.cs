@@ -114,42 +114,6 @@ public class PatientController(
             ));
         }
     }
-    /// <summary>
-    /// Forgot password
-    /// </summary>
-    /// <param name="dto"></param>
-    /// <returns></returns>
-    /// <exception cref="Exception"></exception>
-    [HttpPut]
-    [Route("forgot-password")]
-    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
-    {
-        try
-        {
-            if (dto.NewPassword != dto.ConfirmPassword) throw new Exception("Passwords do not match");
-            
-            var response = await repo.ForgotPassword(dto.Email, dto.NewPassword, dto.PhoneNumber);
-
-            if (!response)
-            {
-                return NotFound(new ResponseDto(
-                    "Invalid Details",
-                    "provided details are invalid"
-                ));
-            }
-
-            var result = "Password successfully reset";
-            return Ok(new {result});
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "Unable to reset password");
-            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
-                "Unable to reset password",
-                e.Message
-            ));
-        }
-    }
     
     /// <summary>
     /// Update password

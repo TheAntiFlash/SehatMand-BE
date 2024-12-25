@@ -1,7 +1,7 @@
 #!/bin/bash
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
-sudo ./aws/install
+./aws/install
 aws --version
 
 aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile sehatmand-profile
