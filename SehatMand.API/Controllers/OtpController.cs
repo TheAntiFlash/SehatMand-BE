@@ -109,7 +109,7 @@ public class OtpController(
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
     [HttpPut]
-    [Route("/forgot-password")]
+    [Route("api/forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
     {
         try
