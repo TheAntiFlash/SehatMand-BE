@@ -32,7 +32,7 @@ public class PushNotificationService(
             include_aliases = new
             {
                 external_id = users.ToArray()
-            },
+            }
         };
         
         
