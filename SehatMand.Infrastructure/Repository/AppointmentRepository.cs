@@ -44,6 +44,7 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         var appointmentSaved = await context.Appointment
             .Include(a => a.doctor)
             .ThenInclude(d => d.Qualifications)
+            .OrderByDescending(a => a.appointment_date)
             .FirstOrDefaultAsync(a => a.id == appointment.id);
         return (appointmentSaved!, intent.ClientSecret);
     }
@@ -71,7 +72,8 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         {
             dbQuery = dbQuery.Where(a => a.status == statusQuery).OrderByDescending(a => a.appointment_date);
         }
-        var appointments = await dbQuery.ToListAsync();
+        var appointments = await dbQuery.OrderByDescending(a => a.appointment_date)
+            .ToListAsync();
         var asyncTasks = new List<Task>();
         foreach (var appointment in appointments)
         {
@@ -109,7 +111,8 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         {
             dbQuery = dbQuery.Where(a => a.status == queryStatus);
         }
-        var appointments = await dbQuery.ToListAsync();
+        var appointments = await dbQuery.OrderByDescending(a => a.appointment_date)
+            .ToListAsync();
         var asyncTasks = new List<Task>();
         foreach (var appointment in appointments)
         {

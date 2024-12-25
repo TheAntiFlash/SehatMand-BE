@@ -54,7 +54,9 @@ public class DoctorRepository(SmDbContext context, IStorageService storageServ, 
         }
         
 
-        return await query.ToListAsync();
+        return await query.OrderByDescending(d => d.Appointment
+            .Where(a => a.Review.Count > 0)
+            .Select(a => a.Review.Average(r => r.rating)).FirstOrDefault()).ToListAsync();
     }
 
     public async Task<Doctor?> GetByEmailAsync(string email)
@@ -69,7 +71,11 @@ public class DoctorRepository(SmDbContext context, IStorageService storageServ, 
             .Include(d => d.Appointment)
             .ThenInclude(d => d.Review)
             .Include(d => d.Speciality)
-            .Where(d => d.City != null && d.City.Equals(patientCity, StringComparison.CurrentCultureIgnoreCase)).ToListAsync();
+            .Where(d => d.City != null && d.City.Equals(patientCity, StringComparison.CurrentCultureIgnoreCase))
+            .OrderByDescending(d => d.Appointment
+                .Where(a => a.Review.Count > 0)
+                .Select(a => a.Review.Average(r => r.rating)).FirstOrDefault())
+            .ToListAsync();
     }
     
     public async Task<Doctor?> GetByIdAsync(string id)

@@ -26,6 +26,7 @@ public class MedicalForumRepository(
             .Include(p => p.author)
             /*.Include(p => p.MedicalForumComment)
             .ThenInclude(c => c.Votes)*/
+            .OrderByDescending(a => a.created_at)
             .ToListAsync();
     }
 
@@ -90,6 +91,7 @@ public class MedicalForumRepository(
             .Include(c => c.author)
             .Include(c => c.Votes)
             .Where(c => c.post_id == postId)
+            .OrderByDescending(a => a.created_at)
             .ToListAsync();
     }
 

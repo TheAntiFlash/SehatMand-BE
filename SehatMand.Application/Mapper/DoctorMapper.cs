@@ -73,7 +73,7 @@ public static class DoctorMapper
             doctor.Name,
             pfpPath,
             doctor.Speciality?.Value ?? "N/A",
-            $"doctor/doctor.Id",
+            $"doctor/{doctor.Id}",
             doctor.Qualifications.Select(q => q.Degree).ToList(),
             doctor.DoctorDailyAvailability.FirstOrDefault(a => a.day_of_week! == (int?)DateTime.Now.DayOfWeek)?.availability_start.ToString() ?? "unassigned",
             doctor.DoctorDailyAvailability.FirstOrDefault(a => a.day_of_week! == (int?)DateTime.Now.DayOfWeek)?.availability_end.ToString() ?? "unassigned",

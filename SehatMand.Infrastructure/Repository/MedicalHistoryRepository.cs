@@ -43,7 +43,10 @@ public class MedicalHistoryRepository(
 
     public async Task<List<MedicalHistoryDocument>> GetMedicalHistoryDocumentsByPatientIdAsync(string patientId)
     {
-        var documents = await context.MedicalHistoryDocument.Where(h => h.patient_id == patientId).ToListAsync();
+        var documents = await context.MedicalHistoryDocument
+            .Where(h => h.patient_id == patientId)
+            .OrderByDescending(a => a.created_at)
+            .ToListAsync();
         return documents;
     }
 }

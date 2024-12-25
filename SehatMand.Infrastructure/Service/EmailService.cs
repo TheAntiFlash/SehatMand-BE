@@ -119,7 +119,7 @@ public class EmailService(IOptions<SmtpSettings> smtpSettings, ILogger<EmailServ
                 letter-spacing: 0.56px;
               ""
             >
-              Use the following OTP to Login to the admin portal. OTP is
+              Use the following OTP to Login to the SehatMand App. OTP is
               valid for
               <span style=""font-weight: 600; color: #1f1f1f;"">{expireInMinutes} minutes</span>.
               Do not share this code with others.
