@@ -177,6 +177,13 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
             if (appointment.paymentIntentId == null) throw new Exception("Payment not found");
             var paymentIntent = await paymentIntentService.CaptureAsync(appointment.paymentIntentId);
             Console.WriteLine($"Payment captured: {paymentIntent.Status}");
+            appointment.Billing = [new Billing
+            {
+                amount = 1800,
+                status = "paid",
+                transaction_date = appointment.created_at,
+                created_at = DateTime.Now
+            }];
         }
        
         appointment.status = dtoStatus;

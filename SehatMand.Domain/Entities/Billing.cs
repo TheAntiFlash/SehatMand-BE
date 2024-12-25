@@ -2,7 +2,7 @@
 
 public partial class Billing
 {
-    public string id { get; set; } = null!;
+    public string id { get; set; } = Guid.NewGuid().ToString();
 
     public string appointment_id { get; set; } = null!;
 
