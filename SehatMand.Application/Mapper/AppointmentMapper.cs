@@ -22,7 +22,7 @@ public static class AppointmentMapper
 
     public static ReadAppointmentDto ToReadAppointmentDto(this Appointment e)
     {
-        var canJoin = e.appointment_date > DateTime.Now && e.appointment_date < DateTime.Now.AddHours(1);
+        var canJoin = e.appointment_date <= DateTime.Now && e.appointment_date.AddHours(1) >= DateTime.Now;
         return new ReadAppointmentDto(
             e.id,
             e.doctor?.Name ?? string.Empty,
@@ -37,7 +37,7 @@ public static class AppointmentMapper
     
     public static ReadAppointmentForDoctorDto ToReadAppointmentForDoctorDto(this Appointment e)
     {
-        var canJoin = e.appointment_date > DateTime.Now && e.appointment_date < DateTime.Now.AddHours(1);
+        var canJoin = e.appointment_date <= DateTime.Now && e.appointment_date.AddHours(1) >= DateTime.Now;
         List<(bool, string)?> cantCompleteReasons =
         [
             (e.status == "completed", "Appointment has already been completed"),
