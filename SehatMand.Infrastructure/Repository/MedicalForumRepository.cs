@@ -29,7 +29,8 @@ public class MedicalForumRepository(
             .ToListAsync();
     }
 
-    public async Task<(int, int, string? authorId)> Vote(string postId, string userId, string type)
+    public async Task<(int, int, string? authorId)> 
+        Vote(string postId, string userId, string type)
     {
        var post = await context.MedicalForumPost
            .Include(p => p.Votes)

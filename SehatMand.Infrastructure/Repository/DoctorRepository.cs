@@ -170,12 +170,14 @@ public class DoctorRepository(SmDbContext context, IStorageService storageServ, 
             {
                 throw new Exception("Profile picture should be in jpeg/jpg or png format");
             }            
+            //profile picture
             var basePath = Path.Join("doctor","profile-picture");
-            await storageServ.UploadFileAsync(dtoProfilePicture, doctor.Id, basePath); // upload
             if (doctor.ProfilePictureUrl != null)
             {
                 await storageServ.DeleteFileAsync(doctor.ProfilePictureUrl); // delete old profile picture
             }
+            await storageServ.UploadFileAsync(dtoProfilePicture, doctor.Id, basePath); // upload
+            
             doctor.ProfilePictureUrl = Path.Join(basePath, doctor.Id + Path.GetExtension(dtoProfilePicture.FileName)); // save path to db
         }
 

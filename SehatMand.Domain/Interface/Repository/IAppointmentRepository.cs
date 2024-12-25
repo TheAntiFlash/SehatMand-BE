@@ -13,4 +13,7 @@ public interface IAppointmentRepository
     public Task<Appointment> UpdateAppointmentStatusAsync(string appointmentId, string id, string dtoStatus);
     public Task<Appointment?> GetAppointmentByIdAsync(string appointmentId);
     Task<Appointment> AddReviewAsync(Review review, string patientId);
+    
+    Task DoctorJoinedAppointment(string appointmentId);
+    Task PatientJoinedAppointment(string appointmentId);
 }

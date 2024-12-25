@@ -207,12 +207,27 @@ public class AppointmentController(
             var appointment = await appointmentRepo.GetAppointmentByIdAsync(appointmentId);
             
             var token = agoraService.GenerateRtcToken(roleType, appointmentId);
+            if (role == "Doctor")
+            {
+                await appointmentRepo.DoctorJoinedAppointment(appointmentId);
+                if (!appointment.DidPatientJoin)
+                    await notificationServ.SendPushNotificationAsync(
+                        $"Dr. {appointment.doctor?.Name} is waiting for you!",
+                        "Join now!",
+                        $"Your appointment with {appointment.doctor?.Name} has been started. Please join the call.",
+                        [appointment.patient?.UserId?? ""], NotificationContext.APPOINTMENT_REQUEST);
+            }
+            else
+            {
+                await appointmentRepo.PatientJoinedAppointment(appointmentId);
+                if (!appointment.DidDoctorJoin)
+                    await notificationServ.SendPushNotificationAsync(
+                        $"Your Patient {appointment.patient?.Name} is waiting for you!",
+                        "Join now!",
+                        $"Your appointment with {appointment.patient?.Name} has been started. Please join the call.",
+                        [appointment.doctor?.UserId?? ""], NotificationContext.APPOINTMENT_REQUEST);
+            }
             
-            await notificationServ.SendPushNotificationAsync(
-                $"Dr. {appointment.doctor?.Name} is waiting for you!",
-                "Join now!",
-                $"Your appointment with {appointment.doctor?.Name} has been started. Please join the call.",
-                [appointment.patient?.UserId?? ""], NotificationContext.APPOINTMENT_REQUEST);
 
             return Ok(token);
         }

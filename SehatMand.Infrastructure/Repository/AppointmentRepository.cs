@@ -72,13 +72,15 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
             dbQuery = dbQuery.Where(a => a.status == statusQuery).OrderByDescending(a => a.appointment_date);
         }
         var appointments = await dbQuery.ToListAsync();
+        var asyncTasks = new List<Task>();
         foreach (var appointment in appointments)
         {
             if (appointment.appointment_date.AddDays(1) < DateTime.Now && (appointment is {status: "scheduled" or "pending" or "payment-pending"}))
             {
-                appointment.status = "cancelled";
+                asyncTasks.Add(appointment.CancelOrRejectAppointmentAsync());
             }
         }
+        await Task.WhenAll(asyncTasks);
         await context.SaveChangesAsync();
         return appointments;
     }
@@ -107,13 +109,15 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
             dbQuery = dbQuery.Where(a => a.status == queryStatus);
         }
         var appointments = await dbQuery.ToListAsync();
+        var asyncTasks = new List<Task>();
         foreach (var appointment in appointments)
         {
            if (appointment.appointment_date.AddDays(1) < DateTime.Now && (appointment is {status: "scheduled" or "pending" or "payment-pending"}))
            {
-               appointment.status = "cancelled";
+               asyncTasks.Add(appointment.CancelOrRejectAppointmentAsync());
            }
         }
+        await Task.WhenAll(asyncTasks);
         await context.SaveChangesAsync();
         return appointments;
     }
@@ -201,5 +205,21 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         await context.Review.AddAsync(review);
         await context.SaveChangesAsync();
         return appointment;
+    }
+
+    public async Task DoctorJoinedAppointment(string appointmentId)
+    {
+        var appointment = await context.Appointment.FirstOrDefaultAsync(a => a.id == appointmentId);
+        if (appointment == null) throw new Exception("Appointment not found");
+        appointment.DidDoctorJoin = true;
+        await context.SaveChangesAsync(); 
+    }
+
+    public async Task PatientJoinedAppointment(string appointmentId)
+    {
+        var appointment = await context.Appointment.FirstOrDefaultAsync(a => a.id == appointmentId);
+        if (appointment == null) throw new Exception("Appointment not found");
+        appointment.DidPatientJoin = true;
+        await context.SaveChangesAsync();
     }
 }
