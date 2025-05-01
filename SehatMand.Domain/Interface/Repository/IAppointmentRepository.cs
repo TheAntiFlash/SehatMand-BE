@@ -16,4 +16,6 @@ public interface IAppointmentRepository
     
     Task DoctorJoinedAppointment(string appointmentId);
     Task PatientJoinedAppointment(string appointmentId);
+    
+    Task AddRecordingDetails(string appointmentId, string resourceId, string startId);
 }

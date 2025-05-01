@@ -14,7 +14,7 @@ public class StripeService: IPaymentService
          TosAcceptance = new AccountTosAcceptanceOptions
          {
             Date = DateTime.UtcNow,
-            Ip = "58.65.202.130"
+            Ip = "192.168.1.20"
          },
          Individual = new AccountIndividualOptions
          {

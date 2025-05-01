@@ -38,4 +38,5 @@ public class AwsService(IAmazonS3 s3Client): IStorageService
         if (!bucketExists) throw new Exception($"Bucket {BucketName} does not exist.");
         await s3Client.DeleteObjectAsync(BucketName, filePath);
     }
+    
 }

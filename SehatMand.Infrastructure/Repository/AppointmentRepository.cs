@@ -131,6 +131,7 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         var appointment = context.Appointment
             .Include(a => a.doctor)
             .Include(a => a.patient)
+            .Include(a => a.RecordedSessions)
             .FirstOrDefault(a => a.id == appointmentId);
         if (appointment == null) throw new Exception("Appointment not found");
 
@@ -232,5 +233,18 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         if (appointment == null) throw new Exception("Appointment not found");
         appointment.DidPatientJoin = true;
         await context.SaveChangesAsync();
+    }
+
+    public Task AddRecordingDetails(string appointmentId, string resourceId, string startId)
+    {
+        
+        var recordedSession = new RecordedSessions
+        {
+            appointment_id = appointmentId,
+            resource_id = resourceId,
+            start_id = startId
+        };
+        context.RecordedSessions.Add(recordedSession);
+        return context.SaveChangesAsync();
     }
 }

@@ -1,0 +1,10 @@
+.git/
+.github/
+.idea/
+AgoraIO
+AgoraIO/bin
+AgoraIO/Common/
+AgoraIO/Extensions/
+AgoraIO/obj/
+AgoraIO/Rtm/
+AgoraIO/Utils/

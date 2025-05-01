@@ -1,4 +1,5 @@
-﻿using Stripe;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Stripe;
 
 namespace SehatMand.Domain.Entities;
 
@@ -63,4 +64,7 @@ public partial class Appointment
         }
         
     }
+
+    [NotMapped]
+    public bool DidBothJoin => DidPatientJoin && DidDoctorJoin;
 }

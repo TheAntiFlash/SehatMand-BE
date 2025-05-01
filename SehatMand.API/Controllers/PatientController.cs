@@ -19,19 +19,24 @@ using SehatMand.Infrastructure.Service;
 
 namespace SehatMand.API.Controllers;
 
+/// <summary>
+/// This controller is responsible for handling all the patient related requests.
+/// It includes the following functionalities:
+/// * - Login
+/// * - Register
+/// * - Forgot Password
+/// * - Update Password
+/// * - Complete Profile
+/// * - Update Profile
+/// * - Get Profile
+/// </summary>
+/// <param name="repo"></param>
+/// <param name="patientRepo"></param>
+/// <param name="smtp"></param>
+/// <param name="otpServ"></param>
+/// <param name="logger"></param>
 [Route("api/patient")]
 [ApiController]
-/***
- * This controller is responsible for handling all the patient related requests.
- * It includes the following functionalities:
- * - Login
- * - Register
- * - Forgot Password
- * - Update Password
- * - Complete Profile
- * - Update Profile
- * - Get Profile
- */
 public class PatientController(
     IAuthRepository repo,
     IPatientRepository patientRepo,

@@ -227,6 +227,12 @@ public class AppointmentController(
                         $"Your appointment with {appointment.patient?.Name} has been started. Please join the call.",
                         [appointment.doctor?.UserId?? ""], NotificationContext.APPOINTMENT_REQUEST);
             }
+
+            if (appointment.DidBothJoin)
+            {
+                var (rid, sid) = await agoraService.Record(appointmentId);
+                await appointmentRepo.AddRecordingDetails(appointmentId, rid, sid);
+            }
             
 
             return Ok(token);
@@ -269,6 +275,8 @@ public class AppointmentController(
                 $"How was your experience with Dr. {appointment.doctor?.Name}?\nLeave a review now!",
                 $"Your appointment with {appointment.doctor?.Name} has been completed.",
                 [appointment.patient?.UserId?? ""], NotificationContext.APPOINTMENT_REQUEST);
+            
+            await agoraService.StopRecording(appointmentId, appointment.RecordedSessions.FirstOrDefault()?.resource_id ?? "", appointment.RecordedSessions.FirstOrDefault()?.start_id ?? "");
 
             return Ok(paymentIntent);
         }

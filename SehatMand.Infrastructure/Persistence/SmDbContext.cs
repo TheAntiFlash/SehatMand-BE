@@ -468,6 +468,8 @@ public partial class SmDbContext(
 
             entity.Property(e => e.id).HasMaxLength(36);
             entity.Property(e => e.appointment_id).HasMaxLength(36);
+            entity.Property(e => e.resource_id).HasMaxLength(36);
+            entity.Property(e => e.start_id).HasMaxLength(36);
             entity.Property(e => e.created_at).HasColumnType("datetime");
             entity.Property(e => e.session_link).HasMaxLength(255);
 
