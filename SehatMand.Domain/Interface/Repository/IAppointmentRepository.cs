@@ -18,4 +18,6 @@ public interface IAppointmentRepository
     Task PatientJoinedAppointment(string appointmentId);
     
     Task AddRecordingDetails(string appointmentId, string resourceId, string startId);
+    Task<int> GetTotalAppointmentsAsync();
+    Task<Dictionary<string, int>> GetAppointmentsByMonthAsync();
 }

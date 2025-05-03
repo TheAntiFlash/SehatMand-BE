@@ -9,6 +9,7 @@ using SehatMand.Domain.Entities;
 using SehatMand.Domain.Interface.Repository;
 using SehatMand.Domain.Interface.Service;
 using SehatMand.Infrastructure.Persistence;
+using Exception = System.Exception;
 
 namespace SehatMand.Infrastructure.Repository;
 
@@ -16,6 +17,7 @@ public class AuthRepository(
     IConfiguration conf,
     SmDbContext dbContext,
     IDoctorRepository docRepo,
+    IUserRepository userRepo,
     IPaymentService stripeServ,
     IStorageService storageServ,
     IPatientRepository patientRepo
@@ -80,7 +82,7 @@ public class AuthRepository(
 
         if (!patient.User.IsActive)
         {
-            throw new Exception("Email Address Not Verified");
+            throw new Exception("Account not activated. Please verify your email. Or Contact Admin");
         }
 
         return 
@@ -95,6 +97,10 @@ public class AuthRepository(
         if (doctor == null)
         {
             return null;
+        }
+        if (!doctor.User.IsActive)
+        {
+            throw new Exception("Account not active. Please verify your email. Or Contact Admin");
         }
 
         if (!BCrypt.Net.BCrypt.Verify(password, doctor.User.PasswordHash)) 
@@ -113,6 +119,26 @@ public class AuthRepository(
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dtoNewPassword);
         await dbContext.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<string?> LoginAdmin(string email, string password)
+    {
+        var admin = await userRepo.GetByEmailAsync(email);
+        if (admin == null)
+        {
+            return null;
+        }
+        if (!admin.IsActive)
+        {
+            throw new Exception("Account not active. Please verify your email. Or Contact Admin");
+        }
+
+        if (!BCrypt.Net.BCrypt.Verify(password, admin.PasswordHash)) 
+        {
+            return null;
+        }
+
+        return CreateToken(admin); 
     }
 
     private string CreateToken(User user)

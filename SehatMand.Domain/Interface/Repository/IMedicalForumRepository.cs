@@ -10,4 +10,6 @@ public interface IMedicalForumRepository
     Task<MedicalForumComment> CreateCommentAsync(MedicalForumComment toMedicalForumComment);
     Task<List<MedicalForumComment>> GetComments(string postId);
     Task<(int upVotes, int downVotes, string? authorId)> VoteComment(string commentId, string doctorId, string type);
+    Task<int> GetTotalForumPostsAsync();
+    Task<List<MedicalForumPost>> GetRecentPosts(int count = 10);
 }

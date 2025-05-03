@@ -21,4 +21,7 @@ public interface IDoctorRepository
     Task<List<Speciality>> GetSpecialities();
     
     Task<bool> AnyWithPmdcIdAsync(string pmdcId);
+    Task<int> GetTotalDoctorsAsync();
+    Task<List<Doctor>> GetForAdminAsync(string? orderBy, string? orderDirection);
+    Task ToggleActiveStatus(string doctorId);
 }

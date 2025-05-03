@@ -94,4 +94,9 @@ public class PatientRepository(SmDbContext context): IPatientRepository
         var patient = await context.Patient.Select(u => new {u.Id, u.UserId}).FirstOrDefaultAsync(p => p.UserId == userId);
         return patient?.Id;
     }
+
+    public Task<int> GetTotalPatientsAsync()
+    {
+        return context.Patient.CountAsync();
+    }
 }

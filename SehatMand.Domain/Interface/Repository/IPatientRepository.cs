@@ -36,4 +36,5 @@ public interface IPatientRepository
     public Task<Patient?> GetByIdAsync(string id);
 
     public Task<string?> GetPatientIdByUserId(string userId);
+    Task<int> GetTotalPatientsAsync();
 }

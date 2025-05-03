@@ -4,6 +4,7 @@ using SehatMand.Application.Dto.Authentication;
 using SehatMand.Application.Dto.Doctor;
 using SehatMand.Application.Dto.PmcDoctor;
 using SehatMand.Domain.Entities;
+using SehatMand.Domain.Utils.Constants;
 
 namespace SehatMand.Application.Mapper;
 
@@ -131,5 +132,46 @@ public static class DoctorMapper
             dto.StartTimeInternal,
             dto.EndTimeInternal
             );
+    }
+    
+    public static ReadDoctorForDashboardDto ToDoctorForDashboardDto(this Doctor d)
+    {
+        var pfpPath = d.ProfilePictureUrl != null? Path.Join("assets", d.ProfilePictureUrl) : null;
+        return new ReadDoctorForDashboardDto(
+            d.Id,
+            pfpPath,
+            d.Name,
+            d.Email,
+            d.Speciality?.Value ?? "N/A",
+            d.PatientCount,
+            d.Appointment.Count,
+            d.CreatedAt,
+            (float)d.Appointment
+                .Where(a => a.Review.Count > 0)
+                .Select(a => a.Review.Average(r => r.rating)).FirstOrDefault()/2f,
+            d.User.IsActive? "Active" : "Inactive"
+        );
+    }
+    public static ReadDoctorProfileForAdminDto ToReadDoctorProfileForAdminDto(this Doctor d)
+    {
+        var pfpPath = d.ProfilePictureUrl != null? Path.Join("assets", d.ProfilePictureUrl) : null;
+        return new ReadDoctorProfileForAdminDto(
+            d.Id,
+            d.Name,
+            d.Email,
+            d.Phone,
+            d.Address,
+            d.CreatedAt,
+            d.Speciality?.Value ?? "N/A",
+            d.User.IsActive? "Active" : "Inactive",
+            pfpPath,
+            d.Appointment.Count(a => a.status == SehatMandConstants.APPOINTMENT_STATUS_SCHEDULED && a.appointment_date.Date >= DateTime.Now.Date),
+            d.Appointment.Count(a => a.status == SehatMandConstants.APPOINTMENT_STATUS_COMPLETED),
+            d.Appointment.Count(a => a.status == SehatMandConstants.APPOINTMENT_STATUS_CANCELLED || a.status == SehatMandConstants.APPOINTMENT_STATUS_REJECTED),
+            (float)d.Appointment
+                .Where(a => a.Review.Count > 0)
+                .Select(a => a.Review.Average(r => r.rating)).FirstOrDefault()/2f,
+            d.PatientCount
+        );
     }
 }

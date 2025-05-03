@@ -83,6 +83,7 @@ public class DoctorRepository(SmDbContext context, IStorageService storageServ, 
         return await context.Doctor
             .Include(d => d.DoctorDailyAvailability)
             .Include(d => d.Qualifications)
+            .Include(d => d.User)
             .Include(d => d.Speciality)
             .Include(d => d.Appointment)
             .ThenInclude(d => d.Review)
@@ -198,5 +199,65 @@ public class DoctorRepository(SmDbContext context, IStorageService storageServ, 
     public async Task<bool> AnyWithPmdcIdAsync(string pmdcId)
     {
        return await context.Doctor.AnyAsync(d => d.RegistrationId == pmdcId);
+    }
+
+    public async Task<int> GetTotalDoctorsAsync()
+    {
+        return await context.Doctor.CountAsync();
+    }
+
+    public async Task<List<Doctor>> GetForAdminAsync(string? orderBy, string? orderDirection)
+    {
+        var query = context.Doctor
+            .Include(d => d.User)
+            .Include(d => d.Qualifications)
+            .Include(d => d.Speciality)
+            .Include(d => d.Appointment)
+            .ThenInclude(d => d.Review)
+            .Include(d => d.Appointment)
+            .ThenInclude(d => d.patient).AsQueryable();
+        
+        if (orderBy == "name")
+        {
+            query = orderDirection == "asc" ? query.OrderBy(d => d.Name) : query.OrderByDescending(d => d.Name);
+        }
+        else if (orderBy == "rating")
+        {
+            query = orderDirection == "asc" ? query.OrderBy(d => d.Appointment
+                .Where(a => a.Review.Count > 0)
+                .Select(a => a.Review.Average(r => r.rating)).FirstOrDefault()) : query.OrderByDescending(d => d.Appointment
+                .Where(a => a.Review.Count > 0)
+                .Select(a => a.Review.Average(r => r.rating)).FirstOrDefault());
+        }
+        else if (orderBy == "appointments")
+        {
+            query = orderDirection == "asc" ? query.OrderBy(d => d.Appointment.Count) : query.OrderByDescending(d => d.Appointment.Count);
+        }
+        else if (orderBy == "joiningDate")
+        {
+            query = orderDirection == "asc" ? query.OrderBy(d => d.RegistrationDate) : query.OrderByDescending(d => d.RegistrationDate);
+        }
+        
+        return await query.
+            Select(d => new Doctor
+            {
+                Id = d.Id,
+                User = d.User,
+                UserId = d.UserId,
+                Name = d.Name,
+                ProfilePictureUrl = d.ProfilePictureUrl,
+                RegistrationDate = d.RegistrationDate,
+                Appointment = d.Appointment,
+                Speciality = d.Speciality,
+                Email = d.Email
+            }).ToListAsync();
+    }
+
+    public async Task ToggleActiveStatus(string doctorId)
+    {
+        var doctor = await context.Doctor.Include(d => d.User).FirstOrDefaultAsync(d => d.Id == doctorId);
+        if (doctor == null) throw new Exception("Doctor not found");
+        doctor.User.IsActive = !doctor.User.IsActive;
+        await context.SaveChangesAsync();
     }
 }

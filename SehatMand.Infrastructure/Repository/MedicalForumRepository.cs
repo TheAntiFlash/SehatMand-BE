@@ -132,4 +132,32 @@ public class MedicalForumRepository(
         await context.SaveChangesAsync();
         return (comment.Votes.Count(v => v.IsUpVote), comment.Votes.Count(v => v.IsDownVote), comment.author.UserId);
     }
+
+    public Task<int> GetTotalForumPostsAsync()
+    {
+        return context.MedicalForumPost.CountAsync();
+    }
+
+    public async Task<List<MedicalForumPost>> GetRecentPosts(int count = 10)
+    {
+        return await context.MedicalForumPost
+            .Include(p => p.Votes)
+            .Include(p => p.author)
+            .OrderByDescending(a => a.created_at)
+            .Select(f => new MedicalForumPost
+            {
+                id = f.id,
+                heading = f.heading,
+                created_at = f.created_at,
+                author_id = f.author_id,
+                author = new Patient
+                {
+                    Id = f.author!.Id,
+                    Name = f.author.Name,
+                },
+                Votes = f.Votes
+            })
+            .Take(count)
+            .ToListAsync();
+    }
 }

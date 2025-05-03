@@ -77,4 +77,13 @@ public static class AppointmentMapper
             e.Billing.First().transaction_date
             );
     }
+
+    public static List<ReadAppointmentCountByMonthDto> ToReadAppointmentCountByMonthDto(this Dictionary<string, int> e)
+    {
+        return e.Select(i => 
+            new ReadAppointmentCountByMonthDto(
+                DateTime.ParseExact(i.Key, "MMMM yyyy", CultureInfo.InvariantCulture).ToString("MMMM yy"),
+                i.Value
+            )).ToList();
+    }
 }

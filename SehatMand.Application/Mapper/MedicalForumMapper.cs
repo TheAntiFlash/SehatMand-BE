@@ -52,4 +52,17 @@ public static class MedicalForumMapper
             comment.created_at.ToString("yy-MMM-dd ddd (hh:mm tt)")
             );
     }
+    
+    public static ReadForumPostAdminDto ToReadForumPostAdminDto(this MedicalForumPost post)
+    {
+        return new ReadForumPostAdminDto(
+            post.heading,
+            post.author?.Name ?? "Anonymous",
+            post.author_id,
+            post.MedicalForumComment.Count,
+            post.Votes.Count(v => v.IsUpVote),
+            post.Votes.Count(v => v.IsDownVote),
+            post.created_at
+        );
+    }
 }

@@ -247,4 +247,22 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         context.RecordedSessions.Add(recordedSession);
         return context.SaveChangesAsync();
     }
+
+    public Task<int> GetTotalAppointmentsAsync()
+    {
+        return context.Appointment.CountAsync();
+    }
+
+    public async Task<Dictionary<string, int>> GetAppointmentsByMonthAsync()
+    {
+        var appointments = await context.Appointment
+            .Where(a => a.appointment_date >= DateTime.Now.AddMonths(-12))
+            .ToListAsync();
+        return appointments.GroupBy(a => a.appointment_date.ToString("MMMM yyyy"))
+            .ToDictionary(
+                g => g.Key,         // MonthYear as key
+                g => g.Count()      // Count as value
+            );
+
+    }
 }

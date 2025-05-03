@@ -1,4 +1,6 @@
-﻿namespace SehatMand.Domain.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace SehatMand.Domain.Entities;
 
 public partial class Doctor
 {
@@ -49,4 +51,9 @@ public partial class Doctor
     public virtual Speciality? Speciality { get; set; }
 
     public List<Qualification> Qualifications { get; set; } = [];
+
+    [NotMapped]
+    public int PatientCount => Appointment
+        .SelectMany(a => a.patient_id)
+        .Distinct().Count();
 }
