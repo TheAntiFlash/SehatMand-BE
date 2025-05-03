@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
-using ThirdParty.Json.LitJson;
 using DateOnly = SehatMand.Application.Dto.Utils.DateOnly;
 
 namespace SehatMand.Application.Dto.Authentication;

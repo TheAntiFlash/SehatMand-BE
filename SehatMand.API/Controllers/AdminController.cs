@@ -11,6 +11,7 @@ namespace SehatMand.API.Controllers;
 
 [ApiController]
 [Route("api/admin")]
+[Authorize(Roles = "Admin")]
 public class AdminController(
     IDoctorRepository doctorRepo,
     IAuthRepository authRepo,

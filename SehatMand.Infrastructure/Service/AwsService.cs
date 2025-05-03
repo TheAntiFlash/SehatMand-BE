@@ -10,8 +10,8 @@ public class AwsService(IAmazonS3 s3Client): IStorageService
     private const string BucketName = "sehatmand";
     public async Task UploadFileAsync(IFormFile file, string fileName, string prefix)
     {
-        var bucketExists = await s3Client.DoesS3BucketExistAsync(BucketName);
-        if (!bucketExists) throw new Exception($"Bucket {BucketName} does not exist.");
+        await s3Client.EnsureBucketExistsAsync(BucketName);
+        //if (!bucketExists) throw new Exception($"Bucket {BucketName} does not exist.");
         var request = new PutObjectRequest
         {
             BucketName = BucketName,
@@ -25,8 +25,8 @@ public class AwsService(IAmazonS3 s3Client): IStorageService
 
     public async Task<GetObjectResponse> DownloadFileAsync(string filePath)
     {
-        var bucketExists = await s3Client.DoesS3BucketExistAsync(BucketName);
-        if (!bucketExists) throw new Exception($"Bucket {BucketName} does not exist.");
+        await s3Client.EnsureBucketExistsAsync(BucketName);
+        // if (!bucketExists) throw new Exception($"Bucket {BucketName} does not exist.");
         var s3Object = await s3Client.GetObjectAsync(BucketName, filePath);
         if (s3Object == null) throw new Exception($"File {filePath} does not exist.");
         return s3Object;
@@ -34,8 +34,8 @@ public class AwsService(IAmazonS3 s3Client): IStorageService
     
     public async Task DeleteFileAsync(string filePath)
     {
-        var bucketExists = await s3Client.DoesS3BucketExistAsync(BucketName);
-        if (!bucketExists) throw new Exception($"Bucket {BucketName} does not exist.");
+        await s3Client.EnsureBucketExistsAsync(BucketName);
+        // if (!bucketExists) throw new Exception($"Bucket {BucketName} does not exist.");
         await s3Client.DeleteObjectAsync(BucketName, filePath);
     }
     

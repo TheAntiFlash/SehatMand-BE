@@ -132,6 +132,10 @@ public class AuthRepository(
         {
             throw new Exception("Account not active. Please verify your email. Or Contact Admin");
         }
+        if (admin.Role != "Admin")
+        {
+            throw new Exception("Not an admin account");
+        }
 
         if (!BCrypt.Net.BCrypt.Verify(password, admin.PasswordHash)) 
         {
