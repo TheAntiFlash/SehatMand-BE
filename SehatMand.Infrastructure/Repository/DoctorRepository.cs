@@ -18,7 +18,7 @@ public class DoctorRepository(SmDbContext context, IStorageService storageServ, 
         if (symptoms is { Count: > 0 })
         {
             var http = new HttpClient();
-            http.BaseAddress = new Uri("http://api.sehatmand.live:8080");//Uri("http://localhost:8000");
+            http.BaseAddress = new Uri("http://localhost:8000");
             var request = new
             {
                 symptoms = symptoms.ToArray()

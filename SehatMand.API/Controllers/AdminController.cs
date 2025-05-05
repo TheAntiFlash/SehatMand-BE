@@ -21,7 +21,7 @@ public class AdminController(
     ILogger<AdminController> logger
     ): ControllerBase
 {
-    
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto creds)
     {
