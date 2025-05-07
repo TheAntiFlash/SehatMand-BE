@@ -116,17 +116,18 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         var asyncTasks = new List<Task>();
         foreach (var appointment in appointments)
         {
-           if (appointment.appointment_date.AddDays(1) < DateTime.Now && (appointment is {status: "scheduled" or "pending" or "payment-pending"}))
-           {
-               asyncTasks.Add(appointment.CancelOrRejectAppointmentAsync());
-           }
+            if (appointment.appointment_date.AddDays(1) < DateTime.Now && (appointment is {status: "scheduled" or "pending" or "payment-pending"}))
+            {
+                asyncTasks.Add(appointment.CancelOrRejectAppointmentAsync());
+            }
         }
         await Task.WhenAll(asyncTasks);
         await context.SaveChangesAsync();
         return appointments;
     }
 
-    public async Task<Appointment> UpdateAppointmentStatusAsync(string appointmentId, string id, string dtoStatus)
+    public async Task<Appointment> UpdateAppointmentStatusAsync(string appointmentId, string id, string dtoStatus,
+        string? audioFilePath = null)
     {
         var appointment = context.Appointment
             .Include(a => a.doctor)
@@ -137,8 +138,8 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
 
         var scheduledAtTime = await context.Appointment
             .Where(a => (a.doctor_id == appointment.doctor_id) &&
-                ((a.appointment_date == appointment.appointment_date) || (a.appointment_date < appointment.appointment_date && a.appointment_date.AddMinutes(59) >= appointment.appointment_date)) &&
-                (a.status == "scheduled" || a.status == "completed")).AnyAsync();
+                        ((a.appointment_date == appointment.appointment_date) || (a.appointment_date < appointment.appointment_date && a.appointment_date.AddMinutes(59) >= appointment.appointment_date)) &&
+                        (a.status == "scheduled" || a.status == "completed")).AnyAsync();
         
         // var appointments = await context.Appointment.Where(a => a.doctor_id == appointment.doctor_id).ToListAsync();
         // appointments = appointments.Where(a => a.appointment_date == appointment.appointment_date ||
@@ -192,6 +193,12 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         }
        
         appointment.status = dtoStatus;
+
+        if (audioFilePath != null)
+        {
+            var @default = appointment.RecordedSessions.FirstOrDefault();
+            if (@default != null) @default.session_link = audioFilePath;
+        }
         await context.SaveChangesAsync();
         return appointment;
     }   
@@ -201,6 +208,7 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
         return await context.Appointment
             .Include(a => a.patient)
             .Include(a => a.doctor)
+            .Include(a => a.RecordedSessions)
             .FirstOrDefaultAsync(a => a.id == appointmentId);  
     }
 
@@ -264,5 +272,22 @@ public class AppointmentRepository(SmDbContext context, IPaymentService stripeSe
                 g => g.Count()      // Count as value
             );
 
+    }
+
+    public Task<List<Appointment>> GetAdminAppointmentsAsync(string? queryStatus)
+    {
+        var dbQuery = context.Appointment
+            .Include(a => a.patient)
+            .Include(a => a.doctor)
+            .Include(a => a.Documents)
+            .Include(a => a.Billing)
+            .Include(a => a.RecordedSessions)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(queryStatus))
+        {
+            dbQuery = dbQuery.Where(a => a.status == queryStatus);
+        }
+        return dbQuery.OrderByDescending(a => a.appointment_date).ToListAsync();
     }
 }

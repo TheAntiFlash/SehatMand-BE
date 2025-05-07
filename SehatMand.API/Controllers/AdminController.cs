@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SehatMand.Application.Dto.Admin;
+using SehatMand.Application.Dto.Appointment;
 using SehatMand.Application.Dto.Authentication;
 using SehatMand.Application.Dto.Error;
 using SehatMand.Application.Mapper;
@@ -144,6 +146,27 @@ public class AdminController(
                 "Unable to get forum posts",
                 e.Message
             ));
+        }
+    }
+    
+    [Authorize]
+    [HttpGet("appointment")]
+    public async Task<IActionResult> GetAppointments([FromQuery] QueryAppointmentStatus? query)
+    {
+        try
+        {
+            var appointments = await appointmentRepo.GetAdminAppointmentsAsync(query?.Status);
+
+            return Ok(appointments.Select(a => a.ToReadAppointmentForAdminDto()));
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Unable to get appointments");
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseDto(
+                "Unable to get appointments",
+                e.Message
+            ));
+        
         }
     }
 }

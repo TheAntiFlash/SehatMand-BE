@@ -57,11 +57,11 @@ public partial class Appointment
         {
             throw new Exception("Appointment cannot be cancelled because it is either already cancelled/rejected or completed.");
         }
-        if (paymentIntentId != null)
-        {
-            var service = new PaymentIntentService();
-            await service.CancelAsync(paymentIntentId);
-        }
+        // if (paymentIntentId != null)
+        // {
+        //     var service = new PaymentIntentService();
+        //     await service.CancelAsync(paymentIntentId);
+        // }
         
     }
 

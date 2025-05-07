@@ -1,7 +1,9 @@
 using System.Net.Http.Json;
+using System.Text;
 using AgoraIO.Media;
 using AgoraIO.TokenBuilders;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json.Linq;
 using SehatMand.Domain.Interface.Service;
 using SehatMand.Domain.Utils.Agora;
 
@@ -11,6 +13,8 @@ public class AgoraService(IOptions<AgoraSettings> conf, IHttpClientFactory clien
 {
     private readonly string _appId = conf.Value.AppId;
     private readonly string _appCertificate = conf.Value.AppCertificate;
+    
+    private string AuthToken => Convert.ToBase64String(Encoding.UTF8.GetBytes(conf.Value.ClientKey + ":" + conf.Value.ClientSecret));
     private string GenerateToken()
     {
         var accessToken = new AccessToken2(_appId, _appCertificate, 36000);
@@ -28,80 +32,82 @@ public class AgoraService(IOptions<AgoraSettings> conf, IHttpClientFactory clien
                 RtcTokenBuilder2.Role.RolePublisher,
                 3600,
                 3600
-                );
+            );
         return token;
 
     }
 
     public async Task<string> AcquireCloudRecordingId(string channelName, uint recordingId = 3)
     {
-        var token = GenerateToken();
         var httpClient = clientFactory.CreateClient("Agora");
         var uri = $"/v1/apps/{_appId}/cloud_recording/acquire";
         var payload = new
         {
             cname = channelName,
-            uid = recordingId,
+            uid = recordingId.ToString(),
             clientRequest = new
             {
-                resourceExpiredHour = 24,
-                recordingConfig = new
-                {
-                    streamTypes = 0
-                }
+                resourceExpiredHour = 24
             }
         };
         using var request = new HttpRequestMessage(HttpMethod.Post, uri);
-        request.Headers.Add("Authorization", $"agora token={token}");
+        request.Headers.Add("Authorization", $"Basic {AuthToken}");
         request.Content = JsonContent.Create(payload);
         
         var response = await httpClient.SendAsync(request);
-        var responseBody = await response.Content.ReadFromJsonAsync<Dictionary<string,string>>();
+        var responseString = await response.Content.ReadAsStringAsync();
+        JObject json = JObject.Parse(responseString);
+        Console.WriteLine(await response.Content.ReadAsStringAsync());
         response.EnsureSuccessStatusCode();
-        if (responseBody == null || !responseBody.TryGetValue("resourceId", out var resourceId))
+        if (!json.TryGetValue("resourceId", out var resourceId))
         {
             throw new Exception("Failed to acquire cloud recording resource ID");
         }
-        return resourceId;
+        return (string) resourceId;
 
     }
 
     public async Task<string> StartCloudRecording(string channelName, string resourceId, uint recordingId = 3)
     {
-        var token = GenerateToken();
+        var rtcToken = GenerateRtcToken(recordingId, channelName);
         var httpClient = clientFactory.CreateClient("Agora");
         var uri = $"/v1/apps/{_appId}/cloud_recording/resourceid/{resourceId}/mode/mix/start";
         var payload = new
         {
             cname = channelName,
-            uid = recordingId,
+            uid = recordingId.ToString(),
             clientRequest = new
             {
-                storageConfig = new[]
+                Token = rtcToken,
+                storageConfig = new
                 {
-                    new
-                    {
-                        vendor = "1",
-                        region = "eu-north-1",
-                        bucketName = "sehatmand",
-                        accessKey = "YEsqDiOktxdTXRybYkGuD88xzs4skNKpbbhYSjLt",
-                        secretKey = "FVbi/oWrnnYn2c6m1mjl9dsXOv5n6gw+cDh8edXU",
-                        fileNamePrefix = (string[]) ["recordings", channelName]
-                    }
+                    vendor = 1,
+                    region = 21,
+                    bucket = "sehatmand",
+                    accessKey = "AKIAWAA66DWDOB4GPIKA",
+                    secretKey = "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",
+                    fileNamePrefix = (string[]) ["recordings"]
+                },
+                recordingConfig = new
+                {
+                    channelType = 0,
+                    streamTypes = 0
                 }
             }
         };
         using var request = new HttpRequestMessage(HttpMethod.Post, uri);
-        request.Headers.Add("Authorization", $"agora token={token}");
+        request.Headers.Add("Authorization", $"Basic {AuthToken}");
         request.Content = JsonContent.Create(payload);
         
         var response = await httpClient.SendAsync(request);
-        var responseBody = await response.Content.ReadFromJsonAsync<Dictionary<string,string>>();
-        Console.WriteLine(responseBody);
+        var responseString = await response.Content.ReadAsStringAsync();
+        JObject json = JObject.Parse(responseString);
+        Console.WriteLine(await response.Content.ReadAsStringAsync());
+
         
         response.EnsureSuccessStatusCode();
         
-        return responseBody != null && responseBody.TryGetValue("sid", out var sid) ? sid : throw new Exception("Failed to start cloud recording");
+        return json.TryGetValue("sid", out var sid) ? (string) sid : throw new Exception("Failed to start cloud recording");
     }
 
     public async Task<(string rid, string sid)> Record(string cname)
@@ -114,24 +120,25 @@ public class AgoraService(IOptions<AgoraSettings> conf, IHttpClientFactory clien
 
     public async Task<string> StopRecording(string cname, string rid, string sid, uint recordingId = 3)
     {
-        var token = GenerateToken();
         var httpClient = clientFactory.CreateClient("Agora");
         var uri = $"/v1/apps/{_appId}/cloud_recording/resourceid/{rid}/sid/{sid}/mode/mix/stop";
         var payload = new
         {
             cname,
-            uid = recordingId,
+            uid = recordingId.ToString(),
             clientRequest = new
             {
                 async_stop = false,
             }
         };
         using var request = new HttpRequestMessage(HttpMethod.Post, uri);
-        request.Headers.Add("Authorization", $"agora token={token}");
+        request.Headers.Add("Authorization", $"Basic {AuthToken}");
         request.Content = JsonContent.Create(payload);
         
         var response = await httpClient.SendAsync(request);
         var responseBody = await response.Content.ReadAsStringAsync();
+        Console.WriteLine(await response.Content.ReadAsStringAsync());
+
         Console.WriteLine(responseBody);
         
         response.EnsureSuccessStatusCode();

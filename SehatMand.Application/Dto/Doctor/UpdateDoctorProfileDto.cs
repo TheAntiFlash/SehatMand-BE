@@ -14,7 +14,8 @@ public record UpdateDoctorProfileDto(
     string? specialityId,
     string? address,
     string? profileInfo,
-    string? city
+    string? city,
+    string? iban
     );
 
 public record DoctorAvailabilityDto(

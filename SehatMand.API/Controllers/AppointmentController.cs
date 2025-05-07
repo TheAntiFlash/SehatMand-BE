@@ -32,8 +32,9 @@ public class AppointmentController(
     IAgoraService agoraService,
     // IPaymentService StripeServ,
     ILogger<AppointmentController> logger,
-    IPushNotificationService notificationServ
-    ): ControllerBase
+    IPushNotificationService notificationServ,
+    IAudioRebuilderService audioRebuilderService
+): ControllerBase
 {
     /// <summary>
     /// Get all appointments for a patient
@@ -96,7 +97,7 @@ public class AppointmentController(
 
             //return Ok(appointment.ToReadAppointmentDto());
             return Ok(new {appointment = appointment.ToReadAppointmentDto(), clientSecret
-        });
+            });
         }
         catch (Exception e)
         {
@@ -230,8 +231,16 @@ public class AppointmentController(
 
             if (appointment.DidBothJoin)
             {
-                var (rid, sid) = await agoraService.Record(appointmentId);
-                await appointmentRepo.AddRecordingDetails(appointmentId, rid, sid);
+                try
+                {
+                    var (rid, sid) = await agoraService.Record(appointmentId);
+                    await appointmentRepo.AddRecordingDetails(appointmentId, rid, sid);
+                }
+                catch (Exception e)
+                {
+                    logger.LogInformation(e.Message + " " + e.StackTrace);
+                }
+                
             }
             
 
@@ -264,21 +273,30 @@ public class AppointmentController(
             var claims = identity.Claims;
             var id = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             if (id == null) throw new Exception("User not found");
-            var appointment = await appointmentRepo.UpdateAppointmentStatusAsync(appointmentId, id, "completed");
+            var appointment = await appointmentRepo.GetAppointmentByIdAsync(appointmentId);
+            // await agoraService.StopRecording(appointmentId,
+            //     appointment.RecordedSessions.FirstOrDefault()?.resource_id ?? "",
+            //     appointment.RecordedSessions.FirstOrDefault()?.start_id ?? "");
+            Thread.Sleep(15000);
+            var audioFilePath = await audioRebuilderService.ProcessAudioAsync(
+                appointment.RecordedSessions.FirstOrDefault()?.start_id ?? "", appointmentId);
+            
+            
+            await appointmentRepo.UpdateAppointmentStatusAsync(appointmentId, id, "completed", audioFilePath);
             var paymentIntentService = new PaymentIntentService();
             if (appointment.paymentIntentId == null) throw new Exception("Payment not found");
-            
-            var paymentIntent = await paymentIntentService.CaptureAsync(appointment.paymentIntentId);
-            
+
+
             await notificationServ.SendPushNotificationAsync(
                 $"Leave a review?",
                 $"How was your experience with Dr. {appointment.doctor?.Name}?\nLeave a review now!",
                 $"Your appointment with {appointment.doctor?.Name} has been completed.",
-                [appointment.patient?.UserId?? ""], NotificationContext.APPOINTMENT_REQUEST);
-            
-            await agoraService.StopRecording(appointmentId, appointment.RecordedSessions.FirstOrDefault()?.resource_id ?? "", appointment.RecordedSessions.FirstOrDefault()?.start_id ?? "");
+                [appointment.patient?.UserId ?? ""], NotificationContext.APPOINTMENT_REQUEST);
 
-            return Ok(paymentIntent);
+            
+            return Ok( new {
+                audioFilePath
+            });
         }
         catch (Exception e)
         {

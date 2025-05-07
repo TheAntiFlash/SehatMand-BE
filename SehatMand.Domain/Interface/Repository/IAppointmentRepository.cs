@@ -10,7 +10,7 @@ public interface IAppointmentRepository
         bool? queryShowPastAppointments);
     Task<List<Appointment>> GetDoctorAppointmentsAsync(string doctorUid, string? queryStatus,
         bool? queryShowPastAppointments);
-    public Task<Appointment> UpdateAppointmentStatusAsync(string appointmentId, string id, string dtoStatus);
+    public Task<Appointment> UpdateAppointmentStatusAsync(string appointmentId, string id, string dtoStatus, string? audioFilePath = null);
     public Task<Appointment?> GetAppointmentByIdAsync(string appointmentId);
     Task<Appointment> AddReviewAsync(Review review, string patientId);
     
@@ -20,4 +20,5 @@ public interface IAppointmentRepository
     Task AddRecordingDetails(string appointmentId, string resourceId, string startId);
     Task<int> GetTotalAppointmentsAsync();
     Task<Dictionary<string, int>> GetAppointmentsByMonthAsync();
+    Task<List<Appointment>> GetAdminAppointmentsAsync(string? queryStatus);
 }

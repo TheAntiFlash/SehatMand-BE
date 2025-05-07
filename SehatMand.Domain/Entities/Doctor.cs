@@ -31,6 +31,7 @@ public partial class Doctor
 
     public string ApprovalStatus { get; set; } = null!;
     public string? City { get; set; }
+    public string? Iban { get; set; }
 
     public string RegistrationId { get; set; } = null!;
 

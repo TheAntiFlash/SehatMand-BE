@@ -21,6 +21,8 @@ public record RegisterDoctorDto(
     [Required]
     string city,
     [Required]
+    string iban,
+    [Required]
     string specialityId,
     [Required] 
     string pmcRegistrationCode,

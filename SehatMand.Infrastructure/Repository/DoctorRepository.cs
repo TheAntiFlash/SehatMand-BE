@@ -128,7 +128,7 @@ public class DoctorRepository(SmDbContext context, IStorageService storageServ, 
 
     public async Task UpdateProfile(string id, string? dtoCity, string? dtoAddress, string? dtoProfileInfo,
         IFormFile? dtoProfilePicture, string? dtoSpeciality,
-        IEnumerable<DoctorAvailability>? availability, string? dtoPhone, string? dtoClinicId)
+        IEnumerable<DoctorAvailability>? availability, string? dtoPhone, string? dtoClinicId, string? dtoIban)
     {
         var doctor = await GetByUserIdAsync(id);
         if (doctor == null) throw new Exception("Doctor not found");
@@ -167,6 +167,7 @@ public class DoctorRepository(SmDbContext context, IStorageService storageServ, 
         }
         if (dtoPhone != null) doctor.Phone = dtoPhone;
         if (dtoClinicId != null) doctor.ClinicId = dtoClinicId;
+        if (dtoIban != null) doctor.Iban = dtoIban;
 
         if (dtoProfilePicture != null)
         {

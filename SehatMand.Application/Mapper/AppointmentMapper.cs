@@ -72,7 +72,9 @@ public static class AppointmentMapper
         return new ReadBillingInfoDto(
             e.Billing.First().id,
             e.id,
+            e.appointment_date,
             e.patient?.Name ?? string.Empty,
+            e.Review.FirstOrDefault()?.rating /2f ?? 0f,
             e.Billing.First().amount,
             e.Billing.First().transaction_date
             );
@@ -85,5 +87,24 @@ public static class AppointmentMapper
                 DateTime.ParseExact(i.Key, "MMMM yyyy", CultureInfo.InvariantCulture).ToString("MMMM yy"),
                 i.Value
             )).ToList();
+    }
+
+    public static ReadAppointmentForAdminDto ToReadAppointmentForAdminDto(this Appointment a)
+    {
+        return new ReadAppointmentForAdminDto(
+            a.id,
+            a.patient_id,
+            a.doctor_id,
+            a.doctor?.Name ?? string.Empty,
+            a.patient?.Name ?? string.Empty,
+            a.doctor?.ProfilePictureUrl ?? string.Empty,
+            a.appointment_date,
+            a.created_at,
+            a.status,
+            a.RecordedSessions?.FirstOrDefault()?.session_link ?? string.Empty,
+            a.Billing.FirstOrDefault()?.amount.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
+            a.Review.FirstOrDefault()?.rating / 2f ?? 0f,
+            a.Review.FirstOrDefault()?.feedback ?? string.Empty
+            );
     }
 }

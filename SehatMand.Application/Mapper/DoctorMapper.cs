@@ -62,7 +62,8 @@ public static class DoctorMapper
             Address = dto.address,
             ProfileInfo = "",
             City = dto.city,
-            DoctorDailyAvailability = availability
+            DoctorDailyAvailability = availability,
+            Iban = dto.iban
         };
     }
     

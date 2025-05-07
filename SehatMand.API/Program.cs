@@ -111,6 +111,7 @@ builder.Services.AddScoped<IMedicalHistoryRepository, MedicalHistoryRepository>(
 builder.Services.AddScoped<IAgoraService, AgoraService>();
 builder.Services.AddScoped<IStorageService, AwsService>();
 builder.Services.AddScoped<IPaymentService, StripeService>();
+builder.Services.AddScoped<IAudioRebuilderService, AudioRebuilderService>();
 
 //builder.Services.AddInfrastructure(config);
 

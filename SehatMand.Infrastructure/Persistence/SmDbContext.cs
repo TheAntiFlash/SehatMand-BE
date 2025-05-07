@@ -207,6 +207,7 @@ public partial class SmDbContext(
             entity.Property(e => e.RegistrationId).HasMaxLength(50).HasColumnName("registration_id");
             entity.Property(e => e.SpecialityId).HasMaxLength(100).HasColumnName("speciality_id");
             entity.Property(e => e.City).HasMaxLength(50);
+            entity.Property(e => e.Iban).HasMaxLength(50);
             entity.Property(e => e.UserId).HasMaxLength(36).HasColumnName("userid");
 
             entity.HasOne(d => d.Clinic).WithMany(p => p.Doctor)
@@ -468,7 +469,7 @@ public partial class SmDbContext(
 
             entity.Property(e => e.id).HasMaxLength(36);
             entity.Property(e => e.appointment_id).HasMaxLength(36);
-            entity.Property(e => e.resource_id).HasMaxLength(36);
+            entity.Property(e => e.resource_id).HasMaxLength(500);
             entity.Property(e => e.start_id).HasMaxLength(36);
             entity.Property(e => e.created_at).HasColumnType("datetime");
             entity.Property(e => e.session_link).HasMaxLength(255);

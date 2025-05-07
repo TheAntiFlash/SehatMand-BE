@@ -206,7 +206,7 @@ public class DoctorController(
             if (id == null) throw new Exception("User not found");
             
             await docRepo.UpdateProfile(id, dto.city, dto.address, dto.profileInfo, dto.profilePicture,
-                dto.specialityId, dto.availabilities?.Select(d => d.ToDoctorAvailability()), dto.phone, dto.clinicId);
+                dto.specialityId, dto.availabilities?.Select(d => d.ToDoctorAvailability()), dto.phone, dto.clinicId, dto.iban);
             return Ok();
         }
         catch (Exception e)
